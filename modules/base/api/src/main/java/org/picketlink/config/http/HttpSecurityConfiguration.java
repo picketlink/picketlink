@@ -97,15 +97,12 @@ public class HttpSecurityConfiguration {
                     }
                 }
 
-                InboundConfiguration inboundConfiguration = configuration.getInboundConfiguration();
-                OutboundConfiguration outboundConfiguration = configuration.getOutboundConfiguration();
-
-                if (configuration.isSecured() && ((inboundConfiguration == null && outboundConfiguration == null)
-                    || ((inboundConfiguration != null && inboundConfiguration.getAuthenticationConfiguration() == null)
-                    && (inboundConfiguration == null && inboundConfiguration.getAuthorizationConfiguration() == null)
-                    && (inboundConfiguration == null && inboundConfiguration.getLogoutConfiguration() == null)
-                    && (inboundConfiguration == null && inboundConfiguration.getMethods() == null || inboundConfiguration.getMethods().isEmpty())
-                    && (outboundConfiguration != null && outboundConfiguration.getRedirects().isEmpty())))) {
+                if (configuration.isSecured() && ((configuration == null)
+                    || ((configuration != null && configuration.getAuthenticationConfiguration() == null)
+                    && (configuration == null && configuration.getAuthorizationConfiguration() == null)
+                    && (configuration == null && configuration.getLogoutConfiguration() == null)
+                    && (configuration == null && configuration.getMethods() == null || configuration.getMethods().isEmpty())
+                    && (configuration.getRedirects().isEmpty())))) {
                     throw new HttpSecurityConfigurationException("You must provide an authentication, authorization or logout configuration for URI [" + configuration.getUri() + "].");
                 }
             }

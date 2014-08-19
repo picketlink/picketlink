@@ -26,8 +26,8 @@ import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.internal.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
@@ -93,17 +93,14 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
             builder
                 .http()
                 .allPaths()
-                    .inbound()
                         .authc()
                             .form()
                 .path("/onlyAdministratorsMember")
-                    .inbound()
                         .authz()
-                            .allowedGroups("Administrators")
+                            .group("Administrators")
                 .path("/onlyExecutivesGroup")
-                .inbound()
                 .authz()
-                .allowedGroups("Executives");
+                .group("Executives");
         }
     }
 }

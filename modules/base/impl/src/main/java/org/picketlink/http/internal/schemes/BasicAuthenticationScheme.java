@@ -26,7 +26,7 @@ import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.config.http.BasicAuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.web.authentication.HttpAuthenticationScheme;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -85,11 +85,6 @@ public class BasicAuthenticationScheme implements HttpAuthenticationScheme<Basic
 
     @Override
     public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
-
-    @Override
-    public boolean isProtected(HttpServletRequest request) {
-        return true;
     }
 
     private boolean isBasicAuthentication(HttpServletRequest request) {

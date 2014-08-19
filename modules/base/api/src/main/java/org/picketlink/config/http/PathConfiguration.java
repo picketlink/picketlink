@@ -21,9 +21,14 @@
  */
 package org.picketlink.config.http;
 
-import java.util.ArrayList;
+import org.picketlink.http.HttpMethod;
+
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static java.util.Collections.emptyList;
 
 /**
  * @author Pedro Igor
@@ -34,15 +39,21 @@ public class PathConfiguration {
     public static final String DEFAULT_GROUP_NAME = "Default";
 
     private final Boolean secured;
+    private final List<OutboundRedirectConfiguration> redirects;
     private String groupName = DEFAULT_GROUP_NAME;
     private final String uri;
     private HttpSecurityConfiguration securityConfiguration;
-    private InboundConfiguration inboundConfiguration;
-    private OutboundConfiguration outboundConfiguration;
+    private LogoutConfiguration logoutConfiguration;
+    private AuthenticationConfiguration authenticationConfiguration;
+    private AuthorizationConfiguration authorizationConfiguration;
+    private InboundHeaderConfiguration inboundHeaderConfiguration;
+    private Set<String> methods;
 
     public PathConfiguration(
         String groupName,
-        String uri, Boolean secured) {
+        String uri,
+        Boolean secured,
+        Set<String> methods, List<OutboundRedirectConfiguration> redirects) {
         if (groupName == null && uri == null) {
             throw new HttpSecurityConfigurationException("You must provide a group name or uri. Or even both.");
         }
@@ -50,6 +61,18 @@ public class PathConfiguration {
         this.groupName = groupName;
         this.uri = uri;
         this.secured = secured;
+
+        if (methods != null && !methods.isEmpty()) {
+            this.methods = methods;
+        } else {
+            this.methods = HttpMethod.names();
+        }
+
+        if (redirects == null) {
+            redirects = emptyList();
+        }
+
+        this.redirects = redirects;
     }
 
     public String getGroupName() {
@@ -93,43 +116,6 @@ public class PathConfiguration {
         this.securityConfiguration = securityConfiguration;
     }
 
-    public InboundConfiguration getInboundConfiguration() {
-        if (hasGroup()) {
-            InboundConfiguration groupInboundConfiguration = getGroupConfiguration().getInboundConfiguration();
-
-            if (this.inboundConfiguration != null) {
-                InboundConfiguration actualConfig = new InboundConfiguration(this, Collections.<String>emptySet());
-
-                if (this.inboundConfiguration.getAuthenticationConfiguration() != null) {
-                    actualConfig.setAuthenticationConfiguration(this.inboundConfiguration
-                        .getAuthenticationConfiguration());
-                }
-
-                if (this.inboundConfiguration.getAuthorizationConfiguration() != null) {
-                    actualConfig.setAuthorizationConfiguration(this.inboundConfiguration.getAuthorizationConfiguration());
-                }
-
-                if (this.inboundConfiguration.getInboundHeaderConfiguration() != null) {
-                    actualConfig.setInboundHeaderConfiguration(this.inboundConfiguration.getInboundHeaderConfiguration());
-                }
-
-                if (groupInboundConfiguration != null && this.inboundConfiguration.getMethods().size() != groupInboundConfiguration.getMethods().size()) {
-                    actualConfig.setMethods(this.inboundConfiguration.getMethods());
-                }
-
-                if (this.inboundConfiguration.getLogoutConfiguration() != null) {
-                    actualConfig.setLogoutConfiguration(this.inboundConfiguration.getLogoutConfiguration());
-                }
-
-                return actualConfig;
-            } else {
-                return groupInboundConfiguration;
-            }
-        }
-
-        return this.inboundConfiguration;
-    }
-
     private PathConfiguration getGroupConfiguration() {
         Map<String, PathConfiguration> groups = getSecurityConfiguration().getGroups();
         return groups.get(getGroupName());
@@ -139,31 +125,139 @@ public class PathConfiguration {
         return isUri() && getGroupName() != null && !isDefaultGroup();
     }
 
-    protected void setInboundConfiguration(InboundConfiguration inboundConfiguration) {
-        this.inboundConfiguration = inboundConfiguration;
-    }
+    public AuthenticationConfiguration getAuthenticationConfiguration() {
+        PathConfiguration pathConfiguration = this;
 
-    public OutboundConfiguration getOutboundConfiguration() {
-        if (hasGroup()) {
-            OutboundConfiguration groupConfig = getGroupConfiguration().getOutboundConfiguration();
+        if (pathConfiguration.isUri() && pathConfiguration.getGroupName() != null && !pathConfiguration.isDefaultGroup()) {
+            Map<String, PathConfiguration> groups = pathConfiguration.getSecurityConfiguration().getGroups();
+            PathConfiguration groupConfiguration = groups.get(pathConfiguration.getGroupName());
+            AuthenticationConfiguration actualConfig = new AuthenticationConfiguration(this);
 
-            if (this.outboundConfiguration != null && groupConfig != null) {
-                ArrayList<OutboundRedirectConfiguration> redirects = new ArrayList<OutboundRedirectConfiguration>();
-                OutboundConfiguration actualConfig = new OutboundConfiguration(this, redirects);
+            if (this.authenticationConfiguration != null) {
+                if (this.authenticationConfiguration.getAuthenticationSchemeConfiguration() == null) {
+                    AuthenticationConfiguration groupAuthcConfig = groupConfiguration.getAuthenticationConfiguration();
 
-                redirects.addAll(this.outboundConfiguration.getRedirects());
+                    actualConfig.setAuthenticationSchemeConfiguration(groupAuthcConfig.getAuthenticationSchemeConfiguration());
 
-                return actualConfig;
-            } else {
-                return groupConfig;
+                    return actualConfig;
+                }
+            } else if (groupConfiguration != null) {
+                return groupConfiguration.getAuthenticationConfiguration();
             }
         }
 
-        return this.outboundConfiguration;
+        return this.authenticationConfiguration;
     }
 
-    protected void setOutboundConfiguration(OutboundConfiguration outboundConfiguration) {
-        this.outboundConfiguration = outboundConfiguration;
+    protected void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
+        this.authenticationConfiguration = authenticationConfiguration;
+    }
+
+    public AuthorizationConfiguration getAuthorizationConfiguration() {
+        PathConfiguration pathConfiguration = this;
+
+        if (pathConfiguration.isUri() && pathConfiguration.getGroupName() != null && !pathConfiguration.isDefaultGroup()) {
+            Map<String, PathConfiguration> groups = pathConfiguration.getSecurityConfiguration().getGroups();
+            PathConfiguration groupConfiguration = groups.get(pathConfiguration.getGroupName());
+            AuthorizationConfiguration groupAuthz = groupConfiguration.getAuthorizationConfiguration();
+
+            if (this.authorizationConfiguration != null && groupAuthz != null) {
+                String[] allowedGroups = this.authorizationConfiguration.getAllowedGroups();
+                String[] allowedRealms = this.authorizationConfiguration.getAllowedRealms();
+                String[] allowedRoles = this.authorizationConfiguration.getAllowedRoles();
+                String[] expressions = this.authorizationConfiguration.getExpressions();
+
+                if (allowedGroups == null) {
+                    allowedGroups = groupAuthz.getAllowedGroups();
+                }
+
+                if (allowedRealms == null) {
+                    allowedRealms = groupAuthz.getAllowedRealms();
+                }
+
+                if (allowedRoles == null) {
+                    allowedRoles = groupAuthz.getAllowedRoles();
+                }
+
+                if (expressions == null) {
+                    expressions = groupAuthz.getExpressions();
+                }
+
+                return new AuthorizationConfiguration(this, allowedRoles, allowedGroups, allowedRealms, expressions);
+            } else if (groupAuthz != null) {
+                return groupConfiguration.getAuthorizationConfiguration();
+            }
+        }
+
+        return this.authorizationConfiguration;
+    }
+
+    protected void setAuthorizationConfiguration(AuthorizationConfiguration authorizationConfiguration) {
+        this.authorizationConfiguration = authorizationConfiguration;
+    }
+
+    public InboundHeaderConfiguration getInboundHeaderConfiguration() {
+        return this.inboundHeaderConfiguration;
+    }
+
+    protected void setInboundHeaderConfiguration(InboundHeaderConfiguration inboundHeaderConfiguration) {
+        this.inboundHeaderConfiguration = inboundHeaderConfiguration;
+    }
+
+    public LogoutConfiguration getLogoutConfiguration() {
+        return this.logoutConfiguration;
+    }
+
+    protected void setLogoutConfiguration(LogoutConfiguration logoutConfiguration) {
+        this.logoutConfiguration = logoutConfiguration;
+    }
+
+    public List<OutboundRedirectConfiguration> getRedirects() {
+        if (hasGroup()) {
+            List<OutboundRedirectConfiguration> redirects = getGroupConfiguration().getRedirects();
+
+            if (!redirects.isEmpty()) {
+                return redirects;
+            }
+        }
+
+        return this.redirects;
+    }
+
+    public String getRedirectUrl(OutboundRedirectConfiguration.Condition condition) {
+        String redirectUrl = null;
+
+        if (hasGroup()) {
+            redirectUrl = getGroupConfiguration().getRedirectUrl(condition);
+        }
+
+        for (OutboundRedirectConfiguration redirectConfiguration : this.redirects) {
+            if (condition.equals(redirectConfiguration.getCondition())) {
+                return redirectConfiguration.getRedirectUrl();
+            }
+        }
+
+        return redirectUrl;
+    }
+
+    public boolean hasRedirectWhen(OutboundRedirectConfiguration.Condition condition) {
+        boolean hasRedirect = false;
+
+        if (hasGroup()) {
+            hasRedirect = getGroupConfiguration().hasRedirectWhen(condition);
+        }
+
+        for (OutboundRedirectConfiguration redirectConfiguration : this.redirects) {
+            if (condition.equals(redirectConfiguration.getCondition())) {
+                return true;
+            }
+        }
+
+        return hasRedirect;
+    }
+
+    public Set<String> getMethods() {
+        return Collections.unmodifiableSet(this.methods);
     }
 
     @Override
@@ -173,4 +267,5 @@ public class PathConfiguration {
             ", uri='" + uri + '\'' +
             '}';
     }
+
 }

@@ -29,11 +29,11 @@ import java.util.Map;
  *
  * @author Pedro Igor
  */
-public class InboundHeaderConfigurationBuilder extends AbstractInboundChildConfigurationBuilder {
+public class InboundHeaderConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
 
     private final Map<String, String[]> headers;
 
-    InboundHeaderConfigurationBuilder(InboundConfigurationBuilder parentBuilder) {
+    InboundHeaderConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
         this.headers = new HashMap<String, String[]>();
     }
@@ -65,7 +65,7 @@ public class InboundHeaderConfigurationBuilder extends AbstractInboundChildConfi
         return this;
     }
 
-    InboundHeaderConfiguration create(InboundConfiguration inboundConfiguration) {
-        return new InboundHeaderConfiguration(inboundConfiguration, this.headers);
+    InboundHeaderConfiguration create(PathConfiguration pathConfiguration) {
+        return new InboundHeaderConfiguration(pathConfiguration, this.headers);
     }
 }

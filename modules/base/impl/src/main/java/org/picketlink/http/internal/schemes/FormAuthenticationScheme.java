@@ -20,9 +20,9 @@ package org.picketlink.http.internal.schemes;
 import org.picketlink.Identity;
 import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.web.authentication.HttpAuthenticationScheme;
 import org.picketlink.http.internal.schemes.support.RequestCache;
 import org.picketlink.http.internal.schemes.support.SavedRequest;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * An implementation of {@link org.picketlink.web.authentication.HttpAuthenticationScheme} that supports the Servlet Specification FORM Authentication Scheme
+ * An implementation of {@link org.picketlink.http.authentication.HttpAuthenticationScheme} that supports the Servlet Specification FORM Authentication Scheme
  *
  * @author Anil Saldhana
  * @since June 06, 2013
@@ -88,11 +88,6 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
         } else if (isFormSubmitted(request)) {
             forwardToErrorPage(request, response);
         }
-    }
-
-    @Override
-    public boolean isProtected(HttpServletRequest request) {
-        return true;
     }
 
     private void forwardToLoginPage(HttpServletRequest request, HttpServletResponse response) {

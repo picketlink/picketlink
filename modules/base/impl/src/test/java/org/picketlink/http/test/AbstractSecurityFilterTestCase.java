@@ -30,7 +30,7 @@ import org.mockito.stubbing.Answer;
 import org.picketlink.Identity;
 import org.picketlink.config.http.PathConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.web.HttpMethod;
+import org.picketlink.http.HttpMethod;
 import org.picketlink.http.internal.HttpServletRequestListener;
 import org.picketlink.http.internal.SecurityFilter;
 import org.picketlink.test.weld.WeldRunner;

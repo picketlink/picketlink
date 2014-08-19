@@ -26,13 +26,9 @@ package org.picketlink.config.http;
  */
 public class LogoutConfiguration {
 
-    private final InboundConfiguration inboundConfiguration;
+    private final PathConfiguration pathConfiguration;
 
-    public LogoutConfiguration(InboundConfiguration inboundConfiguration) {
-        this.inboundConfiguration = inboundConfiguration;
-    }
-
-    public InboundConfiguration getInboundConfiguration() {
-        return this.inboundConfiguration;
+    public LogoutConfiguration(PathConfiguration pathConfiguration) {
+        this.pathConfiguration = pathConfiguration;
     }
 }

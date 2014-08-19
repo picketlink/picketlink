@@ -19,13 +19,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.config.http;
+package org.picketlink.http;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static java.util.Collections.unmodifiableSet;
 
 /**
+ * <p>Defines a enum for the standard Http Methods.</p>
+ *
  * @author Pedro Igor
  */
-public interface OutboundConfigurationChildBuilder extends PathConfigurationChildBuilder {
+public enum HttpMethod {
 
-    OutboundRedirectConfigurationBuilder redirectTo(String redirectUrl);
+    DELETE,
+    HEAD,
+    GET,
+    OPTIONS,
+    POST,
+    PUT,
+    TRACE;
 
+    /**
+     * <p>Returns a {@link java.util.Set} with the name of all registered methods.</p>
+     *
+     * @return
+     */
+    public static Set<String> names() {
+        Set<String> methods = new HashSet<String>();
+
+        for (HttpMethod httpMethod : HttpMethod.values()) {
+            methods.add(httpMethod.name());
+        }
+
+        return unmodifiableSet(methods);
+    }
 }

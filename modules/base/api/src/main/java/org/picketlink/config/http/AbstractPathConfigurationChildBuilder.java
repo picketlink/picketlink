@@ -26,25 +26,34 @@ package org.picketlink.config.http;
  */
 public abstract class AbstractPathConfigurationChildBuilder extends AbstracHttpSecurityConfigurationChildBuilder implements PathConfigurationChildBuilder {
 
-    private final PathConfigurationChildBuilder builder;
+    private final PathConfigurationBuilder builder;
 
-    public AbstractPathConfigurationChildBuilder(PathConfigurationChildBuilder builder) {
+    public AbstractPathConfigurationChildBuilder(PathConfigurationBuilder builder) {
         super(builder);
         this.builder = builder;
     }
 
     @Override
-    public InboundConfigurationBuilder inbound() {
-        return builder.inbound();
+    public AuthenticationConfigurationBuilder authc() {
+        return builder.authc();
     }
 
     @Override
-    public OutboundConfigurationBuilder outbound() {
-        return builder.outbound();
+    public AuthorizationConfigurationBuilder authz() {
+        return builder.authz();
+    }
+
+    @Override
+    public OutboundRedirectConfigurationBuilder redirectTo(String url) {
+        return builder.redirectTo(url);
     }
 
     @Override
     public PathConfigurationBuilder unprotected() {
         return null;
+    }
+
+    protected PathConfigurationBuilder getBuilder() {
+        return this.builder;
     }
 }

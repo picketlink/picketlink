@@ -27,11 +27,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
-import org.picketlink.idm.credential.Digest;
 import org.picketlink.http.internal.schemes.support.HTTPDigestUtil;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.idm.credential.Digest;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.ServletException;
@@ -141,7 +141,6 @@ public class DigestAuthenticationSchemeTestCase extends AbstractSecurityFilterTe
             builder
                 .http()
                 .path("/digestProtectedUri/*")
-                .inbound()
                 .authc()
                 .digest()
                 .realmName("PicketLink Test DIGEST Realm");

@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
@@ -89,7 +89,6 @@ public class SuffixBasedPatternsTestCase extends AbstractSecurityFilterTestCase 
             builder
                 .http()
                 .path("/*.jsf")
-                .inbound()
                 .authc()
                 .basic()
                 .realmName("Wildcard JSF Realm");

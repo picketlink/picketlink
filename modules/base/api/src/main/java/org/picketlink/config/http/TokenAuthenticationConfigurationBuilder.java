@@ -28,7 +28,7 @@ package org.picketlink.config.http;
  */
 public class TokenAuthenticationConfigurationBuilder extends AuthenticationMethodConfigurationBuilder {
 
-    TokenAuthenticationConfigurationBuilder(AuthenticationConfigurationBuilder parentBuilder) {
+    TokenAuthenticationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
     }
 

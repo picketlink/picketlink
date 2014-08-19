@@ -24,9 +24,9 @@ package org.picketlink.config.http;
 /**
  * @author Pedro Igor
  */
-public abstract class AuthenticationMethodConfigurationBuilder<T extends AuthenticationSchemeConfiguration> extends AbstractInboundChildConfigurationBuilder {
+public abstract class AuthenticationMethodConfigurationBuilder<T extends AuthenticationSchemeConfiguration> extends AbstractPathConfigurationChildBuilder {
 
-    public AuthenticationMethodConfigurationBuilder(AuthenticationConfigurationBuilder parentBuilder) {
+    public AuthenticationMethodConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
     }
 

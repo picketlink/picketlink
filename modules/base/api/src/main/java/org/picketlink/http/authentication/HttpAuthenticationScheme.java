@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.web.authentication;
+package org.picketlink.http.authentication;
 
 import org.picketlink.config.http.AuthenticationSchemeConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -88,13 +88,4 @@ public interface HttpAuthenticationScheme<C extends AuthenticationSchemeConfigur
      *             if reading the request or writing the response fails.
      */
     void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException;
-
-    /**
-     * <p>Indicates if the given {@link javax.servlet.http.HttpServletRequest} should be protected or not.</p>
-     *
-     * @param request
-     *
-     * @return If this method returns false, the authentication will be ignored and the client will not be challenged for credentials.
-     */
-    boolean isProtected(HttpServletRequest request);
 }

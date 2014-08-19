@@ -24,10 +24,10 @@ package org.picketlink.http.test.path;
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
-import org.picketlink.web.HttpMethod;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
+import org.picketlink.http.HttpMethod;
 
 import javax.enterprise.event.Observes;
 
@@ -72,13 +72,11 @@ public class MethodIdentificationTestCase extends AbstractSecurityFilterTestCase
             builder
                 .http()
                 .path("/methodProtected")
-                .inbound()
                 .methods(HttpMethod.GET.name())
                 .authc()
                 .basic()
                 .realmName("GET Method Realm")
                 .path("/methodProtected")
-                .inbound()
                 .methods(HttpMethod.POST.name())
                 .authc()
                 .basic()

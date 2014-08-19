@@ -26,16 +26,13 @@ package org.picketlink.config.http;
  *
  * @author Pedro Igor
  */
-public class LogoutConfigurationBuilder extends AbstractInboundChildConfigurationBuilder {
+public class LogoutConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
 
-    private final InboundConfigurationBuilder parentBuilder;
-
-    LogoutConfigurationBuilder(InboundConfigurationBuilder parentBuilder) {
+    LogoutConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
-        this.parentBuilder = parentBuilder;
     }
 
-    LogoutConfiguration create(InboundConfiguration inboundConfiguration) {
+    LogoutConfiguration create(PathConfiguration inboundConfiguration) {
         return new LogoutConfiguration(inboundConfiguration);
     }
 

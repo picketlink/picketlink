@@ -28,7 +28,7 @@ import org.picketlink.http.internal.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
 import org.picketlink.http.test.SecurityInitializer;
 import org.picketlink.test.weld.Deployment;
-import org.picketlink.web.HttpMethod;
+import org.picketlink.http.HttpMethod;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
@@ -214,40 +214,32 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
             builder
                 .http()
                 .pathGroup(groupName)
-                    .inbound()
                         .authc()
                             .form()
                         .authz()
-                            .allowedRoles("Manager")
+                            .role("Manager")
                 .path("/*", groupName)
                 .path("/overrideAuthorization", groupName)
-                    .inbound()
                         .authz()
-                            .allowedRoles("Invalid Role")
+                            .role("Invalid Role")
                 .path("/overrideAuthentication", groupName)
-                .inbound()
                 .authc()
                 .basic()
                 .path("/overrideMethod", groupName)
-                    .inbound()
                         .methods("POST")
                 .path("/noGroupPath")
-                    .inbound()
                         .authz()
-                            .allowedRoles("Some Role")
+                            .role("Some Role")
                 .pathGroup("Inherit Redirect Config")
-                .inbound()
                 .authc()
                 .form()
                 .authz()
-                .allowedRealms("Acme")
-                .outbound()
+                .realm("Acme")
                 .redirectTo("/forbidden.html").whenForbidden()
                 .redirectTo("/error.html").whenError()
                 .redirectTo("/success.html")
                 .path("/onlyAcmeRealmName", "Inherit Redirect Config")
                 .path("/logout", "Inherit Redirect Config")
-                .inbound()
                 .logout();
         }
     }

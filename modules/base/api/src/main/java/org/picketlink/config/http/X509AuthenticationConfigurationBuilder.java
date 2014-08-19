@@ -30,7 +30,7 @@ public class X509AuthenticationConfigurationBuilder extends AuthenticationMethod
 
     private String subjectRegex;
 
-    X509AuthenticationConfigurationBuilder(AuthenticationConfigurationBuilder parentBuilder) {
+    X509AuthenticationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
     }
 

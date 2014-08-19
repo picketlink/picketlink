@@ -71,63 +71,16 @@ public class HttpServletRequestListener implements ServletRequestListener {
     @Typed(HttpServletRequest.class)
     public HttpServletRequest produce() {
         HttpServletRequest request = SERVLET_REQUEST.get();
-        String requestedUri = null;
 
         if (request != null) {
-            requestedUri = translateUriIfNecessary(request);
-            return new PicketLinkHttpServletRequest(requestedUri, getIdentity(), getCredentials(), this.partitionManager.get(), request);
+            return new PicketLinkHttpServletRequest(request,
+                resolveInstance(this.identityInstance),
+                resolveInstance(this.credentialsInstance),
+                this.partitionManager.get(),
+                this.elProcessor);
         }
 
         return null;
-    }
-
-    private Identity getIdentity() {
-        return resolveInstance(this.identityInstance);
-    }
-
-    private DefaultLoginCredentials getCredentials() {
-        return resolveInstance(this.credentialsInstance);
-    }
-
-    private String translateUriIfNecessary(HttpServletRequest request) {
-        String requestedUri = request.getRequestURI();
-        String rewrittenUri = requestedUri;
-        int startTemplateIndex = requestedUri.indexOf('{');
-
-        if (startTemplateIndex != -1) {
-            if (startTemplateIndex > 0) {
-                startTemplateIndex--;
-            }
-
-            StringBuilder template = null;
-
-            for (int i = 0; i < requestedUri.length(); i++) {
-                char charAt = requestedUri.charAt(i);
-
-                if (charAt == '{') {
-                    template = new StringBuilder("{");
-                    continue;
-                }
-
-                if (template != null) {
-                    template.append(charAt);
-
-                    if (charAt == '}') {
-                        Object eval = this.elProcessor.eval("#" + template.toString());
-
-                        if (eval == null) {
-                            break;
-                        }
-
-                        String templateString = template.toString().replace("{", "\\{").replace("}", "\\}");
-                        rewrittenUri = rewrittenUri.replaceFirst(templateString, eval.toString());
-                        template = null;
-                    }
-                }
-            }
-        }
-
-        return rewrittenUri;
     }
 
     private <I> I resolveInstance(Instance<I> instance) {

@@ -20,7 +20,7 @@ package org.picketlink.http.internal.schemes;
 import org.picketlink.config.http.X509AuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.X509CertificateCredentials;
-import org.picketlink.web.authentication.HttpAuthenticationScheme;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 /**
- * <p>An implementation of {@link org.picketlink.web.authentication.HttpAuthenticationScheme} that supports the Servlet Specification
+ * <p>An implementation of {@link org.picketlink.http.authentication.HttpAuthenticationScheme} that supports the Servlet Specification
  * CLIENT-CERT Authentication Scheme</p>
  * <p>When using this authentication scheme, the container must be properly configured to validate client certificates.</p>
  *
@@ -66,11 +66,6 @@ public class X509AuthenticationScheme implements HttpAuthenticationScheme<X509Au
 
     @Override
     public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
-
-    @Override
-    public boolean isProtected(HttpServletRequest request) {
-        return true;
     }
 
     private X509Certificate[] getClientCertificate(HttpServletRequest request) {

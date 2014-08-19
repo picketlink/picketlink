@@ -30,7 +30,7 @@ public class DigestAuthenticationConfigurationBuilder extends AuthenticationMeth
 
     private String realmName;
 
-    DigestAuthenticationConfigurationBuilder(AuthenticationConfigurationBuilder parentBuilder) {
+    DigestAuthenticationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
     }
 

@@ -26,14 +26,14 @@ package org.picketlink.config.http;
  *
  * @author Pedro Igor
  */
-public class AuthorizationConfigurationBuilder extends AbstractInboundChildConfigurationBuilder{
+public class AuthorizationConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
 
     private String[] rolesAllowed;
     private String[] groupsAllowed;
     private String[] realmsAllowed;
     private String[] elExpresion;
 
-    AuthorizationConfigurationBuilder(InboundConfigurationBuilder parentBuilder) {
+    AuthorizationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
     }
 
@@ -45,7 +45,7 @@ public class AuthorizationConfigurationBuilder extends AbstractInboundChildConfi
      * @param roleNames
      * @return
      */
-    public AuthorizationConfigurationBuilder allowedRoles(String... roleNames) {
+    public AuthorizationConfigurationBuilder role(String... roleNames) {
         this.rolesAllowed = roleNames;
         return this;
     }
@@ -58,7 +58,7 @@ public class AuthorizationConfigurationBuilder extends AbstractInboundChildConfi
      * @param groupNames
      * @return
      */
-    public AuthorizationConfigurationBuilder allowedGroups(String... groupNames) {
+    public AuthorizationConfigurationBuilder group(String... groupNames) {
         this.groupsAllowed = groupNames;
         return this;
     }
@@ -71,7 +71,7 @@ public class AuthorizationConfigurationBuilder extends AbstractInboundChildConfi
      * @param realmNames
      * @return
      */
-    public AuthorizationConfigurationBuilder allowedRealms(String... realmNames) {
+    public AuthorizationConfigurationBuilder realm(String... realmNames) {
         this.realmsAllowed = realmNames;
         return this;
     }
@@ -88,7 +88,7 @@ public class AuthorizationConfigurationBuilder extends AbstractInboundChildConfi
         return this;
     }
 
-    AuthorizationConfiguration create(InboundConfiguration inboundConfiguration) {
-        return new AuthorizationConfiguration(inboundConfiguration, this.rolesAllowed, this.groupsAllowed, this.realmsAllowed, this.elExpresion);
+    AuthorizationConfiguration create(PathConfiguration pathConfiguration) {
+        return new AuthorizationConfiguration(pathConfiguration, this.rolesAllowed, this.groupsAllowed, this.realmsAllowed, this.elExpresion);
     }
 }

@@ -83,7 +83,6 @@ public class RestrictiveConfigurationTestCase extends AbstractSecurityFilterTest
                 .http()
                 .restrictive()
                 .pathGroup("JSF Protected Pages")
-                .inbound()
                 .authc()
                 .form()
                 .loginPage("/faces/login.xhtml")

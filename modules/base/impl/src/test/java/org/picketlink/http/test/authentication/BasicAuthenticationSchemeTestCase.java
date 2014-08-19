@@ -26,8 +26,8 @@ import org.picketlink.common.util.Base64;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.ServletException;
@@ -127,12 +127,10 @@ public class BasicAuthenticationSchemeTestCase extends AbstractSecurityFilterTes
             builder
                 .http()
                     .path("/basicProtectedUri/*")
-                        .inbound()
                             .authc()
                                 .basic()
                                     .realmName("Basic Protected Uri")
                     .path("/basicProtectedUri/*")
-                        .inbound()
                             .headers()
                                 .requestedWith("XMLHttpRequest")
                             .authc()

@@ -26,8 +26,8 @@ import org.picketlink.annotations.PicketLink;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
@@ -76,7 +76,7 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/patternBaseUri/default", picketLinkRequest.get().getServletPath());
+        assertEquals(CONTEXT_PATH + "/patternBaseUri/default", picketLinkRequest.get().getRequestURI());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/user/profile/" + this.identity.getAccount().getId(), picketLinkRequest.get().getServletPath());
+        assertEquals(CONTEXT_PATH + "/user/profile/" + this.identity.getAccount().getId(), picketLinkRequest.get().getRequestURI());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/patternBaseUri/noPattern", picketLinkRequest.get().getServletPath());
+        assertEquals(CONTEXT_PATH + "/patternBaseUri/noPattern", picketLinkRequest.get().getRequestURI());
     }
 
     public static class SecurityConfiguration {
@@ -109,7 +109,6 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
             builder
                 .http()
                 .pathGroup(groupName)
-                .inbound()
                 .authc()
                 .form()
                 .path("/patternBaseUri/{identity.account.partition.name}/", groupName)

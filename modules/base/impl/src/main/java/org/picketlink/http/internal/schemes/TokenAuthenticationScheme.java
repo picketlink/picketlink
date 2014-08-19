@@ -27,7 +27,7 @@ import org.picketlink.config.http.TokenAuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Token;
 import org.picketlink.idm.credential.TokenCredential;
-import org.picketlink.web.authentication.HttpAuthenticationScheme;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ import static org.picketlink.idm.credential.Token.Consumer;
 import static org.picketlink.idm.credential.Token.Provider;
 
 /**
- * <p>A custom {@link org.picketlink.web.authentication.HttpAuthenticationScheme} that knows how to extract a header from
+ * <p>A custom {@link org.picketlink.http.authentication.HttpAuthenticationScheme} that knows how to extract a header from
  * the request containing a token to authenticate/re-authenticate an user.</p>
  *
  * <p>Tokens are issued by providing specific credentials for the <b>primary authentication scheme</b>. This scheme will be used
@@ -128,11 +128,6 @@ public class TokenAuthenticationScheme implements HttpAuthenticationScheme<Token
         }
     }
 
-    @Override
-    public boolean isProtected(HttpServletRequest request) {
-        return true;
-    }
-
     /**
      * <p>Returns the current {@link org.picketlink.credential.DefaultLoginCredentials} associated with the request.</p>
      *
@@ -152,7 +147,7 @@ public class TokenAuthenticationScheme implements HttpAuthenticationScheme<Token
     }
 
     /**
-     * <p>Returns the primary {@link org.picketlink.web.authentication.HttpAuthenticationScheme} that will be used to validate user's
+     * <p>Returns the primary {@link org.picketlink.http.authentication.HttpAuthenticationScheme} that will be used to validate user's
      * credential before issuing a new token.</p>
      *
      * <p>Default authentication scheme is {@link org.picketlink.http.internal.schemes.BasicAuthenticationScheme}.</p>

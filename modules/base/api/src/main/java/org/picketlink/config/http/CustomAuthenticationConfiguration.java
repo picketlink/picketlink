@@ -21,21 +21,21 @@
  */
 package org.picketlink.config.http;
 
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
+
 /**
  * @author Pedro Igor
  */
-public abstract class AbstractOutboundChildConfigurationBuilder extends AbstractPathConfigurationChildBuilder implements OutboundConfigurationChildBuilder {
+public class CustomAuthenticationConfiguration extends AbstractAuthenticationSchemeConfiguration implements AuthenticationSchemeConfiguration {
 
-    private final OutboundConfigurationChildBuilder builder;
+    private final Class<? extends HttpAuthenticationScheme> schemeType;
 
-    AbstractOutboundChildConfigurationBuilder(OutboundConfigurationChildBuilder builder) {
-        super(builder);
-        this.builder = builder;
+    public CustomAuthenticationConfiguration(Class<? extends HttpAuthenticationScheme> schemeType, AuthenticationConfiguration configuration) {
+        super(configuration);
+        this.schemeType = schemeType;
     }
 
-    @Override
-    public OutboundRedirectConfigurationBuilder redirectTo(String redirectUrl) {
-        return this.builder.redirectTo(redirectUrl);
+    public Class<? extends HttpAuthenticationScheme> getSchemeType() {
+        return this.schemeType;
     }
-
 }

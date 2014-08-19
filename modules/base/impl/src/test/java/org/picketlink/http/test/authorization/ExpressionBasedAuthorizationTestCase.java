@@ -140,19 +140,15 @@ public class ExpressionBasedAuthorizationTestCase extends AbstractSecurityFilter
             builder
                 .http()
                     .path("/onlyIfExpressionAllows")
-                        .inbound()
                             .authz()
                 .expression("#{identity.account.loginName == 'picketlink'}")
                 .path("/alwaysFalseExpression")
-                .inbound()
                 .authz()
                 .expression("#{hasRole('Invalid Role')}")
                 .path("/company/single/pattern/{identity.account.partition.name}/*")
-                .inbound()
                 .authz()
                 .expression("#{identity.account.partition.name}")
                 .path("/company/multiple/pattern/{identity.account.partition.name}/{identity.account.id}/*")
-                .inbound()
                 .authz()
                 .expression("#{identity.account.partition.name}", "#{identity.account.id}");
         }

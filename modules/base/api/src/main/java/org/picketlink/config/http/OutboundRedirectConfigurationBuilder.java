@@ -28,12 +28,12 @@ import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition
  *
  * @author Pedro Igor
  */
-public class OutboundRedirectConfigurationBuilder extends AbstractOutboundChildConfigurationBuilder {
+public class OutboundRedirectConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
 
     private String redirectUrl;
     private Condition condition;
 
-    OutboundRedirectConfigurationBuilder(OutboundConfigurationBuilder parentBuilder, String redirectUrl) {
+    OutboundRedirectConfigurationBuilder(PathConfigurationBuilder parentBuilder, String redirectUrl) {
         super(parentBuilder);
         this.redirectUrl = redirectUrl;
     }

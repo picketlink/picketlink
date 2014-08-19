@@ -47,20 +47,20 @@ public class HttpSecurityConfigurationTestCase {
     @Test
     public void testSingleUri() {
         SecurityConfigurationBuilder configurationBuilder = new SecurityConfigurationBuilder();
+
         HttpSecurityBuilder builder = configurationBuilder.http();
 
         builder
             .path("/*")
-                .inbound()
-                    .authc()
-                        .form()
-                            .loginPage("/login.html")
-                            .errorPage("/error.html")
-                    .authz()
-                        .allowedRoles("Role A", "Role B")
-                        .allowedGroups("Group A", "Group B")
-                        .allowedRealms("Realm A", "Realm B")
-                        .expression("#{identity.isLoggedIn()}");
+                .authc()
+                    .form()
+                        .loginPage("/login.html")
+                        .errorPage("/error.html")
+                .authz()
+                    .role("Role A", "Role B")
+                    .group("Group A", "Group B")
+                    .realm("Realm A", "Realm B")
+                    .expression("#{identity.isLoggedIn()}");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
 
@@ -76,15 +76,14 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .path("/*")
-            .inbound()
             .authc()
             .form()
             .loginPage("/login.html")
             .errorPage("/error.html")
             .authz()
-            .allowedRoles("Role A", "Role B")
-            .allowedGroups("Group A", "Group B")
-            .allowedRealms("Realm A", "Realm B")
+            .role("Role A", "Role B")
+            .group("Group A", "Group B")
+            .realm("Realm A", "Realm B")
             .expression("#{identity.isLoggedIn()}");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
@@ -102,15 +101,14 @@ public class HttpSecurityConfigurationTestCase {
         builder
             .permissive()
             .path("/*")
-            .inbound()
             .authc()
             .form()
             .loginPage("/login.html")
             .errorPage("/error.html")
             .authz()
-            .allowedRoles("Role A", "Role B")
-            .allowedGroups("Group A", "Group B")
-            .allowedRealms("Realm A", "Realm B")
+            .role("Role A", "Role B")
+            .group("Group A", "Group B")
+            .realm("Realm A", "Realm B")
             .expression("#{identity.isLoggedIn()}");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
@@ -125,15 +123,14 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .allPaths()
-            .inbound()
             .authc()
             .form()
             .loginPage("/login.html")
             .errorPage("/error.html")
             .authz()
-            .allowedRoles("Role A", "Role B")
-            .allowedGroups("Group A", "Group B")
-            .allowedRealms("Realm A", "Realm B")
+            .role("Role A", "Role B")
+            .group("Group A", "Group B")
+            .realm("Realm A", "Realm B")
             .expression("#{identity.isLoggedIn()}");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
@@ -152,21 +149,19 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .pathGroup("REST Service Group A")
-                .inbound()
                 .authc()
                     .form()
                         .loginPage("/loginA.html")
                         .errorPage("/errorA.html")
                 .authz()
-                    .allowedRoles("Role A")
+                    .role("Role A")
             .pathGroup("REST Service Group B")
-                .inbound()
                 .authc()
                     .form()
                         .loginPage("/loginB.html")
                         .errorPage("/errorB.html")
                 .authz()
-                    .allowedRoles("Role B")
+                    .role("Role B")
             .path("/rest/a/*", "REST Service Group A")
             .path("/rest/b/*", "REST Service Group B");
 
@@ -183,13 +178,12 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .pathGroup("REST Service")
-            .inbound()
             .authc()
             .form()
             .loginPage("/login.html")
             .errorPage("/login.html")
             .authz()
-            .allowedRoles("Role A");
+            .role("Role A");
 
         builder.build();
     }
@@ -201,14 +195,13 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .path("/*")
-            .inbound()
             .authc()
             .basic()
             .realmName("My Realm")
             .authz()
-            .allowedRoles("Role A", "Role B")
-            .allowedGroups("Group A", "Group B")
-            .allowedRealms("Realm A", "Realm B")
+            .role("Role A", "Role B")
+            .group("Group A", "Group B")
+            .realm("Realm A", "Realm B")
             .expression("#{identity.isLoggedIn()}");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
@@ -218,7 +211,7 @@ public class HttpSecurityConfigurationTestCase {
         assertEquals(1, uris.size());
 
         PathConfiguration pathConfiguration = uris.values().iterator().next().get(0);
-        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getInboundConfiguration().getAuthenticationConfiguration();
+        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getAuthenticationConfiguration();
 
         assertTrue(BasicAuthenticationConfiguration.class.isInstance(authenticationConfiguration.getAuthenticationSchemeConfiguration()));
     }
@@ -230,14 +223,13 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .path("/*")
-            .inbound()
             .authc()
             .digest()
             .realmName("My Realm")
             .authz()
-            .allowedRoles("Role A", "Role B")
-            .allowedGroups("Group A", "Group B")
-            .allowedRealms("Realm A", "Realm B")
+            .role("Role A", "Role B")
+            .group("Group A", "Group B")
+            .realm("Realm A", "Realm B")
             .expression("#{identity.isLoggedIn()}");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
@@ -247,7 +239,7 @@ public class HttpSecurityConfigurationTestCase {
         assertEquals(1, uris.size());
 
         PathConfiguration pathConfiguration = uris.values().iterator().next().get(0);
-        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getInboundConfiguration().getAuthenticationConfiguration();
+        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getAuthenticationConfiguration();
 
         assertTrue(DigestAuthenticationConfiguration.class.isInstance(authenticationConfiguration.getAuthenticationSchemeConfiguration()));
     }
@@ -259,14 +251,13 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .path("/*")
-            .inbound()
             .authc()
             .x509()
                 .subjectRegex("someExpression")
             .authz()
-            .allowedRoles("Role A", "Role B")
-            .allowedGroups("Group A", "Group B")
-            .allowedRealms("Realm A", "Realm B")
+            .role("Role A", "Role B")
+            .group("Group A", "Group B")
+            .realm("Realm A", "Realm B")
             .expression("#{identity.isLoggedIn()}");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
@@ -276,7 +267,7 @@ public class HttpSecurityConfigurationTestCase {
         assertEquals(1, uris.size());
 
         PathConfiguration pathConfiguration = uris.values().iterator().next().get(0);
-        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getInboundConfiguration().getAuthenticationConfiguration();
+        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getAuthenticationConfiguration();
 
         assertTrue(X509AuthenticationConfiguration.class.isInstance(authenticationConfiguration.getAuthenticationSchemeConfiguration()));
     }
@@ -288,13 +279,12 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .path("/*")
-            .inbound()
             .authc()
             .token()
             .authz()
-            .allowedRoles("Role A", "Role B")
-            .allowedGroups("Group A", "Group B")
-            .allowedRealms("Realm A", "Realm B")
+            .role("Role A", "Role B")
+            .group("Group A", "Group B")
+            .realm("Realm A", "Realm B")
             .expression("#{identity.isLoggedIn()}");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
@@ -304,7 +294,7 @@ public class HttpSecurityConfigurationTestCase {
         assertEquals(1, uris.size());
 
         PathConfiguration pathConfiguration = uris.values().iterator().next().get(0);
-        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getInboundConfiguration().getAuthenticationConfiguration();
+        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getAuthenticationConfiguration();
 
         assertTrue(TokenAuthenticationConfiguration.class.isInstance(authenticationConfiguration.getAuthenticationSchemeConfiguration()));
     }

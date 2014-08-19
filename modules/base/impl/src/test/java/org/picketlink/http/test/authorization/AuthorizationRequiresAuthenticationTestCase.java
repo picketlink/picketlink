@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
@@ -69,9 +69,8 @@ public class AuthorizationRequiresAuthenticationTestCase extends AbstractSecurit
             builder
                 .http()
                 .path("/noGroupPath")
-                .inbound()
                 .authz()
-                .allowedRoles("Some Role");
+                .role("Some Role");
         }
     }
 }

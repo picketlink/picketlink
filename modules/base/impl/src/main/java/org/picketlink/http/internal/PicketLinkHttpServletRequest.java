@@ -28,6 +28,7 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.annotation.StereotypeProperty;
+import org.picketlink.internal.el.ELProcessor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,25 +48,18 @@ import static org.picketlink.authorization.util.AuthorizationUtil.hasRole;
 public class PicketLinkHttpServletRequest extends HttpServletRequestWrapper {
 
     private final Identity identity;
-    private DefaultLoginCredentials credentials;
+    private final ELProcessor elProcessor;
+    private final DefaultLoginCredentials credentials;
     private final PartitionManager partitionManager;
     private final String requestedUri;
 
-    /**
-     * Constructs a request object wrapping the given request.
-     *
-     *
-     * @param requestedUri
-     * @param request
-     *
-     * @throws IllegalArgumentException if the request is null
-     */
-    public PicketLinkHttpServletRequest(String requestedUri, Identity identity, DefaultLoginCredentials credentials, PartitionManager partitionManager, HttpServletRequest request) {
+    public PicketLinkHttpServletRequest(HttpServletRequest request, Identity identity, DefaultLoginCredentials credentials, PartitionManager partitionManager, ELProcessor elProcessor) {
         super(request);
-        this.requestedUri = requestedUri;
         this.identity = identity;
         this.credentials = credentials;
         this.partitionManager = partitionManager;
+        this.elProcessor = elProcessor;
+        this.requestedUri = rewriteUri(request);
     }
 
     @Override
@@ -116,20 +110,7 @@ public class PicketLinkHttpServletRequest extends HttpServletRequestWrapper {
 
     @Override
     public String getRequestURI() {
-        if (this.requestedUri == null) {
-            return super.getRequestURI();
-        }
-
         return this.requestedUri;
-    }
-
-    @Override
-    public String getServletPath() {
-        if (this.requestedUri == null) {
-            return super.getServletPath();
-        }
-
-        return this.requestedUri.substring(this.requestedUri.indexOf(getContextPath()) + getContextPath().length());
     }
 
     @Override
@@ -143,5 +124,44 @@ public class PicketLinkHttpServletRequest extends HttpServletRequestWrapper {
 
     private boolean isLoggedIn() {
         return this.identity.isLoggedIn();
+    }
+
+    private String rewriteUri(HttpServletRequest request) {
+        String requestedUri = request.getRequestURI();
+        String rewrittenUri = requestedUri;
+
+        if (requestedUri.indexOf('{') != -1) {
+            StringBuilder template = null;
+
+            for (int i = 0; i < requestedUri.length(); i++) {
+                char charAt = requestedUri.charAt(i);
+
+                if (charAt == '{') {
+                    template = new StringBuilder();
+
+                    template.append(charAt);
+
+                    continue;
+                }
+
+                if (template != null) {
+                    template.append(charAt);
+
+                    if (charAt == '}') {
+                        Object eval = this.elProcessor.eval("#" + template.toString());
+
+                        if (eval == null) {
+                            break;
+                        }
+
+                        String templateString = template.toString().replace("{", "\\{").replace("}", "\\}");
+                        rewrittenUri = rewrittenUri.replaceFirst(templateString, eval.toString());
+                        template = null;
+                    }
+                }
+            }
+        }
+
+        return rewrittenUri;
     }
 }

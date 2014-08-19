@@ -18,12 +18,16 @@
 
 package org.picketlink.idm.model;
 
+import org.picketlink.idm.model.annotation.StereotypeProperty;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Collections.unmodifiableMap;
+import static org.picketlink.idm.model.annotation.StereotypeProperty.Property.IDENTITY_ID;
 
 /**
  * Abstract base class for all AttributedType implementations
@@ -34,6 +38,7 @@ import static java.util.Collections.unmodifiableMap;
 public abstract class AbstractAttributedType implements AttributedType {
     private static final long serialVersionUID = -6118293036241099199L;
 
+    @StereotypeProperty(IDENTITY_ID)
     private String id;
 
     private Map<String, Attribute<? extends Serializable>> attributes =

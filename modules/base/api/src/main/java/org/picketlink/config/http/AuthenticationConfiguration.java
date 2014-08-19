@@ -27,10 +27,10 @@ package org.picketlink.config.http;
 public class AuthenticationConfiguration {
 
     private AuthenticationSchemeConfiguration authenticationSchemeConfiguration;
-    private final InboundConfiguration inboundConfiguration;
+    private final PathConfiguration pathConfiguration;
 
-    public AuthenticationConfiguration(InboundConfiguration inboundConfiguration) {
-        this.inboundConfiguration = inboundConfiguration;
+    public AuthenticationConfiguration(PathConfiguration pathConfiguration) {
+        this.pathConfiguration = pathConfiguration;
     }
 
     public AuthenticationSchemeConfiguration getAuthenticationSchemeConfiguration() {
@@ -39,9 +39,5 @@ public class AuthenticationConfiguration {
 
     protected void setAuthenticationSchemeConfiguration(AuthenticationSchemeConfiguration authenticationSchemeConfiguration) {
         this.authenticationSchemeConfiguration = authenticationSchemeConfiguration;
-    }
-
-    public InboundConfiguration getInboundConfiguration() {
-        return this.inboundConfiguration;
     }
 }

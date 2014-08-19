@@ -109,17 +109,13 @@ public class RedirectionAfterFailedAuthorizationTestCase extends AbstractSecurit
             builder
                 .http()
                 .path("/onlyAcmeRealmName")
-                .inbound()
                 .authz()
-                .allowedRealms("Acme")
-                .outbound()
+                .realm("Acme")
                     .redirectTo("/accessDenied.html").whenForbidden()
                     .redirectTo("/error.html").whenError()
                     .redirectTo("/success.html")
                 .path("/logout")
-                    .inbound()
                         .logout()
-                    .outbound()
                         .redirectTo("/successful.html");
         }
     }

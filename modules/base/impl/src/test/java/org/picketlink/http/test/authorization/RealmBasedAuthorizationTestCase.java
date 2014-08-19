@@ -106,17 +106,14 @@ public class RealmBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
             builder
                 .http()
                 .path("/onlyDefaultRealmName")
-                .inbound()
                 .authz()
-                    .allowedRealms(Realm.DEFAULT_REALM)
+                    .realm(Realm.DEFAULT_REALM)
                 .path("/onlyDefaultRealmType")
-                .inbound()
                 .authz()
-                .allowedRealms(Realm.class.getName())
+                .realm(Realm.class.getName())
                 .path("/onlyAcmeRealmName")
-                .inbound()
                 .authz()
-                .allowedRealms("Acme");
+                .realm("Acme");
         }
     }
 }

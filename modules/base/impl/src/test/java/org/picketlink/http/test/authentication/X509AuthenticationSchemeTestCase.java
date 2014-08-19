@@ -117,12 +117,10 @@ public class X509AuthenticationSchemeTestCase extends AbstractSecurityFilterTest
             builder
                 .http()
                 .path("/x509ProtectedWithSubjectRegexUri/*")
-                .inbound()
                 .authc()
                 .x509()
                 .subjectRegex("CN=(.*?), ")
                 .path("/x509ProtectedUri/*")
-                .inbound()
                 .authc()
                 .x509();
         }

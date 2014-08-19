@@ -27,8 +27,8 @@ import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.internal.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
@@ -101,17 +101,14 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
             builder
                 .http()
                 .allPaths()
-                .inbound()
                 .authc()
                 .form()
                 .path("/onlyManagerRole")
-                .inbound()
                 .authz()
-                .allowedRoles("Manager")
+                .role("Manager")
                 .path("/onlyCustomerRole")
-                .inbound()
                 .authz()
-                .allowedRoles("Customer");
+                .role("Customer");
         }
     }
 }

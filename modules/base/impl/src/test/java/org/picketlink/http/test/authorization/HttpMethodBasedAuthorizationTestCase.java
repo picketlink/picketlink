@@ -24,11 +24,11 @@ package org.picketlink.http.test.authorization;
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
-import org.picketlink.web.HttpMethod;
 import org.picketlink.http.internal.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
+import org.picketlink.http.HttpMethod;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
@@ -86,10 +86,9 @@ public class HttpMethodBasedAuthorizationTestCase extends AbstractSecurityFilter
             builder
                 .http()
                 .path("/overrideMethod")
-                .inbound()
+                .methods("POST")
                 .authc()
-                .form()
-                .methods("POST");
+                .form();
         }
     }
 }

@@ -21,25 +21,30 @@
  */
 package org.picketlink.http.internal;
 
-import org.picketlink.config.http.HttpSecurityConfiguration;
 import org.picketlink.config.SecurityConfiguration;
 import org.picketlink.extension.PicketLinkExtension;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import java.util.EnumSet;
 
 /**
+ * <p>A {@link javax.servlet.ServletContextListener} responsible for configure the PicketLink Security Filter
+ * to an application.</p>
+ *
  * @author Pedro Igor
  */
 @ApplicationScoped
 @WebListener
 public class PicketLinkServletContextListener implements ServletContextListener {
 
+    public static final String PICKETLINK_SECURITY_FILTER_NAME = "PicketLink Security Filter";
     @Inject
     private PicketLinkExtension picketLinkExtension;
 
@@ -61,15 +66,14 @@ public class PicketLinkServletContextListener implements ServletContextListener 
     private void addSecurityFilter(ServletContextEvent sce) {
         ServletContext servletContext = sce.getServletContext();
 
-        FilterRegistration.Dynamic filter = servletContext.addFilter("PicketLink Security Filter", this.securityFilter);
+        FilterRegistration.Dynamic filter = servletContext.addFilter(PICKETLINK_SECURITY_FILTER_NAME, this.securityFilter);
 
-        filter.addMappingForUrlPatterns(null, false, "/*");
+        filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     }
 
     private boolean isHttpSecurityEnabled() {
         SecurityConfiguration securityConfiguration = this.picketLinkExtension.getSecurityConfiguration();
-        HttpSecurityConfiguration httpSecurityConfig = securityConfiguration.getHttpSecurityConfiguration();
 
-        return httpSecurityConfig != null;
+        return securityConfiguration.getHttpSecurityConfiguration() != null;
     }
 }

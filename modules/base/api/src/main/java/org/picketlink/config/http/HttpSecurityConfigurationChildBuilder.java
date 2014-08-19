@@ -21,13 +21,12 @@
  */
 package org.picketlink.config.http;
 
-import org.picketlink.config.SecurityConfiguration;
 import org.picketlink.config.SecurityConfigurationChildBuilder;
 
 /**
  * @author Pedro Igor
  */
-public interface HttpSecurityConfigurationChildBuilder extends SecurityConfigurationChildBuilder{
+public interface HttpSecurityConfigurationChildBuilder extends SecurityConfigurationChildBuilder {
 
     PathConfigurationBuilder allPaths();
 
@@ -36,6 +35,4 @@ public interface HttpSecurityConfigurationChildBuilder extends SecurityConfigura
     PathConfigurationBuilder path(String uri, String groupName);
 
     PathConfigurationBuilder pathGroup(String groupName);
-
-    SecurityConfiguration build();
 }

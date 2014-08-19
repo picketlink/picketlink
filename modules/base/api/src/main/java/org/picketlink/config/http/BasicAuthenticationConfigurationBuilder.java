@@ -30,7 +30,7 @@ public class BasicAuthenticationConfigurationBuilder extends AuthenticationMetho
 
     private String realmName;
 
-    BasicAuthenticationConfigurationBuilder(AuthenticationConfigurationBuilder parentBuilder) {
+    BasicAuthenticationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
     }
 

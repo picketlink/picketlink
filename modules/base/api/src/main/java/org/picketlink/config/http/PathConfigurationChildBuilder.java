@@ -26,9 +26,11 @@ package org.picketlink.config.http;
  */
 public interface PathConfigurationChildBuilder extends HttpSecurityConfigurationChildBuilder {
 
-    InboundConfigurationBuilder inbound();
+    AuthenticationConfigurationBuilder authc();
 
-    OutboundConfigurationBuilder outbound();
+    AuthorizationConfigurationBuilder authz();
+
+    OutboundRedirectConfigurationBuilder redirectTo(String url);
 
     PathConfigurationBuilder unprotected();
 }

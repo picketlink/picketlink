@@ -30,10 +30,10 @@ public class AuthorizationConfiguration {
     private final String[] allowedGroups;
     private final String[] allowedRealms;
     private final String[] expressions;
-    private final InboundConfiguration inboundConfiguration;
+    private final PathConfiguration pathConfiguration;
 
-    public AuthorizationConfiguration(InboundConfiguration inboundConfiguration, String[] allowedRoles, String[] allowedGroups, String[] allowedRealms, String[] expressions) {
-        this.inboundConfiguration = inboundConfiguration;
+    public AuthorizationConfiguration(PathConfiguration pathConfiguration, String[] allowedRoles, String[] allowedGroups, String[] allowedRealms, String[] expressions) {
+        this.pathConfiguration = pathConfiguration;
         this.allowedRoles = allowedRoles;
         this.allowedGroups = allowedGroups;
         this.allowedRealms = allowedRealms;

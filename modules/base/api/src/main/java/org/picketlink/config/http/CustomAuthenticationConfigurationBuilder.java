@@ -19,40 +19,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.web;
+package org.picketlink.config.http;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static java.util.Collections.unmodifiableSet;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 /**
- * <p>Defines a enum for the standard Http Methods.</p>
+ * <p>Configures a custom authentication scheme.</p>
  *
  * @author Pedro Igor
  */
-public enum HttpMethod {
+public class CustomAuthenticationConfigurationBuilder extends AuthenticationMethodConfigurationBuilder<CustomAuthenticationConfiguration> {
 
-    DELETE,
-    HEAD,
-    GET,
-    OPTIONS,
-    POST,
-    PUT,
-    TRACE;
+    private final Class<? extends HttpAuthenticationScheme> schemeType;
 
-    /**
-     * <p>Returns a {@link java.util.Set} with the name of all registered methods.</p>
-     *
-     * @return
-     */
-    public static Set<String> names() {
-        Set<String> methods = new HashSet<String>();
+    CustomAuthenticationConfigurationBuilder(Class<? extends HttpAuthenticationScheme> schemeType, PathConfigurationBuilder parentBuilder) {
+        super(parentBuilder);
+        this.schemeType = schemeType;
+    }
 
-        for (HttpMethod httpMethod : HttpMethod.values()) {
-            methods.add(httpMethod.name());
-        }
-
-        return unmodifiableSet(methods);
+    @Override
+    CustomAuthenticationConfiguration create(AuthenticationConfiguration authenticationConfiguration) {
+        return new CustomAuthenticationConfiguration(this.schemeType, authenticationConfiguration);
     }
 }

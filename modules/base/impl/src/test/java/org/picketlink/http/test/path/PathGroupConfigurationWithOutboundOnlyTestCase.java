@@ -78,12 +78,10 @@ public class PathGroupConfigurationWithOutboundOnlyTestCase extends AbstractSecu
             builder
                 .http()
                 .pathGroup(groupName)
-                .outbound()
                 .redirectTo("/accessDenied.jsf").whenForbidden()
                 .path("/companies/" + Realm.DEFAULT_REALM + "/*", groupName)
-                .inbound()
                 .authz()
-                .allowedRealms(Realm.DEFAULT_REALM);
+                .realm(Realm.DEFAULT_REALM);
         }
     }
 }

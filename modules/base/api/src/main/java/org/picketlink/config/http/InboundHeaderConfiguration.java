@@ -34,10 +34,10 @@ public class InboundHeaderConfiguration {
     public static final String X_REQUESTED_WITH_HEADER_NAME = "X-Requested-With";
 
     private final Map<String, String[]> headers;
-    private final InboundConfiguration inboundConfiguration;
+    private final PathConfiguration pathConfiguration;
 
-    public InboundHeaderConfiguration(InboundConfiguration inboundConfiguration, Map<String, String[]> headers) {
-        this.inboundConfiguration = inboundConfiguration;
+    public InboundHeaderConfiguration(PathConfiguration pathConfiguration, Map<String, String[]> headers) {
+        this.pathConfiguration = pathConfiguration;
         this.headers = headers;
     }
 

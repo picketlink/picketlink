@@ -21,17 +21,20 @@
  */
 package org.picketlink.config.http;
 
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
+
 /**
  * <p>Provides a set of options to configure authentication for a specific path.</p>
  *
  * @author Pedro Igor
  */
-public class AuthenticationConfigurationBuilder extends AbstractInboundChildConfigurationBuilder implements  InboundConfigurationChildBuilder {
+public class AuthenticationConfigurationBuilder {
 
+    private final PathConfigurationBuilder parentBuilder;
     private AuthenticationMethodConfigurationBuilder authenticationMethodConfigurationBuilder;
 
-    AuthenticationConfigurationBuilder(InboundConfigurationBuilder parentBuilder) {
-        super(parentBuilder);
+    public AuthenticationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
+        this.parentBuilder = parentBuilder;
     }
 
     /**
@@ -40,7 +43,7 @@ public class AuthenticationConfigurationBuilder extends AbstractInboundChildConf
      * @return
      */
     public FormAuthenticationConfigurationBuilder form() {
-        this.authenticationMethodConfigurationBuilder = new FormAuthenticationConfigurationBuilder(this);
+        this.authenticationMethodConfigurationBuilder = new FormAuthenticationConfigurationBuilder(this.parentBuilder);
         return (FormAuthenticationConfigurationBuilder) this.authenticationMethodConfigurationBuilder;
     }
 
@@ -50,7 +53,7 @@ public class AuthenticationConfigurationBuilder extends AbstractInboundChildConf
      * @return
      */
     public BasicAuthenticationConfigurationBuilder basic() {
-        this.authenticationMethodConfigurationBuilder = new BasicAuthenticationConfigurationBuilder(this);
+        this.authenticationMethodConfigurationBuilder = new BasicAuthenticationConfigurationBuilder(this.parentBuilder);
         return (BasicAuthenticationConfigurationBuilder) this.authenticationMethodConfigurationBuilder;
     }
 
@@ -60,7 +63,7 @@ public class AuthenticationConfigurationBuilder extends AbstractInboundChildConf
      * @return
      */
     public DigestAuthenticationConfigurationBuilder digest() {
-        this.authenticationMethodConfigurationBuilder = new DigestAuthenticationConfigurationBuilder(this);
+        this.authenticationMethodConfigurationBuilder = new DigestAuthenticationConfigurationBuilder(this.parentBuilder);
         return (DigestAuthenticationConfigurationBuilder) this.authenticationMethodConfigurationBuilder;
     }
 
@@ -70,7 +73,7 @@ public class AuthenticationConfigurationBuilder extends AbstractInboundChildConf
      * @return
      */
     public X509AuthenticationConfigurationBuilder x509() {
-        this.authenticationMethodConfigurationBuilder = new X509AuthenticationConfigurationBuilder(this);
+        this.authenticationMethodConfigurationBuilder = new X509AuthenticationConfigurationBuilder(this.parentBuilder);
         return (X509AuthenticationConfigurationBuilder) this.authenticationMethodConfigurationBuilder;
     }
 
@@ -80,12 +83,24 @@ public class AuthenticationConfigurationBuilder extends AbstractInboundChildConf
      * @return
      */
     public TokenAuthenticationConfigurationBuilder token() {
-        this.authenticationMethodConfigurationBuilder = new TokenAuthenticationConfigurationBuilder(this);
+        this.authenticationMethodConfigurationBuilder = new TokenAuthenticationConfigurationBuilder(this.parentBuilder);
         return (TokenAuthenticationConfigurationBuilder) this.authenticationMethodConfigurationBuilder;
     }
 
-    AuthenticationConfiguration create(InboundConfiguration inboundConfiguration) {
-        AuthenticationConfiguration authenticationConfiguration = new AuthenticationConfiguration(inboundConfiguration);
+    /**
+     * <p>Configures a specific {@link org.picketlink.http.authentication.HttpAuthenticationScheme}.</p>
+     *
+     * <p>You may use this method to provide your own authentication scheme.</p>
+     *
+     * @return
+     */
+    public CustomAuthenticationConfigurationBuilder scheme(Class<? extends HttpAuthenticationScheme> schemeType) {
+        this.authenticationMethodConfigurationBuilder = new CustomAuthenticationConfigurationBuilder(schemeType, this.parentBuilder);
+        return (CustomAuthenticationConfigurationBuilder) this.authenticationMethodConfigurationBuilder;
+    }
+
+    AuthenticationConfiguration create(PathConfiguration pathConfiguration) {
+        AuthenticationConfiguration authenticationConfiguration = new AuthenticationConfiguration(pathConfiguration);
 
         AuthenticationSchemeConfiguration authenticationMethodConfiguration = null;
 

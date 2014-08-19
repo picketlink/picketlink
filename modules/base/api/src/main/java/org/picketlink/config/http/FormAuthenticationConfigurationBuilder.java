@@ -32,7 +32,7 @@ public class FormAuthenticationConfigurationBuilder extends AuthenticationMethod
     private String errorPageUrl;
     private boolean restoreOriginalRequest;
 
-    FormAuthenticationConfigurationBuilder(AuthenticationConfigurationBuilder parentBuilder) {
+    FormAuthenticationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
     }
 

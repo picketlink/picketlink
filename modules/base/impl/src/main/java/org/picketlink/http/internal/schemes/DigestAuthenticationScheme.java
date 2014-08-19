@@ -24,10 +24,10 @@ package org.picketlink.http.internal.schemes;
 
 import org.picketlink.config.http.DigestAuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.credential.Digest;
-import org.picketlink.web.authentication.HttpAuthenticationScheme;
 import org.picketlink.http.internal.schemes.support.HTTPDigestUtil;
 import org.picketlink.http.internal.schemes.support.NonceCache;
+import org.picketlink.idm.credential.Digest;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -109,11 +109,6 @@ public class DigestAuthenticationScheme implements HttpAuthenticationScheme<Dige
 
     @Override
     public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
-
-    @Override
-    public boolean isProtected(HttpServletRequest request) {
-        return true;
     }
 
     private String[] extractTokens(HttpServletRequest request) {
