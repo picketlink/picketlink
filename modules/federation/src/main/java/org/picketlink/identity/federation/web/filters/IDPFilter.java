@@ -303,8 +303,6 @@ public class IDPFilter implements Filter {
         RequestDispatcher dispatch = servletContext
                 .getRequestDispatcher(this.idpConfiguration.getHostedURI());
 
-        recycle(response);
-
         try {
             includeResource(request, response, dispatch);
         } catch (ClassCastException cce) {
@@ -437,8 +435,6 @@ public class IDPFilter implements Filter {
                 auditEvent.setWhoIsAuditing(contextPath);
                 auditHelper.audit(auditEvent);
             }
-
-            recycle(response);
 
             webRequestUtil.send(holder);
         } catch (GeneralSecurityException e) {
@@ -609,9 +605,6 @@ public class IDPFilter implements Filter {
                     if (this.idpConfiguration.isSupportsSignature()) {
                         holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
                     }
-
-                    if (holder.isPostBinding())
-                        recycle(response);
 
                     if (enableAudit) {
                         PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -796,9 +789,6 @@ public class IDPFilter implements Filter {
 
                 holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
 
-                if (holder.isPostBinding())
-                    recycle(response);
-
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                     auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
@@ -875,9 +865,6 @@ public class IDPFilter implements Filter {
             }
 
             holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
-
-            if (holder.isPostBinding())
-                recycle(response);
 
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -1275,15 +1262,6 @@ public class IDPFilter implements Filter {
         }
 
         this.idpConfiguration.setHostedURI(hostedURI);
-    }
-
-    protected void recycle(HttpServletResponse response) {
-        /**
-         * Since the container finished authentication, it will try to locate index.jsp or index.html. We need to recycle
-         * whatever is in the response object such that we direct it to the html that is being created as part of the HTTP/POST
-         * binding
-         */
-        response.reset();
     }
 
     /**
