@@ -21,6 +21,12 @@
  */
 package org.picketlink.http.test.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.config.http.AuthenticationConfiguration;
@@ -32,12 +38,6 @@ import org.picketlink.config.http.HttpSecurityConfigurationException;
 import org.picketlink.config.http.PathConfiguration;
 import org.picketlink.config.http.TokenAuthenticationConfiguration;
 import org.picketlink.config.http.X509AuthenticationConfiguration;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pedro Igor
