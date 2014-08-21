@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
-import org.picketlink.http.internal.schemes.X509AuthenticationScheme;
+import org.picketlink.http.internal.authentication.schemes.X509AuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
 import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;

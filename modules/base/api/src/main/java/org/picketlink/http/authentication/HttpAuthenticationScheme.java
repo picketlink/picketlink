@@ -27,7 +27,6 @@ import org.picketlink.credential.DefaultLoginCredentials;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * Basis for the HTTP Authentication Schemes such as BASIC, FORM, DIGEST and CLIENT-CERT. Applications can provide their
@@ -70,10 +69,8 @@ public interface HttpAuthenticationScheme<C extends AuthenticationSchemeConfigur
      * @param response
      *            The current response, which can be used to send HTTP error results, redirects, or for sending
      *            additional challenge headers.
-     * @throws java.io.IOException
-     *             if reading the request or writing the response fails.
      */
-    void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    void challengeClient(HttpServletRequest request, HttpServletResponse response);
 
     /**
      * Performs any post-authentication logic regarding of the authentication result.
@@ -84,8 +81,6 @@ public interface HttpAuthenticationScheme<C extends AuthenticationSchemeConfigur
      *            The current response, which can be used to send an HTTP response, or a redirect.
      * @return true if the processing of the filter chain should continue, false if the processing should stop
      *         (typically because this filter has already sent a response).
-     * @throws java.io.IOException
-     *             if reading the request or writing the response fails.
      */
-    void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    void onPostAuthentication(HttpServletRequest request, HttpServletResponse response);
 }

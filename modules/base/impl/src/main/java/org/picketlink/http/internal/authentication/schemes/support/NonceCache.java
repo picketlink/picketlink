@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.http.internal.schemes.support;
+package org.picketlink.http.internal.authentication.schemes.support;
 
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.credential.Digest;

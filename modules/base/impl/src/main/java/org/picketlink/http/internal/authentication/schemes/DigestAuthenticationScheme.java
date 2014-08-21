@@ -20,18 +20,17 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.http.internal.schemes;
+package org.picketlink.http.internal.authentication.schemes;
 
 import org.picketlink.config.http.DigestAuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.http.internal.schemes.support.HTTPDigestUtil;
-import org.picketlink.http.internal.schemes.support.NonceCache;
-import org.picketlink.idm.credential.Digest;
 import org.picketlink.http.authentication.HttpAuthenticationScheme;
+import org.picketlink.http.internal.authentication.schemes.support.HTTPDigestUtil;
+import org.picketlink.http.internal.authentication.schemes.support.NonceCache;
+import org.picketlink.idm.credential.Digest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Timer;
 
 /**
@@ -80,35 +79,39 @@ public class DigestAuthenticationScheme implements HttpAuthenticationScheme<Dige
     }
 
     @Override
-    public void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String domain = request.getContextPath();
+    public void challengeClient(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String domain = request.getContextPath();
 
-        if (domain == null)
-            domain = "/";
+            if (domain == null)
+                domain = "/";
 
-        String newNonce = this.nonceCache.generateAndCacheNonce(request);
+            String newNonce = this.nonceCache.generateAndCacheNonce(request);
 
-        StringBuilder str = new StringBuilder("Digest realm=\"");
+            StringBuilder str = new StringBuilder("Digest realm=\"");
 
-        str.append(this.realm).append("\",");
-        str.append("domain=\"").append(domain).append("\",");
-        str.append("nonce=\"").append(newNonce).append("\",");
-        str.append("algorithm=MD5,");
-        str.append("qop=").append("auth").append(",");
-        str.append("stale=\"").append(false).append("\"");
+            str.append(this.realm).append("\",");
+            str.append("domain=\"").append(domain).append("\",");
+            str.append("nonce=\"").append(newNonce).append("\",");
+            str.append("algorithm=MD5,");
+            str.append("qop=").append("auth").append(",");
+            str.append("stale=\"").append(false).append("\"");
 
-        response.setHeader("WWW-Authenticate", str.toString());
+            response.setHeader("WWW-Authenticate", str.toString());
 
-        // this usually means we have a failing authentication request from an ajax client. so we return SC_FORBIDDEN instead.
-        if (isAjaxRequest(request)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            // this usually means we have a failing authentication request from an ajax client. so we return SC_FORBIDDEN instead.
+            if (isAjaxRequest(request)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            } else {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not challenge client credentials.", e);
         }
     }
 
     @Override
-    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) {
     }
 
     private String[] extractTokens(HttpServletRequest request) {

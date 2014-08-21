@@ -21,6 +21,8 @@
  */
 package org.picketlink.config.http;
 
+import org.picketlink.http.authorization.PathAuthorizer;
+
 /**
  * @author Pedro Igor
  */
@@ -30,14 +32,22 @@ public class AuthorizationConfiguration {
     private final String[] allowedGroups;
     private final String[] allowedRealms;
     private final String[] expressions;
+    private final Class<? extends PathAuthorizer> pathAuthorizer;
     private final PathConfiguration pathConfiguration;
 
-    public AuthorizationConfiguration(PathConfiguration pathConfiguration, String[] allowedRoles, String[] allowedGroups, String[] allowedRealms, String[] expressions) {
+    public AuthorizationConfiguration(
+        PathConfiguration pathConfiguration,
+        String[] allowedRoles,
+        String[] allowedGroups,
+        String[] allowedRealms,
+        String[] expressions,
+        Class<? extends PathAuthorizer> pathAuthorizer) {
         this.pathConfiguration = pathConfiguration;
         this.allowedRoles = allowedRoles;
         this.allowedGroups = allowedGroups;
         this.allowedRealms = allowedRealms;
         this.expressions = expressions;
+        this.pathAuthorizer = pathAuthorizer;
     }
 
     public String[] getAllowedRoles() {
@@ -54,5 +64,9 @@ public class AuthorizationConfiguration {
 
     public String[] getExpressions() {
         return this.expressions;
+    }
+
+    public Class<? extends PathAuthorizer> getPathAuthorizer() {
+        return this.pathAuthorizer;
     }
 }

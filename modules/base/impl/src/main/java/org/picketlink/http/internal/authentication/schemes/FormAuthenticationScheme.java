@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.http.internal.schemes;
+package org.picketlink.http.internal.authentication.schemes;
 
 import org.picketlink.Identity;
 import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.http.authentication.HttpAuthenticationScheme;
-import org.picketlink.http.internal.schemes.support.RequestCache;
-import org.picketlink.http.internal.schemes.support.SavedRequest;
+import org.picketlink.http.internal.authentication.schemes.support.RequestCache;
+import org.picketlink.http.internal.authentication.schemes.support.SavedRequest;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -62,7 +62,7 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
     }
 
     @Override
-    public void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void challengeClient(HttpServletRequest request, HttpServletResponse response) {
         if (!isFormSubmitted(request) && this.configuration.isRestoreOriginalRequest()) {
             requestCache.saveRequest(request);
         }
@@ -76,19 +76,23 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
     }
 
     @Override
-    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (this.identity.get().isLoggedIn()) {
-            SavedRequest savedRequest = requestCache.removeAndStoreSavedRequestInSession(request);
+    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            if (this.identity.get().isLoggedIn()) {
+                SavedRequest savedRequest = requestCache.removeAndStoreSavedRequestInSession(request);
 
-            if (savedRequest != null) {
-                response.sendRedirect(savedRequest.getRequestURI());
-            }
+                if (savedRequest != null) {
+                    response.sendRedirect(savedRequest.getRequestURI());
+                }
 
-            if (!this.configuration.isRestoreOriginalRequest() || savedRequest == null) {
-                response.sendRedirect(request.getContextPath());
+                if (!this.configuration.isRestoreOriginalRequest() || savedRequest == null) {
+                    response.sendRedirect(request.getContextPath());
+                }
+            } else if (isFormSubmitted(request)) {
+                forwardToErrorPage(request, response);
             }
-        } else if (isFormSubmitted(request)) {
-            forwardToErrorPage(request, response);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not perform post authentication tasks after a form-based authentication.", e);
         }
     }
 

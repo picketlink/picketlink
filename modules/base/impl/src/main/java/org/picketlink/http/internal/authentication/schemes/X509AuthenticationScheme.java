@@ -15,16 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.http.internal.schemes;
+package org.picketlink.http.internal.authentication.schemes;
 
 import org.picketlink.config.http.X509AuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.http.authentication.HttpAuthenticationScheme;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.security.cert.X509Certificate;
 
 /**
@@ -60,12 +59,16 @@ public class X509AuthenticationScheme implements HttpAuthenticationScheme<X509Au
     }
 
     @Override
-    public void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.sendError(HttpServletResponse.SC_FORBIDDEN, "The requested resource requires a valid certificate.");
+    public void challengeClient(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "The requested resource requires a valid certificate.");
+        } catch (Exception e) {
+            throw new RuntimeException("Could not challenge client credentials.", e);
+        }
     }
 
     @Override
-    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) {
     }
 
     private X509Certificate[] getClientCertificate(HttpServletRequest request) {

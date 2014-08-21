@@ -19,21 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.http.internal.schemes;
+package org.picketlink.http.internal.authentication.schemes;
 
 import org.picketlink.Identity;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.config.http.TokenAuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 import org.picketlink.idm.credential.Token;
 import org.picketlink.idm.credential.TokenCredential;
-import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import static org.picketlink.idm.credential.Token.Builder.create;
@@ -47,11 +46,11 @@ import static org.picketlink.idm.credential.Token.Provider;
  * <p>Tokens are issued by providing specific credentials for the <b>primary authentication scheme</b>. This scheme will be used
  * to validate user's credentials (eg.: username/password over BASIC) and if successful, issue a token.</p>
  *
- * <p>By default, the primary authentication scheme is {@link org.picketlink.http.internal.schemes.BasicAuthenticationScheme}. In order to
+ * <p>By default, the primary authentication scheme is {@link org.picketlink.http.internal.authentication.schemes.BasicAuthenticationScheme}. In order to
  * change it, subclasses may override the <code>getPrimaryAuthenticationScheme</code> method.</p>
  *
  * <p>Once a token is issued, it will be written to the {@link javax.servlet.http.HttpServletResponse} using a JSON format. In order to
- * change how tokens are returned to clients, subclasses may override the {@link org.picketlink.http.internal.schemes.TokenAuthenticationScheme#writeToken(String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.</p>
+ * change how tokens are returned to clients, subclasses may override the {@link org.picketlink.http.internal.authentication.schemes.TokenAuthenticationScheme#writeToken(String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.</p>
  *
  * <p>This scheme is used by the {@link org.picketlink.http.internal.SecurityFilter}, which is configured in the web application
  * deployment descriptor (web.xml).</p>
@@ -110,17 +109,21 @@ public class TokenAuthenticationScheme implements HttpAuthenticationScheme<Token
      * @throws java.io.IOException
      */
     @Override
-    public void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (isPrimaryAuthenticationRequest()) {
-            getPrimaryAuthenticationScheme().challengeClient(request, response);
-        } else {
-            response.setHeader(REQUIRES_AUTHENTICATION_HEADER_NAME, AUTHENTICATION_SCHEME_NAME);
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    public void challengeClient(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            if (isPrimaryAuthenticationRequest()) {
+                getPrimaryAuthenticationScheme().challengeClient(request, response);
+            } else {
+                response.setHeader(REQUIRES_AUTHENTICATION_HEADER_NAME, AUTHENTICATION_SCHEME_NAME);
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not challeng client credentials.", e);
         }
     }
 
     @Override
-    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) {
         if (isPrimaryAuthenticationRequest() && getIdentity().isLoggedIn()) {
             String issuedToken = issueToken(request, response);
 
@@ -150,7 +153,7 @@ public class TokenAuthenticationScheme implements HttpAuthenticationScheme<Token
      * <p>Returns the primary {@link org.picketlink.http.authentication.HttpAuthenticationScheme} that will be used to validate user's
      * credential before issuing a new token.</p>
      *
-     * <p>Default authentication scheme is {@link org.picketlink.http.internal.schemes.BasicAuthenticationScheme}.</p>
+     * <p>Default authentication scheme is {@link org.picketlink.http.internal.authentication.schemes.BasicAuthenticationScheme}.</p>
      *
      * @return
      */

@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.http.internal.schemes;
+package org.picketlink.http.internal.authentication.schemes;
 
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.StringUtil;
@@ -30,7 +30,6 @@ import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import static org.picketlink.config.http.InboundHeaderConfiguration.X_REQUESTED_WITH_AJAX;
 import static org.picketlink.config.http.InboundHeaderConfiguration.X_REQUESTED_WITH_HEADER_NAME;
@@ -71,20 +70,24 @@ public class BasicAuthenticationScheme implements HttpAuthenticationScheme<Basic
     }
 
     @Override
-    public void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setHeader("WWW-Authenticate", "Basic realm=\"" + this.realm + "\"");
+    public void challengeClient(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            response.setHeader("WWW-Authenticate", "Basic realm=\"" + this.realm + "\"");
 
-        // this usually means we have a failing authentication request from an ajax client. so we return SC_FORBIDDEN instead.
-        // this is a workaround to avoid browsers to popup an authentication dialog when authentication via ajax.
-        if (isAjaxRequest(request)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        } else {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            // this usually means we have a failing authentication request from an ajax client. so we return SC_FORBIDDEN instead.
+            // this is a workaround to avoid browsers to popup an authentication dialog when authentication via ajax.
+            if (isAjaxRequest(request)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            } else {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not challenge client credentials.", e);
         }
     }
 
     @Override
-    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void onPostAuthentication(HttpServletRequest request, HttpServletResponse response) {
     }
 
     private boolean isBasicAuthentication(HttpServletRequest request) {

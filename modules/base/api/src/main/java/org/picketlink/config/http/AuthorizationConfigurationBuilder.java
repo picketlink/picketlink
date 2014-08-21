@@ -21,6 +21,8 @@
  */
 package org.picketlink.config.http;
 
+import org.picketlink.http.authorization.PathAuthorizer;
+
 /**
  * <p>Provides a set of options to configure authorization for a specific path.</p>
  *
@@ -32,6 +34,7 @@ public class AuthorizationConfigurationBuilder extends AbstractPathConfiguration
     private String[] groupsAllowed;
     private String[] realmsAllowed;
     private String[] elExpresion;
+    private Class<? extends PathAuthorizer> pathAuthorizer;
 
     AuthorizationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
@@ -88,7 +91,18 @@ public class AuthorizationConfigurationBuilder extends AbstractPathConfiguration
         return this;
     }
 
+    /**
+     * <p>Specifies a custom {@link org.picketlink.http.authorization.PathAuthorizer} for the given path.</p>
+     *
+     * @param pathAuthorizer
+     * @return
+     */
+    public AuthorizationConfigurationBuilder authorizer(Class<? extends PathAuthorizer> pathAuthorizer) {
+        this.pathAuthorizer = pathAuthorizer;
+        return this;
+    }
+
     AuthorizationConfiguration create(PathConfiguration pathConfiguration) {
-        return new AuthorizationConfiguration(pathConfiguration, this.rolesAllowed, this.groupsAllowed, this.realmsAllowed, this.elExpresion);
+        return new AuthorizationConfiguration(pathConfiguration, this.rolesAllowed, this.groupsAllowed, this.realmsAllowed, this.elExpresion, this.pathAuthorizer);
     }
 }

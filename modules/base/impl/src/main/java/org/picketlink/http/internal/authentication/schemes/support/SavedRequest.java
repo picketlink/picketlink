@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.http.internal.schemes.support;
+package org.picketlink.http.internal.authentication.schemes.support;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

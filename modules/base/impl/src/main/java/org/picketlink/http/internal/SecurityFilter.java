@@ -24,8 +24,6 @@ package org.picketlink.http.internal;
 import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
-import org.picketlink.authorization.util.AuthorizationUtil;
-import org.picketlink.common.reflection.Reflections;
 import org.picketlink.config.SecurityConfiguration;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.config.http.AuthenticationConfiguration;
@@ -43,13 +41,14 @@ import org.picketlink.config.http.X509AuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.extension.PicketLinkExtension;
 import org.picketlink.http.authentication.HttpAuthenticationScheme;
-import org.picketlink.http.internal.schemes.BasicAuthenticationScheme;
-import org.picketlink.http.internal.schemes.DigestAuthenticationScheme;
-import org.picketlink.http.internal.schemes.FormAuthenticationScheme;
-import org.picketlink.http.internal.schemes.TokenAuthenticationScheme;
-import org.picketlink.http.internal.schemes.X509AuthenticationScheme;
+import org.picketlink.http.authorization.PathAuthorizer;
+import org.picketlink.http.internal.authentication.schemes.BasicAuthenticationScheme;
+import org.picketlink.http.internal.authentication.schemes.DigestAuthenticationScheme;
+import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
+import org.picketlink.http.internal.authentication.schemes.TokenAuthenticationScheme;
+import org.picketlink.http.internal.authentication.schemes.X509AuthenticationScheme;
+import org.picketlink.http.internal.authorization.DefaultPathAuthorizer;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.model.Account;
 import org.picketlink.internal.el.ELProcessor;
 
 import javax.enterprise.inject.Any;
@@ -100,7 +99,11 @@ public class SecurityFilter implements Filter {
 
     @Inject
     @Any
-    private Instance<HttpAuthenticationScheme> authenticationSchemesInstances;
+    private Instance<HttpAuthenticationScheme> authenticationSchemesInstance;
+
+    @Inject
+    @Any
+    private Instance<PathAuthorizer> pathAuthorizerInstance;
 
     @Inject
     @PicketLink
@@ -265,128 +268,26 @@ public class SecurityFilter implements Filter {
     }
 
     private boolean isAuthorized(PathConfiguration pathConfiguration, ContextualHttpServletRequest request, HttpServletResponse response) {
-        boolean isAuthorized = true;
-
         AuthorizationConfiguration authorizationConfiguration = pathConfiguration.getAuthorizationConfiguration();
 
         if (authorizationConfiguration == null) {
             return true;
         }
 
-        Identity identity = getIdentity();
-        String[] allowedRoles = authorizationConfiguration.getAllowedRoles();
+        Class<? extends PathAuthorizer> pathAuthorizerType = authorizationConfiguration.getPathAuthorizer();
 
-        if (allowedRoles != null) {
-            for (String roneName : allowedRoles) {
-                if (!AuthorizationUtil.hasRole(identity, this.partitionManager.get(), roneName)) {
-                    isAuthorized = false;
-                    break;
-                }
-            }
+        if (pathAuthorizerType == null) {
+            pathAuthorizerType = DefaultPathAuthorizer.class;
         }
 
-        String[] allowedGroups = authorizationConfiguration.getAllowedGroups();
+        try {
+            Instance<? extends PathAuthorizer> pathAuthorizerInstance = this.pathAuthorizerInstance.select(pathAuthorizerType);
+            PathAuthorizer pathAuthorizer = resolveInstance(pathAuthorizerInstance);
 
-        if (allowedGroups != null) {
-            for (String groupName : allowedGroups) {
-                if (!AuthorizationUtil.isMember(identity, this.partitionManager.get(), groupName)) {
-                    isAuthorized = false;
-                    break;
-                }
-            }
+            return pathAuthorizer.authorize(pathConfiguration, request, response);
+        } catch (Exception e) {
+            throw new HttpSecurityConfigurationException("Could not resolve PathAuthorizer [" + pathAuthorizerType + "].", e);
         }
-
-        String[] allowedRealms = authorizationConfiguration.getAllowedRealms();
-
-        if (allowedRealms != null) {
-            for (String realmName : allowedRealms) {
-                Account validatedAccount = identity.getAccount();
-
-                if (!validatedAccount.getPartition().getName().equals(realmName)) {
-                    try {
-                        Class<Object> partitionType = Reflections.classForName(realmName);
-
-                        isAuthorized = AuthorizationUtil.hasPartition(identity, partitionType, null);
-                    } catch (Exception ignore) {
-                        isAuthorized = false;
-                    }
-
-                    if (isAuthorized) {
-                        break;
-                    }
-
-                    isAuthorized = false;
-                }
-            }
-        }
-
-        String protectedUri = request.getContextPath() + pathConfiguration.getUri();
-        int startRegex = protectedUri.indexOf("{");
-
-        if (startRegex == -1) {
-            String[] expressions = authorizationConfiguration.getExpressions();
-
-            if (expressions != null) {
-                for (String expression : expressions) {
-                    try {
-                        Object eval = this.elProcessor.eval(expression);
-
-                        if (eval == null || !Boolean.class.isInstance(eval)) {
-                            throw new RuntimeException("Authorization expressions [" + expression + "] must evaluate to a boolean.");
-                        }
-
-                        if (!Boolean.valueOf(eval.toString())) {
-                            isAuthorized = false;
-                            break;
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException("Failed to process authorization expression [" + expression + "] for path [" + protectedUri + "].", e);
-                    }
-                }
-            }
-        } else {
-            String[] expressions = authorizationConfiguration.getExpressions();
-            String formattedProtectedUri = protectedUri;
-
-            if (expressions != null) {
-                for (String expression : expressions) {
-                    try {
-                        Object eval = this.elProcessor.eval(expression);
-
-                        if (eval == null) {
-                            throw new RuntimeException("Authorization expressions [" + expression + "] must evaluate to a not null value.");
-                        }
-
-                        String expressionPattern = expression.substring(1);
-
-                        if (formattedProtectedUri.indexOf(expressionPattern) == -1) {
-                            isAuthorized = false;
-                            break;
-                        }
-
-                        formattedProtectedUri = formattedProtectedUri.replace(expressionPattern, eval.toString());
-                    } catch (Exception e) {
-                        throw new RuntimeException("Failed to process authorization expression [" + expression + "] for path [" + protectedUri + "].", e);
-                    }
-                }
-
-                if (!request.getRequestURI().equals(formattedProtectedUri)) {
-                    int prefixEnd = formattedProtectedUri.lastIndexOf('/');
-
-                    if (prefixEnd != -1) {
-                        String prefix = formattedProtectedUri.substring(0, prefixEnd);
-
-                        if (!request.getRequestURI().startsWith(prefix)) {
-                            isAuthorized = false;
-                        }
-                    } else {
-                        isAuthorized = false;
-                    }
-                }
-            }
-        }
-
-        return isAuthorized;
     }
 
     private void processRequest(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
@@ -571,7 +472,7 @@ public class SecurityFilter implements Filter {
     }
 
     private HttpAuthenticationScheme resolveAuthenticationScheme(Class<? extends HttpAuthenticationScheme> authSchemeType) {
-        Instance<? extends HttpAuthenticationScheme> configuredAuthScheme = this.authenticationSchemesInstances.select(authSchemeType);
+        Instance<? extends HttpAuthenticationScheme> configuredAuthScheme = this.authenticationSchemesInstance.select(authSchemeType);
 
         if (configuredAuthScheme.isAmbiguous()) {
             throw new IllegalStateException("Ambiguous beans found for Http Authentication Scheme type [" + authSchemeType + "].");

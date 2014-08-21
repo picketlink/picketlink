@@ -22,6 +22,7 @@
 package org.picketlink.config.http;
 
 import org.picketlink.http.HttpMethod;
+import org.picketlink.http.authorization.PathAuthorizer;
 
 import java.util.Collections;
 import java.util.List;
@@ -166,6 +167,7 @@ public class PathConfiguration {
                 String[] allowedRealms = this.authorizationConfiguration.getAllowedRealms();
                 String[] allowedRoles = this.authorizationConfiguration.getAllowedRoles();
                 String[] expressions = this.authorizationConfiguration.getExpressions();
+                Class<? extends PathAuthorizer> pathAuthorizer = this.authorizationConfiguration.getPathAuthorizer();
 
                 if (allowedGroups == null) {
                     allowedGroups = groupAuthz.getAllowedGroups();
@@ -183,7 +185,11 @@ public class PathConfiguration {
                     expressions = groupAuthz.getExpressions();
                 }
 
-                return new AuthorizationConfiguration(this, allowedRoles, allowedGroups, allowedRealms, expressions);
+                if (pathAuthorizer == null) {
+                    pathAuthorizer = groupAuthz.getPathAuthorizer();
+                }
+
+                return new AuthorizationConfiguration(this, allowedRoles, allowedGroups, allowedRealms, expressions, pathAuthorizer);
             } else if (groupAuthz != null) {
                 return groupConfiguration.getAuthorizationConfiguration();
             }
