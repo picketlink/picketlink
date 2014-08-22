@@ -87,6 +87,10 @@ public class IDPWebRequestUtil {
         this.postProfile = "POST".equals(request.getMethod());
     }
 
+    public void setRedirectProfile(boolean redirectProfile) {
+        this.redirectProfile = redirectProfile;
+    }
+
     public String getCanonicalizationMethod() {
         return canonicalizationMethod;
     }
