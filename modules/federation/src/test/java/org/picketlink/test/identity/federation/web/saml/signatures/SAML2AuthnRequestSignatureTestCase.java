@@ -3,6 +3,7 @@ package org.picketlink.test.identity.federation.web.saml.signatures;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
@@ -31,6 +32,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.util.HashMap;
@@ -116,6 +118,8 @@ public class SAML2AuthnRequestSignatureTestCase {
         String relayingPartyUrl = "http://redirect-relyingparty.com";
 
         AuthnRequestType authnRequestType = new SAML2Request().createAuthnRequestType("response", relayingPartyUrl, relayingPartyUrl, relayingPartyUrl);
+
+        authnRequestType.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get()));
 
         DefaultSAML2HandlerRequest handlerRequest = createHandlerRequest("GET", relayingPartyUrl, authnRequestType);
         DefaultSAML2HandlerResponse handlerResponse = createHandlerResponse("GET", authnRequestType);
