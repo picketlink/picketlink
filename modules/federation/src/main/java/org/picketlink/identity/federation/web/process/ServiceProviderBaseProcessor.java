@@ -210,7 +210,7 @@ public class ServiceProviderBaseProcessor {
     protected boolean isLogOutRequest(HTTPContext httpContext) {
         HttpServletRequest request = httpContext.getRequest();
         String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
-        return isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
+        return isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr) && request.getUserPrincipal() != null;
     }
 
     protected URL safeURL(String urlString) {
