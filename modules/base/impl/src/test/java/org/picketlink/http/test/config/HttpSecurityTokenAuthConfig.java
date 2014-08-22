@@ -19,21 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.http.test.annotation;
+package org.picketlink.http.test.config;
 
-import static org.junit.Assert.assertEquals;
+import org.picketlink.config.http.annotations.AllowedGroups;
+import org.picketlink.config.http.annotations.AllowedRealms;
+import org.picketlink.config.http.annotations.AllowedRoles;
+import org.picketlink.config.http.annotations.Authc;
+import org.picketlink.config.http.annotations.Authz;
+import org.picketlink.config.http.annotations.Expressions;
+import org.picketlink.config.http.annotations.HttpSecurity;
+import org.picketlink.config.http.annotations.Path;
+import org.picketlink.config.http.annotations.Token;
 
-import org.junit.Test;
-import org.picketlink.config.http.HttpSecurityConfiguration;
-import org.picketlink.http.internal.HttpSecurityConfigExtension;
+/**
+ * @author Giriraj Sharma
+ */
+@HttpSecurity
+public enum HttpSecurityTokenAuthConfig {
 
-public class AnnotationBasedConfigTestCase {
 
-    @Test
-    public void testHttpAnnotation() {
-
-        HttpSecurityConfiguration configuration = HttpSecurityConfigExtension.processAnnotatedType(MyHttpSecurityConfig.class).build().getHttpSecurityConfiguration();
-        assertEquals(3, configuration.getPaths().size());
-    }
-
+    @Path(pathGroup = "", pathName = "tokenProtectedUri/*")
+    @Authc
+    @Token
+    @Authz
+    @AllowedRoles(roles = { "Role A", "Role B" })
+    @AllowedGroups(groups = { "Group A", "Group B" })
+    @AllowedRealms(realms = { "Realm A", "Realm B" })
+    @Expressions(expressions = { "#{identity.isLoggedIn()}" })
+    ADMIN_TOKEN;
 }

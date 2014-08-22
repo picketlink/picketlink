@@ -21,17 +21,30 @@
  */
 package org.picketlink.http.test.config;
 
+import org.picketlink.config.http.annotations.AllowedGroups;
+import org.picketlink.config.http.annotations.AllowedRealms;
+import org.picketlink.config.http.annotations.AllowedRoles;
+import org.picketlink.config.http.annotations.Authc;
+import org.picketlink.config.http.annotations.Authz;
+import org.picketlink.config.http.annotations.Expressions;
+import org.picketlink.config.http.annotations.Form;
+import org.picketlink.config.http.annotations.HttpSecurity;
+import org.picketlink.config.http.annotations.Path;
+
 /**
- * @author Pedro Igor
+ * @author Giriraj Sharma
  */
 @HttpSecurity
-public interface MyHttpSecurityConfig {
+public enum HttpSecurityFormAuthConfig {
 
-    public enum Paths {
 
-        @Path("/*")
-        ADMIN
-
-    }
-
+    @Path(pathGroup = "", pathName = "/formProtectedUri/*")
+    @Authc
+    @Form(errorPage = "/errorA.html", loginPage = "/loginA.html", restoreOriginalRequest = "no")
+    @Authz
+    @AllowedRoles(roles = { "Role A", "Role B" })
+    @AllowedGroups(groups = { "Group A", "Group B" })
+    @AllowedRealms(realms = { "Realm A", "Realm B" })
+    @Expressions(expressions = { "#{identity.isLoggedIn()}" })
+    ADMIN_FORM;
 }
