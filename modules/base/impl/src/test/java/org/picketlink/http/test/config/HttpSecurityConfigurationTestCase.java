@@ -21,23 +21,23 @@
  */
 package org.picketlink.http.test.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
+import org.picketlink.config.HttpSecurityBuilder;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.config.http.AuthenticationConfiguration;
 import org.picketlink.config.http.BasicAuthenticationConfiguration;
 import org.picketlink.config.http.DigestAuthenticationConfiguration;
-import org.picketlink.config.http.HttpSecurityBuilder;
 import org.picketlink.config.http.HttpSecurityConfiguration;
 import org.picketlink.config.http.HttpSecurityConfigurationException;
 import org.picketlink.config.http.PathConfiguration;
 import org.picketlink.config.http.TokenAuthenticationConfiguration;
 import org.picketlink.config.http.X509AuthenticationConfiguration;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Pedro Igor
@@ -51,12 +51,12 @@ public class HttpSecurityConfigurationTestCase {
         HttpSecurityBuilder builder = configurationBuilder.http();
 
         builder
-            .path("/*")
-                .authc()
+            .forPath("/*")
+                .authenticateWith()
                     .form()
                         .loginPage("/login.html")
                         .errorPage("/error.html")
-                .authz()
+                .authorizeWith()
                     .role("Role A", "Role B")
                     .group("Group A", "Group B")
                     .realm("Realm A", "Realm B")
@@ -75,12 +75,12 @@ public class HttpSecurityConfigurationTestCase {
         String[] expectedMethods = {"POST", "GET"};
 
         builder
-            .path("/*")
-            .authc()
+            .forPath("/*")
+            .authenticateWith()
             .form()
             .loginPage("/login.html")
             .errorPage("/error.html")
-            .authz()
+            .authorizeWith()
             .role("Role A", "Role B")
             .group("Group A", "Group B")
             .realm("Realm A", "Realm B")
@@ -99,13 +99,12 @@ public class HttpSecurityConfigurationTestCase {
         String[] expectedMethods = {"POST", "GET"};
 
         builder
-            .permissive()
-            .path("/*")
-            .authc()
+            .forPath("/*")
+            .authenticateWith()
             .form()
             .loginPage("/login.html")
             .errorPage("/error.html")
-            .authz()
+            .authorizeWith()
             .role("Role A", "Role B")
             .group("Group A", "Group B")
             .realm("Realm A", "Realm B")
@@ -123,11 +122,11 @@ public class HttpSecurityConfigurationTestCase {
 
         builder
             .allPaths()
-            .authc()
+            .authenticateWith()
             .form()
             .loginPage("/login.html")
             .errorPage("/error.html")
-            .authz()
+            .authorizeWith()
             .role("Role A", "Role B")
             .group("Group A", "Group B")
             .realm("Realm A", "Realm B")
@@ -148,22 +147,22 @@ public class HttpSecurityConfigurationTestCase {
         HttpSecurityBuilder builder = configurationBuilder.http();
 
         builder
-            .pathGroup("REST Service Group A")
-                .authc()
+            .forGroup("REST Service Group A")
+                .authenticateWith()
                     .form()
                         .loginPage("/loginA.html")
                         .errorPage("/errorA.html")
-                .authz()
+                .authorizeWith()
                     .role("Role A")
-            .pathGroup("REST Service Group B")
-                .authc()
+            .forGroup("REST Service Group B")
+                .authenticateWith()
                     .form()
                         .loginPage("/loginB.html")
                         .errorPage("/errorB.html")
-                .authz()
+                .authorizeWith()
                     .role("Role B")
-            .path("/rest/a/*", "REST Service Group A")
-            .path("/rest/b/*", "REST Service Group B");
+            .forPath("/rest/a/*", "REST Service Group A")
+            .forPath("/rest/b/*", "REST Service Group B");
 
         HttpSecurityConfiguration configuration = builder.build().getHttpSecurityConfiguration();
 
@@ -177,12 +176,12 @@ public class HttpSecurityConfigurationTestCase {
         HttpSecurityBuilder builder = configurationBuilder.http();
 
         builder
-            .pathGroup("REST Service")
-            .authc()
+            .forGroup("REST Service")
+            .authenticateWith()
             .form()
             .loginPage("/login.html")
             .errorPage("/login.html")
-            .authz()
+            .authorizeWith()
             .role("Role A");
 
         builder.build();
@@ -194,11 +193,11 @@ public class HttpSecurityConfigurationTestCase {
         HttpSecurityBuilder builder = configurationBuilder.http();
 
         builder
-            .path("/*")
-            .authc()
+            .forPath("/*")
+            .authenticateWith()
             .basic()
             .realmName("My Realm")
-            .authz()
+            .authorizeWith()
             .role("Role A", "Role B")
             .group("Group A", "Group B")
             .realm("Realm A", "Realm B")
@@ -222,11 +221,11 @@ public class HttpSecurityConfigurationTestCase {
         HttpSecurityBuilder builder = configurationBuilder.http();
 
         builder
-            .path("/*")
-            .authc()
+            .forPath("/*")
+            .authenticateWith()
             .digest()
             .realmName("My Realm")
-            .authz()
+            .authorizeWith()
             .role("Role A", "Role B")
             .group("Group A", "Group B")
             .realm("Realm A", "Realm B")
@@ -250,11 +249,11 @@ public class HttpSecurityConfigurationTestCase {
         HttpSecurityBuilder builder = configurationBuilder.http();
 
         builder
-            .path("/*")
-            .authc()
+            .forPath("/*")
+            .authenticateWith()
             .x509()
                 .subjectRegex("someExpression")
-            .authz()
+            .authorizeWith()
             .role("Role A", "Role B")
             .group("Group A", "Group B")
             .realm("Realm A", "Realm B")
@@ -278,10 +277,10 @@ public class HttpSecurityConfigurationTestCase {
         HttpSecurityBuilder builder = configurationBuilder.http();
 
         builder
-            .path("/*")
-            .authc()
+            .forPath("/*")
+            .authenticateWith()
             .token()
-            .authz()
+            .authorizeWith()
             .role("Role A", "Role B")
             .group("Group A", "Group B")
             .realm("Realm A", "Realm B")

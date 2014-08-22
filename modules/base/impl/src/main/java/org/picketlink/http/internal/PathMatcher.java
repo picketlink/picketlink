@@ -23,6 +23,7 @@ package org.picketlink.http.internal;
 
 import org.picketlink.config.http.InboundHeaderConfiguration;
 import org.picketlink.config.http.PathConfiguration;
+import org.picketlink.http.HttpMethod;
 import org.picketlink.internal.el.ELProcessor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -138,9 +139,9 @@ public class PathMatcher {
             for (int i = 0; i < configurations.size(); i++) {
                 PathConfiguration pathConfiguration = configurations.get(i);
                 InboundHeaderConfiguration headerConfiguration = pathConfiguration.getInboundHeaderConfiguration();
-                Set<String> methods = pathConfiguration.getMethods();
+                Set<HttpMethod> methods = pathConfiguration.getMethods();
 
-                if (!methods.contains(request.getMethod().toUpperCase())) {
+                if (!methods.contains(HttpMethod.valueOf(request.getMethod().toUpperCase()))) {
                     continue;
                 }
 

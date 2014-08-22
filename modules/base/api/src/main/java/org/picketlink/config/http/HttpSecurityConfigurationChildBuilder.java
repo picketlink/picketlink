@@ -30,9 +30,11 @@ public interface HttpSecurityConfigurationChildBuilder extends SecurityConfigura
 
     PathConfigurationBuilder allPaths();
 
-    PathConfigurationBuilder path(String uri);
+    PathConfigurationBuilder forPath(String uri);
 
-    PathConfigurationBuilder path(String uri, String groupName);
+    PathConfigurationBuilder forPath(String uri, String groupName);
 
-    PathConfigurationBuilder pathGroup(String groupName);
+    PathConfigurationBuilder forGroup(String groupName);
+
+    HttpSecurityConfigurationChildBuilder restrictive();
 }

@@ -21,6 +21,8 @@
  */
 package org.picketlink.config.http;
 
+import org.picketlink.http.HttpMethod;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -41,10 +43,10 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
     private AuthorizationConfigurationBuilder authorizationConfigurationBuilder;
     private InboundHeaderConfigurationBuilder inboundHeaderConfigurationBuilder;
     private LogoutConfigurationBuilder logoutConfigurationBuilder;
-    private Set<String> methods = new HashSet<String>();
+    private Set<HttpMethod> methods = new HashSet<HttpMethod>();
     private final List<OutboundRedirectConfigurationBuilder> redirects = new ArrayList<OutboundRedirectConfigurationBuilder>();
 
-    PathConfigurationBuilder(String groupName, String uri, Boolean secured, HttpSecurityBuilder parentBuilder) {
+    PathConfigurationBuilder(String groupName, String uri, Boolean secured, AbstractHttpSecurityBuilder parentBuilder) {
         super(parentBuilder);
         this.groupName = groupName;
         this.uri = uri;
@@ -56,7 +58,7 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
      *
      * @return
      */
-    public AuthenticationConfigurationBuilder authc() {
+    public AuthenticationConfigurationBuilder authenticateWith() {
         if (this.authenticationConfigBuilder == null) {
             this.authenticationConfigBuilder = new AuthenticationConfigurationBuilder(this);
         }
@@ -69,7 +71,7 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
      *
      * @return
      */
-    public AuthorizationConfigurationBuilder authz() {
+    public AuthorizationConfigurationBuilder authorizeWith() {
         if (this.authorizationConfigurationBuilder == null) {
             this.authorizationConfigurationBuilder = new AuthorizationConfigurationBuilder(this);
         }
@@ -98,7 +100,7 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
      *
      * @return
      */
-    public InboundHeaderConfigurationBuilder headers() {
+    public InboundHeaderConfigurationBuilder withHeaders() {
         if (this.inboundHeaderConfigurationBuilder == null) {
             this.inboundHeaderConfigurationBuilder = new InboundHeaderConfigurationBuilder(this);
         }
@@ -115,7 +117,7 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
      * @param methods
      * @return
      */
-    public PathConfigurationBuilder methods(String... methods) {
+    public PathConfigurationBuilder withMethod(HttpMethod... methods) {
         this.methods.addAll(Arrays.asList(methods));
         return this;
     }

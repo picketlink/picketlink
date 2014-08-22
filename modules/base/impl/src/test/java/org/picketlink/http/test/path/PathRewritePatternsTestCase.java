@@ -108,11 +108,11 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
 
             builder
                 .http()
-                .pathGroup(groupName)
-                .authc()
+                .forGroup(groupName)
+                .authenticateWith()
                 .form()
-                .path("/patternBaseUri/{identity.account.partition.name}/", groupName)
-                .path("/user/profile/{identity.account.id}", groupName);
+                .forPath("/patternBaseUri/{identity.account.partition.name}/", groupName)
+                .forPath("/user/profile/{identity.account.id}", groupName);
         }
     }
 }

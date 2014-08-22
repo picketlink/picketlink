@@ -38,6 +38,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -100,7 +102,7 @@ public class ExpressionBasedAuthorizationTestCase extends AbstractSecurityFilter
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
     }
 
     @Test
@@ -130,7 +132,7 @@ public class ExpressionBasedAuthorizationTestCase extends AbstractSecurityFilter
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
     }
 
     public static class SecurityConfiguration {
@@ -139,17 +141,17 @@ public class ExpressionBasedAuthorizationTestCase extends AbstractSecurityFilter
 
             builder
                 .http()
-                    .path("/onlyIfExpressionAllows")
-                            .authz()
+                    .forPath("/onlyIfExpressionAllows")
+                            .authorizeWith()
                 .expression("#{identity.account.loginName == 'picketlink'}")
-                .path("/alwaysFalseExpression")
-                .authz()
+                .forPath("/alwaysFalseExpression")
+                .authorizeWith()
                 .expression("#{hasRole('Invalid Role')}")
-                .path("/company/single/pattern/{identity.account.partition.name}/*")
-                .authz()
+                .forPath("/company/single/pattern/{identity.account.partition.name}/*")
+                .authorizeWith()
                 .expression("#{identity.account.partition.name}")
-                .path("/company/multiple/pattern/{identity.account.partition.name}/{identity.account.id}/*")
-                .authz()
+                .forPath("/company/multiple/pattern/{identity.account.partition.name}/{identity.account.id}/*")
+                .authorizeWith()
                 .expression("#{identity.account.partition.name}", "#{identity.account.id}");
         }
     }

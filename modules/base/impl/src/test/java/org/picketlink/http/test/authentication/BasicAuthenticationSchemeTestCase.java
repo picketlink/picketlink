@@ -126,14 +126,14 @@ public class BasicAuthenticationSchemeTestCase extends AbstractSecurityFilterTes
 
             builder
                 .http()
-                    .path("/basicProtectedUri/*")
-                            .authc()
+                    .forPath("/basicProtectedUri/*")
+                            .authenticateWith()
                                 .basic()
                                     .realmName("Basic Protected Uri")
-                    .path("/basicProtectedUri/*")
-                            .headers()
+                    .forPath("/basicProtectedUri/*")
+                            .withHeaders()
                                 .requestedWith("XMLHttpRequest")
-                            .authc()
+                            .authenticateWith()
                                 .basic()
                                     .realmName("PicketLink Basic For Ajax Requests Realm");
         }

@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -94,7 +96,7 @@ public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
 
         when(this.request.getServletPath()).thenReturn("/customAuthorizer");
         when(this.request.getParameter("authz_flag")).thenReturn("true");
@@ -112,13 +114,13 @@ public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase
             builder
                 .http()
                 .allPaths()
-                .authc()
+                .authenticateWith()
                 .form()
-                .path("/onlyManagerRole")
-                .authz()
+                .forPath("/onlyManagerRole")
+                .authorizeWith()
                 .role("Manager")
-                .path("/customAuthorizer")
-                .authz()
+                .forPath("/customAuthorizer")
+                .authorizeWith()
                 .authorizer(CustomPathAuthorizer.class);
         }
     }

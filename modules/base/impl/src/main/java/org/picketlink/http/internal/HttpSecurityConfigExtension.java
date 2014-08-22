@@ -21,18 +21,13 @@
  */
 package org.picketlink.http.internal;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-
-import javax.enterprise.inject.spi.Extension;
-
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.config.http.AuthenticationConfigurationBuilder;
 import org.picketlink.config.http.AuthorizationConfigurationBuilder;
 import org.picketlink.config.http.BasicAuthenticationConfigurationBuilder;
 import org.picketlink.config.http.DigestAuthenticationConfigurationBuilder;
 import org.picketlink.config.http.FormAuthenticationConfigurationBuilder;
-import org.picketlink.config.http.HttpSecurityBuilder;
+import org.picketlink.config.http.HttpSecurityConfigurationChildBuilder;
 import org.picketlink.config.http.PathConfigurationBuilder;
 import org.picketlink.config.http.TokenAuthenticationConfigurationBuilder;
 import org.picketlink.config.http.X509AuthenticationConfigurationBuilder;
@@ -48,15 +43,18 @@ import org.picketlink.config.http.annotations.Expressions;
 import org.picketlink.config.http.annotations.Form;
 import org.picketlink.config.http.annotations.Path;
 import org.picketlink.config.http.annotations.PathGroup;
-import org.picketlink.config.http.annotations.Permissive;
 import org.picketlink.config.http.annotations.Restrictive;
 import org.picketlink.config.http.annotations.Token;
 import org.picketlink.config.http.annotations.X509;
 
+import javax.enterprise.inject.spi.Extension;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+
 public class HttpSecurityConfigExtension implements Extension {
 
     public static SecurityConfigurationBuilder builder = new SecurityConfigurationBuilder();
-    public static HttpSecurityBuilder httpSecurityBuilder = builder.http();
+    public static HttpSecurityConfigurationChildBuilder httpSecurityBuilder = builder.http();
     private static PathConfigurationBuilder pathConfigurationBuilder;
     private static AuthenticationConfigurationBuilder authenticationConfigurationBuilder;
     private static FormAuthenticationConfigurationBuilder formAuthenticationConfigurationBuilder;
@@ -66,7 +64,7 @@ public class HttpSecurityConfigExtension implements Extension {
     private static X509AuthenticationConfigurationBuilder x509AuthenticationConfigurationBuilder;
     private static AuthorizationConfigurationBuilder authorizationConfigurationBuilder;
 
-    public static HttpSecurityBuilder processAnnotatedType(Class<?> configurationClass) {
+    public static HttpSecurityConfigurationChildBuilder processAnnotatedType(Class<?> configurationClass) {
 
         Class<?> clazz = configurationClass;
 
@@ -80,10 +78,7 @@ public class HttpSecurityConfigExtension implements Extension {
                 previousAnnotation = newAnnotation;
                 newAnnotation = a.annotationType();
 
-                if (a.annotationType() == Permissive.class) {
-                    HttpSecurityConfigExtension.httpSecurityBuilder = HttpSecurityConfigExtension.httpSecurityBuilder.permissive();
-
-                } else if (a.annotationType() == Restrictive.class) {
+                if (a.annotationType() == Restrictive.class) {
                     HttpSecurityConfigExtension.httpSecurityBuilder = HttpSecurityConfigExtension.httpSecurityBuilder.restrictive();
 
                 } else if (a.annotationType() == AllPaths.class) {
@@ -100,25 +95,25 @@ public class HttpSecurityConfigExtension implements Extension {
 
                     if (pathName != null && !pathName.isEmpty() && pathGroup != null && !pathGroup.isEmpty()) {
                         if (previousAnnotation == newAnnotation) {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.path(pathName, pathGroup);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.forPath(pathName, pathGroup);
                         } else if (HttpSecurityConfigExtension.authorizationConfigurationBuilder != null) {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.authorizationConfigurationBuilder.path(pathName, pathGroup);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.authorizationConfigurationBuilder.forPath(pathName, pathGroup);
                         } else if (previousAnnotation == Form.class || previousAnnotation == Basic.class || previousAnnotation == Digest.class
                             || previousAnnotation == Token.class || previousAnnotation == X509.class) {
                             HttpSecurityConfigExtension.pathConfigurationBuilder = SetAuthenticationPathNameAndGroup(previousAnnotation, pathName, pathGroup);
                         } else {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.httpSecurityBuilder.path(pathName, pathGroup);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.httpSecurityBuilder.forPath(pathName, pathGroup);
                         }
                     } else if (pathName != null && !pathName.isEmpty()) {
                         if (previousAnnotation == newAnnotation) {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.path(pathName);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.forPath(pathName);
                         } else if (HttpSecurityConfigExtension.authorizationConfigurationBuilder != null) {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.authorizationConfigurationBuilder.path(pathName);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.authorizationConfigurationBuilder.forPath(pathName);
                         } else if (previousAnnotation == Form.class || previousAnnotation == Basic.class || previousAnnotation == Digest.class
                             || previousAnnotation == Token.class || previousAnnotation == X509.class) {
                             HttpSecurityConfigExtension.pathConfigurationBuilder = SetAuthenticationPathName(previousAnnotation, pathName);
                         } else {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.httpSecurityBuilder.path(pathName);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.httpSecurityBuilder.forPath(pathName);
                         }
                     }
 
@@ -128,16 +123,16 @@ public class HttpSecurityConfigExtension implements Extension {
 
                     if (groupName != null && !groupName.isEmpty()) {
                         if (previousAnnotation == newAnnotation) {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.path(groupName);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.forPath(groupName);
                         } else if (HttpSecurityConfigExtension.authorizationConfigurationBuilder != null) {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.authorizationConfigurationBuilder.pathGroup(groupName);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.authorizationConfigurationBuilder.forGroup(groupName);
                         } else {
-                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.httpSecurityBuilder.pathGroup(groupName);
+                            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.httpSecurityBuilder.forGroup(groupName);
                         }
                     }
                 }
                 else if (a.annotationType() == Authc.class) {
-                    HttpSecurityConfigExtension.authenticationConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.authc();
+                    HttpSecurityConfigExtension.authenticationConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.authenticateWith();
 
                 } else if (a.annotationType() == Form.class) {
                     HttpSecurityConfigExtension.formAuthenticationConfigurationBuilder = HttpSecurityConfigExtension.authenticationConfigurationBuilder.form();
@@ -192,22 +187,22 @@ public class HttpSecurityConfigExtension implements Extension {
 
                 } else if (a.annotationType() == Authz.class) {
                     if (HttpSecurityConfigExtension.authenticationConfigurationBuilder == null) {
-                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.authz();
+                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.pathConfigurationBuilder.authorizeWith();
 
                     } else if (HttpSecurityConfigExtension.formAuthenticationConfigurationBuilder != null) {
-                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.formAuthenticationConfigurationBuilder.authz();
+                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.formAuthenticationConfigurationBuilder.authorizeWith();
 
                     } else if (HttpSecurityConfigExtension.digestAuthenticationConfigurationBuilder != null) {
-                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.digestAuthenticationConfigurationBuilder.authz();
+                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.digestAuthenticationConfigurationBuilder.authorizeWith();
 
                     } else if (HttpSecurityConfigExtension.basicAuthenticationConfigurationBuilder != null) {
-                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.basicAuthenticationConfigurationBuilder.authz();
+                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.basicAuthenticationConfigurationBuilder.authorizeWith();
 
                     } else if (HttpSecurityConfigExtension.tokenAuthenticationConfigurationBuilder != null) {
-                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.tokenAuthenticationConfigurationBuilder.authz();
+                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.tokenAuthenticationConfigurationBuilder.authorizeWith();
 
                     } else if (HttpSecurityConfigExtension.x509AuthenticationConfigurationBuilder != null) {
-                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.x509AuthenticationConfigurationBuilder.authz();
+                        HttpSecurityConfigExtension.authorizationConfigurationBuilder = HttpSecurityConfigExtension.x509AuthenticationConfigurationBuilder.authorizeWith();
                     }
 
                 } else if (a.annotationType() == AllowedRoles.class) {
@@ -246,30 +241,30 @@ public class HttpSecurityConfigExtension implements Extension {
 
     private static PathConfigurationBuilder SetAuthenticationPathName(Class<? extends Annotation> previousAnnotation, String pathName) {
         if (previousAnnotation == Form.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.formAuthenticationConfigurationBuilder.path(pathName);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.formAuthenticationConfigurationBuilder.forPath(pathName);
         } else if (previousAnnotation == Digest.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.digestAuthenticationConfigurationBuilder.path(pathName);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.digestAuthenticationConfigurationBuilder.forPath(pathName);
         } else if (previousAnnotation == Basic.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.basicAuthenticationConfigurationBuilder.path(pathName);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.basicAuthenticationConfigurationBuilder.forPath(pathName);
         } else if (previousAnnotation == Token.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.tokenAuthenticationConfigurationBuilder.path(pathName);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.tokenAuthenticationConfigurationBuilder.forPath(pathName);
         } else if (previousAnnotation == X509.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.x509AuthenticationConfigurationBuilder.path(pathName);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.x509AuthenticationConfigurationBuilder.forPath(pathName);
         }
         return HttpSecurityConfigExtension.pathConfigurationBuilder;
     }
 
     private static PathConfigurationBuilder SetAuthenticationPathNameAndGroup(Class<? extends Annotation> previousAnnotation, String pathName, String pathGroup) {
         if (previousAnnotation == Form.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.formAuthenticationConfigurationBuilder.path(pathName, pathGroup);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.formAuthenticationConfigurationBuilder.forPath(pathName, pathGroup);
         } else if (previousAnnotation == Digest.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.digestAuthenticationConfigurationBuilder.path(pathName, pathGroup);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.digestAuthenticationConfigurationBuilder.forPath(pathName, pathGroup);
         } else if (previousAnnotation == Basic.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.basicAuthenticationConfigurationBuilder.path(pathName, pathGroup);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.basicAuthenticationConfigurationBuilder.forPath(pathName, pathGroup);
         } else if (previousAnnotation == Token.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.tokenAuthenticationConfigurationBuilder.path(pathName, pathGroup);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.tokenAuthenticationConfigurationBuilder.forPath(pathName, pathGroup);
         } else if (previousAnnotation == X509.class) {
-            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.x509AuthenticationConfigurationBuilder.path(pathName, pathGroup);
+            HttpSecurityConfigExtension.pathConfigurationBuilder = HttpSecurityConfigExtension.x509AuthenticationConfigurationBuilder.forPath(pathName, pathGroup);
         }
         return HttpSecurityConfigExtension.pathConfigurationBuilder;
     }

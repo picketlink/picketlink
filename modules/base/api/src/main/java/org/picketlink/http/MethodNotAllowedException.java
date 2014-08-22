@@ -19,20 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.config;
+package org.picketlink.http;
 
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.common.exceptions.PicketLinkException;
 
 /**
+ * <p>Thrown to indicate that a HTTP method is not allowed.</p>
+ *
  * @author Pedro Igor
  */
-public interface SecurityConfigurationChildBuilder {
+public class MethodNotAllowedException extends PicketLinkException {
 
-    IdentityConfigurationBuilder idmConfig();
-
-    IdentityBeanConfigurationBuilder identity();
-
-    HttpSecurityBuilder http();
-
-    SecurityConfiguration build();
+    public MethodNotAllowedException(String message) {
+        super(message);
+    }
 }

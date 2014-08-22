@@ -88,8 +88,8 @@ public class SuffixBasedPatternsTestCase extends AbstractSecurityFilterTestCase 
 
             builder
                 .http()
-                .path("/*.jsf")
-                .authc()
+                .forPath("/*.jsf")
+                .authenticateWith()
                 .basic()
                 .realmName("Wildcard JSF Realm");
         }

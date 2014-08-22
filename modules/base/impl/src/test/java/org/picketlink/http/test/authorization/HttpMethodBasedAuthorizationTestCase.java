@@ -24,17 +24,18 @@ package org.picketlink.http.test.authorization;
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
+import org.picketlink.http.HttpMethod;
 import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
 import org.picketlink.http.test.SecurityInitializer;
 import org.picketlink.test.weld.Deployment;
-import org.picketlink.http.HttpMethod;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -77,7 +78,7 @@ public class HttpMethodBasedAuthorizationTestCase extends AbstractSecurityFilter
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        verify(this.response, times(1)).sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_METHOD_NOT_ALLOWED), anyString());
     }
 
     public static class SecurityConfiguration {
@@ -85,9 +86,9 @@ public class HttpMethodBasedAuthorizationTestCase extends AbstractSecurityFilter
             SecurityConfigurationBuilder builder = event.getBuilder();
             builder
                 .http()
-                .path("/overrideMethod")
-                .methods("POST")
-                .authc()
+                .forPath("/overrideMethod")
+                .withMethod(HttpMethod.POST)
+                .authenticateWith()
                 .form();
         }
     }

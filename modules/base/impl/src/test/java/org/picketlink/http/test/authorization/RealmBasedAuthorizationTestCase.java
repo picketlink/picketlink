@@ -38,6 +38,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,7 +99,7 @@ public class RealmBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
     }
 
     public static class SecurityConfiguration {
@@ -105,14 +107,14 @@ public class RealmBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
             SecurityConfigurationBuilder builder = event.getBuilder();
             builder
                 .http()
-                .path("/onlyDefaultRealmName")
-                .authz()
+                .forPath("/onlyDefaultRealmName")
+                .authorizeWith()
                     .realm(Realm.DEFAULT_REALM)
-                .path("/onlyDefaultRealmType")
-                .authz()
+                .forPath("/onlyDefaultRealmType")
+                .authorizeWith()
                 .realm(Realm.class.getName())
-                .path("/onlyAcmeRealmName")
-                .authz()
+                .forPath("/onlyAcmeRealmName")
+                .authorizeWith()
                 .realm("Acme");
         }
     }

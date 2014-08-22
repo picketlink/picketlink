@@ -41,17 +41,22 @@ public abstract class AbstracHttpSecurityConfigurationChildBuilder<T> extends Ab
     }
 
     @Override
-    public PathConfigurationBuilder path(String uri) {
-        return this.builder.path(uri);
+    public PathConfigurationBuilder forPath(String uri) {
+        return this.builder.forPath(uri);
     }
 
     @Override
-    public PathConfigurationBuilder path(String uri, String groupName) {
-        return this.builder.path(uri, groupName);
+    public PathConfigurationBuilder forPath(String uri, String groupName) {
+        return this.builder.forPath(uri, groupName);
     }
 
     @Override
-    public PathConfigurationBuilder pathGroup(String groupName) {
-        return this.builder.pathGroup(groupName);
+    public PathConfigurationBuilder forGroup(String groupName) {
+        return this.builder.forGroup(groupName);
+    }
+
+    @Override
+    public HttpSecurityConfigurationChildBuilder restrictive() {
+        return this.builder.restrictive();
     }
 }

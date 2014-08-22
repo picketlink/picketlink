@@ -24,7 +24,9 @@ package org.picketlink.config.http;
 import org.picketlink.http.HttpMethod;
 import org.picketlink.http.authorization.PathAuthorizer;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,13 +50,13 @@ public class PathConfiguration {
     private AuthenticationConfiguration authenticationConfiguration;
     private AuthorizationConfiguration authorizationConfiguration;
     private InboundHeaderConfiguration inboundHeaderConfiguration;
-    private Set<String> methods;
+    private Set<HttpMethod> methods;
 
     public PathConfiguration(
         String groupName,
         String uri,
         Boolean secured,
-        Set<String> methods, List<OutboundRedirectConfiguration> redirects) {
+        Set<HttpMethod> methods, List<OutboundRedirectConfiguration> redirects) {
         if (groupName == null && uri == null) {
             throw new HttpSecurityConfigurationException("You must provide a group name or uri. Or even both.");
         }
@@ -66,7 +68,7 @@ public class PathConfiguration {
         if (methods != null && !methods.isEmpty()) {
             this.methods = methods;
         } else {
-            this.methods = HttpMethod.names();
+            this.methods = new HashSet(Arrays.asList(HttpMethod.values()));
         }
 
         if (redirects == null) {
@@ -262,7 +264,7 @@ public class PathConfiguration {
         return hasRedirect;
     }
 
-    public Set<String> getMethods() {
+    public Set<HttpMethod> getMethods() {
         return Collections.unmodifiableSet(this.methods);
     }
 

@@ -66,13 +66,13 @@ public class PermissiveConfigurationTestCase extends AbstractSecurityFilterTestC
 
             builder
                 .http()
-                .pathGroup("JSF Protected Pages")
-                .authc()
+                .forGroup("JSF Protected Pages")
+                .authenticateWith()
                 .form()
                 .loginPage("/faces/login.xhtml")
                 .errorPage("/faces/loginFailed.xhtml")
-                .path("/*.xhtml", "JSF Protected Pages")
-                .path("/*.jsf", "JSF Protected Pages");
+                .forPath("/*.xhtml", "JSF Protected Pages")
+                .forPath("/*.jsf", "JSF Protected Pages");
         }
     }
 }

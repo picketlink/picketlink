@@ -50,8 +50,8 @@ public class AnnotationBasedConfigTestCase extends AbstractSecurityFilterTestCas
 
             builder
                 .http()
-                .path("/formProtectedUri/*")
-                .authc()
+                .forPath("/formProtectedUri/*")
+                .authenticateWith()
                 .form();
         }
     }

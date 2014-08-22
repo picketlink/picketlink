@@ -77,7 +77,7 @@ public class UserAlreadyauthenticatedTestCase extends AbstractSecurityFilterTest
             builder
                 .http()
                 .allPaths()
-                .authc()
+                .authenticateWith()
                 .form();
         }
     }

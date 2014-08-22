@@ -82,13 +82,13 @@ public class RestrictiveConfigurationTestCase extends AbstractSecurityFilterTest
             builder
                 .http()
                 .restrictive()
-                .pathGroup("JSF Protected Pages")
-                .authc()
+                .forGroup("JSF Protected Pages")
+                .authenticateWith()
                 .form()
                 .loginPage("/faces/login.xhtml")
                 .errorPage("/faces/loginFailed.xhtml")
-                .path("/*.xhtml", "JSF Protected Pages")
-                .path("/*.jsf", "JSF Protected Pages");
+                .forPath("/*.xhtml", "JSF Protected Pages")
+                .forPath("/*.jsf", "JSF Protected Pages");
         }
     }
 }

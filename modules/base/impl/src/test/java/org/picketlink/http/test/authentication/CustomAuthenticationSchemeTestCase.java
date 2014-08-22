@@ -70,7 +70,6 @@ public class CustomAuthenticationSchemeTestCase extends AbstractSecurityFilterTe
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        verify(this.request, times(2)).setAttribute("extractCredential", true);
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response, times(1)).sendRedirect("/customLogin");
     }
@@ -93,8 +92,8 @@ public class CustomAuthenticationSchemeTestCase extends AbstractSecurityFilterTe
 
             builder
                 .http()
-                    .path("/customAuthenticationScheme/*")
-                            .authc()
+                    .forPath("/customAuthenticationScheme/*")
+                            .authenticateWith()
                                 .scheme(CustomAuthenticationScheme.class);
         }
     }

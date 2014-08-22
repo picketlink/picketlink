@@ -34,13 +34,13 @@ public abstract class AbstractPathConfigurationChildBuilder extends AbstracHttpS
     }
 
     @Override
-    public AuthenticationConfigurationBuilder authc() {
-        return builder.authc();
+    public AuthenticationConfigurationBuilder authenticateWith() {
+        return builder.authenticateWith();
     }
 
     @Override
-    public AuthorizationConfigurationBuilder authz() {
-        return builder.authz();
+    public AuthorizationConfigurationBuilder authorizeWith() {
+        return builder.authorizeWith();
     }
 
     @Override

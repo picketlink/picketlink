@@ -24,11 +24,11 @@ package org.picketlink.http.test.path;
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
+import org.picketlink.http.HttpMethod;
 import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
 import org.picketlink.http.test.SecurityInitializer;
 import org.picketlink.test.weld.Deployment;
-import org.picketlink.http.HttpMethod;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
@@ -79,7 +79,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response, times(0)).sendRedirect(anyString());
-        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED));
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
@@ -106,7 +106,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
@@ -144,7 +144,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        verify(this.response, times(1)).sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_METHOD_NOT_ALLOWED), anyString());
     }
 
     @Test
@@ -215,33 +215,33 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
 
             builder
                 .http()
-                .pathGroup(groupName)
-                        .authc()
+                .forGroup(groupName)
+                        .authenticateWith()
                             .form()
-                        .authz()
+                        .authorizeWith()
                             .role("Manager")
-                .path("/*", groupName)
-                .path("/overrideAuthorization", groupName)
-                        .authz()
+                .forPath("/*", groupName)
+                .forPath("/overrideAuthorization", groupName)
+                        .authorizeWith()
                             .role("Invalid Role")
-                .path("/overrideAuthentication", groupName)
-                .authc()
+                .forPath("/overrideAuthentication", groupName)
+                .authenticateWith()
                 .basic()
-                .path("/overrideMethod", groupName)
-                        .methods("POST")
-                .path("/noGroupPath")
-                        .authz()
+                .forPath("/overrideMethod", groupName)
+                        .withMethod(HttpMethod.POST)
+                .forPath("/noGroupPath")
+                        .authorizeWith()
                             .role("Some Role")
-                .pathGroup("Inherit Redirect Config")
-                .authc()
+                .forGroup("Inherit Redirect Config")
+                .authenticateWith()
                 .form()
-                .authz()
+                .authorizeWith()
                 .realm("Acme")
                 .redirectTo("/forbidden.html").whenForbidden()
                 .redirectTo("/error.html").whenError()
                 .redirectTo("/success.html")
-                .path("/onlyAcmeRealmName", "Inherit Redirect Config")
-                .path("/logout", "Inherit Redirect Config")
+                .forPath("/onlyAcmeRealmName", "Inherit Redirect Config")
+                .forPath("/logout", "Inherit Redirect Config")
                 .logout();
         }
     }

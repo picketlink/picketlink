@@ -80,10 +80,10 @@ public class PathGroupConfigurationWithAuthorizationOnlyTestCase extends Abstrac
 
             builder
                 .http()
-                .pathGroup(groupName)
+                .forGroup(groupName)
                 .redirectTo("/accessDenied.jsf").whenForbidden()
-                .path("/companies/acme/*", groupName)
-                .authz()
+                .forPath("/companies/acme/*", groupName)
+                .authorizeWith()
                 .realm("Acme");
         }
     }

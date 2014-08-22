@@ -33,12 +33,12 @@ import java.util.List;
  *
  * @author Pedro Igor
  */
-public class HttpSecurityBuilder extends AbstractSecurityConfigurationBuilder<HttpSecurityConfiguration> implements HttpSecurityConfigurationChildBuilder {
+public abstract class AbstractHttpSecurityBuilder extends AbstractSecurityConfigurationBuilder<HttpSecurityConfiguration> implements HttpSecurityConfigurationChildBuilder {
 
     private final List<PathConfigurationBuilder> uriConfigBuilder = new ArrayList<PathConfigurationBuilder>();
     private FilteringMode filteringMode;
 
-    public HttpSecurityBuilder(SecurityConfigurationBuilder builder) {
+    public AbstractHttpSecurityBuilder(SecurityConfigurationBuilder builder) {
         super(builder);
     }
 
@@ -57,18 +57,18 @@ public class HttpSecurityBuilder extends AbstractSecurityConfigurationBuilder<Ht
      * @param path The path. It should always begin with a slash. Some examples of path are: /rest, /rest/*, /*.jsf.
      * @return
      */
-    public PathConfigurationBuilder path(String path) {
-        return path(path, PathConfiguration.DEFAULT_GROUP_NAME);
+    public PathConfigurationBuilder forPath(String path) {
+        return forPath(path, PathConfiguration.DEFAULT_GROUP_NAME);
     }
 
     /**
      * <p>Creates a configuration for the given <code>path</code> based on a previously configured path group.</p>
      *
      * @param path The path. It should always begin with a slash. Some examples of path are: /rest, /rest/*, /*.jsf.
-     * @param groupName The group name. It must be a valid name referencing a path group defined using the {@link org.picketlink.config.http.HttpSecurityBuilder#pathGroup(String)}.
+     * @param groupName The group name. It must be a valid name referencing a path group defined using the {@link org.picketlink.config.http.AbstractHttpSecurityBuilder#forGroup(String)}.
      * @return
      */
-    public PathConfigurationBuilder path(String path, String groupName) {
+    public PathConfigurationBuilder forPath(String path, String groupName) {
         return pathGroup(groupName, path);
     }
 
@@ -78,12 +78,12 @@ public class HttpSecurityBuilder extends AbstractSecurityConfigurationBuilder<Ht
      * @param groupName The name of the path group.
      * @return
      */
-    public PathConfigurationBuilder pathGroup(String groupName) {
+    public PathConfigurationBuilder forGroup(String groupName) {
         return pathGroup(groupName, null);
     }
 
     /**
-     * <p>The same as {@link org.picketlink.config.http.HttpSecurityBuilder#pathGroup(String)}, but with a default <code>path</code>.</p>
+     * <p>The same as {@link org.picketlink.config.http.AbstractHttpSecurityBuilder#forGroup(String)}, but with a default <code>path</code>.</p>
      *
      * @param groupName
      * @param path
@@ -98,34 +98,21 @@ public class HttpSecurityBuilder extends AbstractSecurityConfigurationBuilder<Ht
     }
 
     /**
-     * <p>Indicates if the default behavior is to not filter requests if they don't have a respective path configuration.</p>
-     *
-     * <p>If the protection mode is not specified (eg.: {@link HttpSecurityBuilder#permissive()} or
-     * {@link org.picketlink.config.http.HttpSecurityBuilder#restrictive()}), default is to be permissive.</p>
-     *
-     * @return
-     */
-    public HttpSecurityBuilder permissive() {
-        this.filteringMode = FilteringMode.PERMISSIVE;
-        return this;
-    }
-
-    /**
      * <p>Indicates if the default behavior is to enforce security to all paths regardless they have a respective path configuration
      * or not.
      *
-     * <p>If the protection mode is not specified (eg.: {@link HttpSecurityBuilder#permissive()} or
-     * {@link org.picketlink.config.http.HttpSecurityBuilder#restrictive()}), default is to be permissive.</p>
+     * <p>If the protection mode is not specified (eg.: {@link org.picketlink.config.http.AbstractHttpSecurityBuilder#permissive()} or
+     * {@link org.picketlink.config.http.AbstractHttpSecurityBuilder#restrictive()}), default is to be permissive.</p>
      *
      * @return
      */
-    public HttpSecurityBuilder restrictive() {
+    public HttpSecurityConfigurationChildBuilder restrictive() {
         this.filteringMode = FilteringMode.RESTRICTIVE;
         return this;
     }
 
     @Override
-    public HttpSecurityConfiguration create() throws SecurityConfigurationException {
+    protected HttpSecurityConfiguration create() throws SecurityConfigurationException {
         List<PathConfiguration> uriConfigs = new ArrayList<PathConfiguration>();
 
         for (PathConfigurationBuilder uriConfigBuilder : this.uriConfigBuilder) {

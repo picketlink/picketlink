@@ -57,7 +57,7 @@ public class AuthorizationRequiresAuthenticationTestCase extends AbstractSecurit
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response, times(0)).sendRedirect(anyString());
-        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED));
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
@@ -68,8 +68,8 @@ public class AuthorizationRequiresAuthenticationTestCase extends AbstractSecurit
 
             builder
                 .http()
-                .path("/noGroupPath")
-                .authz()
+                .forPath("/noGroupPath")
+                .authorizeWith()
                 .role("Some Role");
         }
     }

@@ -34,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,7 +84,7 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
@@ -93,13 +95,13 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
             builder
                 .http()
                 .allPaths()
-                        .authc()
+                        .authenticateWith()
                             .form()
-                .path("/onlyAdministratorsMember")
-                        .authz()
+                .forPath("/onlyAdministratorsMember")
+                        .authorizeWith()
                             .group("Administrators")
-                .path("/onlyExecutivesGroup")
-                .authz()
+                .forPath("/onlyExecutivesGroup")
+                .authorizeWith()
                 .group("Executives");
         }
     }

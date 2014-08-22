@@ -98,20 +98,20 @@ public class HeaderIdentificationTestCase extends AbstractSecurityFilterTestCase
 
             builder
                 .http()
-                .path("/headerProtected/*")
-                    .headers()
+                .forPath("/headerProtected/*")
+                    .withHeaders()
                         .header("Realm", "POST With Header Realm")
-                    .authc()
+                    .authenticateWith()
                     .basic()
                     .realmName("POST With Header Realm")
-                .path("/headerProtected/*")
-                    .authc()
+                .forPath("/headerProtected/*")
+                    .authenticateWith()
                     .basic()
                     .realmName("Basic Protected Uri")
-                .path("/headerProtected/*")
-                    .headers()
+                .forPath("/headerProtected/*")
+                    .withHeaders()
                     .requestedWith("XMLHttpRequest")
-                    .authc()
+                    .authenticateWith()
                     .basic()
                 .realmName("PicketLink Basic For Ajax Requests Realm");;
         }

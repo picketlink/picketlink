@@ -40,6 +40,10 @@ import org.picketlink.config.http.TokenAuthenticationConfiguration;
 import org.picketlink.config.http.X509AuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.extension.PicketLinkExtension;
+import org.picketlink.http.AccessDeniedException;
+import org.picketlink.http.AuthenticationRequiredException;
+import org.picketlink.http.HttpMethod;
+import org.picketlink.http.MethodNotAllowedException;
 import org.picketlink.http.authentication.HttpAuthenticationScheme;
 import org.picketlink.http.authorization.PathAuthorizer;
 import org.picketlink.http.internal.authentication.schemes.BasicAuthenticationScheme;
@@ -139,12 +143,13 @@ public class SecurityFilter implements Filter {
             throw new ServletException("This filter can only process HttpServletRequest requests.");
         }
 
-        ContextualHttpServletRequest request = null;
+        HttpServletRequest request = null;
         HttpServletResponse response = null;
         PathConfiguration pathConfiguration = null;
+        Throwable exception = null;
 
         try {
-            request = new ContextualHttpServletRequest(this.picketLinkHttpServletRequest.get());
+            request = this.picketLinkHttpServletRequest.get();
 
             if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
                 AUTHENTICATION_LOGGER.debugf("Processing request to path [%s].", request.getRequestURI());
@@ -157,7 +162,7 @@ public class SecurityFilter implements Filter {
 
             if (isSecured(pathConfiguration)) {
                 if (!isMethodAllowed(pathConfiguration, request)) {
-                    request.invalidate(SC_METHOD_NOT_ALLOWED);
+                    throw new MethodNotAllowedException("The given method is not allowed [" + request.getMethod() + "] for path [" + pathConfiguration.getUri() + "].");
                 } else {
                     if (!response.isCommitted()) {
                         Identity identity = getIdentity();
@@ -168,22 +173,16 @@ public class SecurityFilter implements Filter {
                             performLogout(request, response, identity, pathConfiguration);
                         } else {
                             if (!isAuthorized(pathConfiguration, request, response)) {
-                                request.invalidate(SC_FORBIDDEN);
+                                throw new AccessDeniedException("The request for the given path [" + pathConfiguration.getUri() + "] was forbidden.");
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            request.invalidate(SC_INTERNAL_SERVER_ERROR);
-
-            if (isSecured(pathConfiguration) && pathConfiguration.hasRedirectWhen(ERROR)) {
-                return;
-            }
-
-            throw new RuntimeException("Unexpected error while processing requested path [" + request.getRequestURI() + "].", e);
+            exception = e;
         } finally {
-            performOutboundProcessing(pathConfiguration, request, response, chain);
+            performOutboundProcessing(pathConfiguration, request, response, chain, exception);
         }
     }
 
@@ -192,45 +191,65 @@ public class SecurityFilter implements Filter {
     }
 
     private boolean isMethodAllowed(PathConfiguration pathConfiguration, HttpServletRequest request) {
-        Set<String> methods = pathConfiguration.getMethods();
+        Set<HttpMethod> methods = pathConfiguration.getMethods();
 
-        return methods.contains(request.getMethod());
+        return methods.contains(HttpMethod.valueOf(request.getMethod().toUpperCase()));
     }
 
-    private void performOutboundProcessing(PathConfiguration pathConfiguration, ContextualHttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    private void performOutboundProcessing(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain, Throwable exception) throws IOException, ServletException {
         if (response.isCommitted()) {
             return;
         }
 
-        String redirectUrl = getRedirectUrl(pathConfiguration, request);
+        String redirectUrl = getRedirectUrl(pathConfiguration, request, exception);
 
         if (redirectUrl != null) {
             response.sendRedirect(redirectUrl);
         } else {
-            if (request.isValid()) {
+            if (exception == null) {
                 if (this.configuration.isPermissive()) {
                     processRequest(pathConfiguration, request, response, chain);
-                } else {
-                    if (pathConfiguration == null) {
-                        response.sendError(SC_FORBIDDEN);
-                    }
+                } else if (pathConfiguration == null) {
+                    response.sendError(SC_FORBIDDEN, "No configuration found for the given path [" + request.getRequestURI() + "] ");
                 }
             } else {
-                response.sendError(request.getInvalidationStatusCode());
+                handleException(response, exception);
             }
         }
     }
 
-    private String getRedirectUrl(PathConfiguration pathConfiguration, ContextualHttpServletRequest request) {
+    private void handleException(HttpServletResponse response, Throwable exception) throws IOException {
+        int statusCode;
+
+        if (AuthenticationRequiredException.class.isInstance(exception)) {
+            statusCode = SC_UNAUTHORIZED;
+        } else if (isAccessDenied(exception)) {
+            statusCode = SC_FORBIDDEN;
+        } else if (MethodNotAllowedException.class.isInstance(exception)) {
+            statusCode = SC_METHOD_NOT_ALLOWED;
+        } else {
+            statusCode = SC_INTERNAL_SERVER_ERROR;
+        }
+
+        String message = exception.getMessage();
+
+        if (message == null) {
+            message = "The server could not process your request.";
+        }
+
+        response.sendError(statusCode, message);
+    }
+
+    private String getRedirectUrl(PathConfiguration pathConfiguration, HttpServletRequest request, Throwable exception) {
         String redirectUrl = null;
 
         if (isSecured(pathConfiguration)) {
-            if (request.isForbidden()) {
+            if (isAccessDenied(exception)) {
                 redirectUrl = pathConfiguration.getRedirectUrl(FORBIDDEN);
             }
 
             if (redirectUrl == null) {
-                if (request.isValid()) {
+                if (exception == null) {
                     redirectUrl = pathConfiguration.getRedirectUrl(OK);
                 } else {
                     redirectUrl = pathConfiguration.getRedirectUrl(ERROR);
@@ -253,6 +272,10 @@ public class SecurityFilter implements Filter {
         return redirectUrl;
     }
 
+    private boolean isAccessDenied(Throwable exception) {
+        return AccessDeniedException.class.isInstance(exception);
+    }
+
     private void performLogout(HttpServletRequest request, HttpServletResponse response, Identity identity, PathConfiguration pathConfiguration) throws IOException {
         if (identity.isLoggedIn()) {
             identity.logout();
@@ -267,7 +290,7 @@ public class SecurityFilter implements Filter {
         return false;
     }
 
-    private boolean isAuthorized(PathConfiguration pathConfiguration, ContextualHttpServletRequest request, HttpServletResponse response) {
+    private boolean isAuthorized(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) {
         AuthorizationConfiguration authorizationConfiguration = pathConfiguration.getAuthorizationConfiguration();
 
         if (authorizationConfiguration == null) {
@@ -326,7 +349,7 @@ public class SecurityFilter implements Filter {
         }
     }
 
-    private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, ContextualHttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Identity identity = getIdentity();
         HttpAuthenticationScheme authenticationScheme = getAuthenticationScheme(pathConfiguration, request);
 
@@ -367,7 +390,7 @@ public class SecurityFilter implements Filter {
             if (!identity.isLoggedIn()) {
                 if (pathConfiguration != null) {
                     if (pathConfiguration.getAuthorizationConfiguration() != null) {
-                        request.invalidate(SC_UNAUTHORIZED);
+                        throw new AuthenticationRequiredException("The given path [" + pathConfiguration.getUri() + "] requires authentication.");
                     }
                 }
             }

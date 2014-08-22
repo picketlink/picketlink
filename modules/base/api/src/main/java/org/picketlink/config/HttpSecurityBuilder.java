@@ -21,18 +21,23 @@
  */
 package org.picketlink.config;
 
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.config.http.AbstractHttpSecurityBuilder;
+import org.picketlink.config.http.HttpSecurityConfiguration;
+import org.picketlink.idm.config.SecurityConfigurationException;
 
 /**
+ * <p>A configuration builder with covenience methods to configure http security features.</p>
+ *
  * @author Pedro Igor
  */
-public interface SecurityConfigurationChildBuilder {
+public class HttpSecurityBuilder extends AbstractHttpSecurityBuilder {
 
-    IdentityConfigurationBuilder idmConfig();
+    public HttpSecurityBuilder(SecurityConfigurationBuilder builder) {
+        super(builder);
+    }
 
-    IdentityBeanConfigurationBuilder identity();
-
-    HttpSecurityBuilder http();
-
-    SecurityConfiguration build();
+    @Override
+    protected HttpSecurityConfiguration create() throws SecurityConfigurationException {
+        return super.create();
+    }
 }

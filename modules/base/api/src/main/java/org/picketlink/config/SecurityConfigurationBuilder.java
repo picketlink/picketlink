@@ -21,7 +21,6 @@
  */
 package org.picketlink.config;
 
-import org.picketlink.config.http.HttpSecurityBuilder;
 import org.picketlink.config.http.HttpSecurityConfiguration;
 import org.picketlink.idm.config.Builder;
 import org.picketlink.idm.config.IdentityConfiguration;

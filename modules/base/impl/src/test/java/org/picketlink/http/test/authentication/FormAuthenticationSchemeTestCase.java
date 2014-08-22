@@ -144,19 +144,19 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
 
             builder
                 .http()
-                    .path("/formProtectedUri/*")
-                            .authc()
+                    .forPath("/formProtectedUri/*")
+                            .authenticateWith()
                                 .form()
                                     .loginPage("/loginFormProtectedUri.html")
                                     .errorPage("/errorFormProtectedUri.html")
-                .path("/formProtectedUriRestoreOriginalRequest/*")
-                .authc()
+                .forPath("/formProtectedUriRestoreOriginalRequest/*")
+                .authenticateWith()
                 .form()
                 .restoreOriginalRequest()
                 .loginPage("/loginFormProtectedUriRestoreOriginalRequest.html")
                 .errorPage("/loginFormProtectedUriRestoreOriginalRequest.html")
-                .path("/pathWithoutWildCard")
-                .authc()
+                .forPath("/pathWithoutWildCard")
+                .authenticateWith()
                 .form()
                 .loginPage("/pathWithoutWildCardLogin.html");
         }

@@ -140,8 +140,8 @@ public class DigestAuthenticationSchemeTestCase extends AbstractSecurityFilterTe
 
             builder
                 .http()
-                .path("/digestProtectedUri/*")
-                .authc()
+                .forPath("/digestProtectedUri/*")
+                .authenticateWith()
                 .digest()
                 .realmName("PicketLink Test DIGEST Realm");
         }

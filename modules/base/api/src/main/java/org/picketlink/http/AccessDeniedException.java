@@ -19,20 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.config;
+package org.picketlink.http;
 
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.common.exceptions.PicketLinkException;
 
 /**
+ * <p>Thrown to indicate that access was denied for a specific resource.</p>
+ *
  * @author Pedro Igor
  */
-public interface SecurityConfigurationChildBuilder {
+public class AccessDeniedException extends PicketLinkException {
 
-    IdentityConfigurationBuilder idmConfig();
-
-    IdentityBeanConfigurationBuilder identity();
-
-    HttpSecurityBuilder http();
-
-    SecurityConfiguration build();
+    public AccessDeniedException(String message) {
+        super(message);
+    }
 }

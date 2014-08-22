@@ -94,10 +94,10 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
 
             builder
                 .http()
-                .path("/formProtectedUri/*")
-                .authc()
+                .forPath("/formProtectedUri/*")
+                .authenticateWith()
                 .form()
-                .path("/logout")
+                .forPath("/logout")
                 .logout()
                 .redirectTo("/logout.html");
         }
