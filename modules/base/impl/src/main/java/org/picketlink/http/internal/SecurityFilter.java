@@ -146,7 +146,6 @@ public class SecurityFilter implements Filter {
         HttpServletRequest request = null;
         HttpServletResponse response = null;
         PathConfiguration pathConfiguration = null;
-        Throwable exception = null;
 
         try {
             request = this.picketLinkHttpServletRequest.get();
@@ -179,10 +178,10 @@ public class SecurityFilter implements Filter {
                     }
                 }
             }
+
+            performOutboundProcessing(pathConfiguration, request, response, chain);
         } catch (Exception e) {
-            exception = e;
-        } finally {
-            performOutboundProcessing(pathConfiguration, request, response, chain, exception);
+            handleException(pathConfiguration, request, response, e);
         }
     }
 
@@ -196,84 +195,75 @@ public class SecurityFilter implements Filter {
         return methods.contains(HttpMethod.valueOf(request.getMethod().toUpperCase()));
     }
 
-    private void performOutboundProcessing(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain, Throwable exception) throws IOException, ServletException {
+    private void performOutboundProcessing(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (response.isCommitted()) {
             return;
         }
 
-        String redirectUrl = getRedirectUrl(pathConfiguration, request, exception);
+        if (isSecured(pathConfiguration)) {
+            String redirectUrl = pathConfiguration.getRedirectUrl(OK);
 
-        if (redirectUrl != null) {
-            response.sendRedirect(redirectUrl);
-        } else {
-            if (exception == null) {
-                if (this.configuration.isPermissive()) {
-                    processRequest(pathConfiguration, request, response, chain);
-                } else if (pathConfiguration == null) {
-                    response.sendError(SC_FORBIDDEN, "No configuration found for the given path [" + request.getRequestURI() + "] ");
-                }
+            if (redirectUrl == null && isLogoutPath(pathConfiguration)) {
+                redirectUrl = request.getContextPath();
+            }
+
+            if (redirectUrl != null) {
+                response.sendRedirect(formatRedirectUrl(request, redirectUrl));
             } else {
-                handleException(response, exception);
+                processRequest(pathConfiguration, request, response, chain);
+            }
+        } else {
+            if (this.configuration.isPermissive()) {
+                processRequest(pathConfiguration, request, response, chain);
+            } else if (pathConfiguration == null) {
+                response.sendError(SC_FORBIDDEN, "No configuration found for the given path [" + request.getRequestURI() + "] ");
             }
         }
     }
 
-    private void handleException(HttpServletResponse response, Throwable exception) throws IOException {
+    private void handleException(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, Throwable exception) throws IOException {
+        String redirectUrl = null;
         int statusCode;
 
         if (AuthenticationRequiredException.class.isInstance(exception)) {
             statusCode = SC_UNAUTHORIZED;
-        } else if (isAccessDenied(exception)) {
+        } else if (AccessDeniedException.class.isInstance(exception)) {
             statusCode = SC_FORBIDDEN;
+
+            if (isSecured(pathConfiguration)) {
+                redirectUrl = pathConfiguration.getRedirectUrl(FORBIDDEN);
+            }
         } else if (MethodNotAllowedException.class.isInstance(exception)) {
             statusCode = SC_METHOD_NOT_ALLOWED;
         } else {
             statusCode = SC_INTERNAL_SERVER_ERROR;
+
+            if (isSecured(pathConfiguration)) {
+                redirectUrl = pathConfiguration.getRedirectUrl(ERROR);
+            }
         }
 
-        String message = exception.getMessage();
+        if (redirectUrl != null) {
+            response.sendRedirect(formatRedirectUrl(request, redirectUrl));
+        } else {
+            String message = exception.getMessage();
 
-        if (message == null) {
-            message = "The server could not process your request.";
+            if (message == null) {
+                message = "The server could not process your request.";
+            }
+
+            response.sendError(statusCode, message);
         }
-
-        response.sendError(statusCode, message);
     }
 
-    private String getRedirectUrl(PathConfiguration pathConfiguration, HttpServletRequest request, Throwable exception) {
-        String redirectUrl = null;
-
-        if (isSecured(pathConfiguration)) {
-            if (isAccessDenied(exception)) {
-                redirectUrl = pathConfiguration.getRedirectUrl(FORBIDDEN);
-            }
-
-            if (redirectUrl == null) {
-                if (exception == null) {
-                    redirectUrl = pathConfiguration.getRedirectUrl(OK);
-                } else {
-                    redirectUrl = pathConfiguration.getRedirectUrl(ERROR);
-                }
-            }
-
-            if (redirectUrl != null) {
-                if (redirectUrl.startsWith("/")) {
-                    if (!redirectUrl.startsWith(request.getContextPath())) {
-                        redirectUrl = request.getContextPath() + redirectUrl;
-                    }
-                }
-            } else {
-                if (redirectUrl == null && isLogoutPath(pathConfiguration)) {
-                    redirectUrl = request.getContextPath();
-                }
+    private String formatRedirectUrl(HttpServletRequest request, String redirectUrl) {
+        if (redirectUrl.startsWith("/")) {
+            if (!redirectUrl.startsWith(request.getContextPath())) {
+                redirectUrl = request.getContextPath() + redirectUrl;
             }
         }
 
         return redirectUrl;
-    }
-
-    private boolean isAccessDenied(Throwable exception) {
-        return AccessDeniedException.class.isInstance(exception);
     }
 
     private void performLogout(HttpServletRequest request, HttpServletResponse response, Identity identity, PathConfiguration pathConfiguration) throws IOException {
