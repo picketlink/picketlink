@@ -19,26 +19,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.http.test.annotation;
+package org.picketlink.http.test.config;
 
+import org.picketlink.config.http.annotations.AllowedRoles;
 import org.picketlink.config.http.annotations.Authc;
+import org.picketlink.config.http.annotations.Authz;
 import org.picketlink.config.http.annotations.Form;
 import org.picketlink.config.http.annotations.HttpSecurity;
 import org.picketlink.config.http.annotations.Path;
+import org.picketlink.config.http.annotations.PathGroup;
 
+/**
+ * @author Giriraj Sharma
+ */
 @HttpSecurity
-public enum MyHttpSecurityConfig {
+public enum HttpSecurityPathGroupConfig {
 
-    @Path(pathGroup = "", pathName = "/basicProtectedUri/*")
+    @PathGroup(pathGroupName = "REST Service Group A")
     @Authc
     @Form(errorPage = "/errorA.html", loginPage = "/loginA.html", restoreOriginalRequest = "no")
-    Admin,
+    @Authz
+    @AllowedRoles(roles = { "Role A" })
+    @Path(pathGroup = "REST Service Group A", pathName = "/rest/a/*")
+    CLIENT_GROUP_A,
 
-    @Path(pathGroup = "", pathName = "/basicProtectedOwnerUri/*")
+    @PathGroup(pathGroupName = "REST Service Group B")
     @Authc
     @Form(errorPage = "/errorB.html", loginPage = "/loginB.html", restoreOriginalRequest = "no")
-    Owner,
+    @Authz
+    @AllowedRoles(roles = { "Role B" })
+    @Path(pathGroup = "REST Service Group B", pathName = "/rest/b/*")
+    CLIENT_GROUP_B;
 
-    @Path(pathGroup = "", pathName = "/basicProtectedClientUri/*")
-    Clinet;
 }

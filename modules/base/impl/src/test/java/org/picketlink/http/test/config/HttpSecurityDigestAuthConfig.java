@@ -21,18 +21,29 @@
  */
 package org.picketlink.http.test.config;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.picketlink.config.http.annotations.AllowedGroups;
+import org.picketlink.config.http.annotations.AllowedRealms;
+import org.picketlink.config.http.annotations.AllowedRoles;
+import org.picketlink.config.http.annotations.Authc;
+import org.picketlink.config.http.annotations.Authz;
+import org.picketlink.config.http.annotations.Digest;
+import org.picketlink.config.http.annotations.Expressions;
+import org.picketlink.config.http.annotations.HttpSecurity;
+import org.picketlink.config.http.annotations.Path;
 
 /**
- * @author Pedro Igor
+ * @author Giriraj Sharma
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-public @interface Path {
+@HttpSecurity
+public enum HttpSecurityDigestAuthConfig {
 
-    String value();
-
+    @Path(pathGroup = "", pathName = "/basicProtectedUri/*")
+    @Authc
+    @Digest(realmName = "My Realm")
+    @Authz
+    @AllowedRoles(roles = { "Role A", "Role B" })
+    @AllowedGroups(groups = { "Group A", "Group B" })
+    @AllowedRealms(realms = { "Realm A", "Realm B" })
+    @Expressions(expressions = { "#{identity.isLoggedIn()}" })
+    ADMIN_DIGEST;
 }

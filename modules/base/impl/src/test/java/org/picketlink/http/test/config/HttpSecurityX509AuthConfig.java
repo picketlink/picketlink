@@ -21,32 +21,30 @@
  */
 package org.picketlink.http.test.config;
 
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.AnnotatedType;
-import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
-import java.lang.reflect.Field;
+import org.picketlink.config.http.annotations.AllowedGroups;
+import org.picketlink.config.http.annotations.AllowedRealms;
+import org.picketlink.config.http.annotations.AllowedRoles;
+import org.picketlink.config.http.annotations.Authc;
+import org.picketlink.config.http.annotations.Authz;
+import org.picketlink.config.http.annotations.Expressions;
+import org.picketlink.config.http.annotations.HttpSecurity;
+import org.picketlink.config.http.annotations.Path;
+import org.picketlink.config.http.annotations.X509;
 
 /**
- * @author Pedro Igor
+ * @author Giriraj Sharma
  */
-public class HttpSecurityConfigExtension implements Extension {
+@HttpSecurity
+public enum HttpSecurityX509AuthConfig {
 
-    public <T> void processAnnotatedType(@Observes ProcessAnnotatedType<T> event) {
-        AnnotatedType<T> tp = event.getAnnotatedType();
 
-        if (tp.isAnnotationPresent(HttpSecurity.class)) {
-            if (!tp.getJavaClass().isInterface()) {
-                throw new RuntimeException("ViewConfig annotation should only be applied to interfaces, and [" + tp.getJavaClass()
-                    + "] is not an interface.");
-            } else {
-                for (Class<?> clazz : tp.getJavaClass().getClasses()) {
-                    for (Field enumm : clazz.getFields()) {
-                        System.out.println(enumm);
-                    }
-                }
-            }
-        }
-    }
-
+    @Path(pathGroup = "", pathName = "/x509ProtectedUri/*")
+    @Authc
+    @X509(subjectRegex = "someExpression")
+    @Authz
+    @AllowedRoles(roles = { "Role A", "Role B" })
+    @AllowedGroups(groups = { "Group A", "Group B" })
+    @AllowedRealms(realms = { "Realm A", "Realm B" })
+    @Expressions(expressions = { "#{identity.isLoggedIn()}" })
+    ADMIN_X509;
 }
