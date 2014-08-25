@@ -80,7 +80,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition.ERROR;
 import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition.FORBIDDEN;
 import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition.OK;
-import static org.picketlink.log.BaseLog.AUTHENTICATION_LOGGER;
+import static org.picketlink.log.BaseLog.HTTP_LOGGER;
 
 /**
  * @author Pedro Igor
@@ -150,8 +150,8 @@ public class SecurityFilter implements Filter {
         try {
             request = this.picketLinkHttpServletRequest.get();
 
-            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-                AUTHENTICATION_LOGGER.debugf("Processing request to path [%s].", request.getRequestURI());
+            if (HTTP_LOGGER.isDebugEnabled()) {
+                HTTP_LOGGER.debugf("Processing request to path [%s].", request.getRequestURI());
             }
 
             response = (HttpServletResponse) servletResponse;
@@ -197,6 +197,9 @@ public class SecurityFilter implements Filter {
 
     private void performOutboundProcessing(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (response.isCommitted()) {
+            if (HTTP_LOGGER.isDebugEnabled()) {
+                HTTP_LOGGER.debugf("Response already commited. Ignoring outbound processing for path [%s].", pathConfiguration);
+            }
             return;
         }
 
@@ -208,7 +211,7 @@ public class SecurityFilter implements Filter {
             }
 
             if (redirectUrl != null) {
-                response.sendRedirect(formatRedirectUrl(request, redirectUrl));
+                redirect(redirectUrl, request, response);
             } else {
                 processRequest(pathConfiguration, request, response, chain);
             }
@@ -221,9 +224,23 @@ public class SecurityFilter implements Filter {
         }
     }
 
+    private void redirect(String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        redirectUrl = formatRedirectUrl(request, redirectUrl);
+
+        if (HTTP_LOGGER.isDebugEnabled()) {
+            HTTP_LOGGER.debugf("Redirecting to [%s].", redirectUrl);
+        }
+
+        response.sendRedirect(redirectUrl);
+    }
+
     private void handleException(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, Throwable exception) throws IOException {
         String redirectUrl = null;
         int statusCode;
+
+        if (HTTP_LOGGER.isDebugEnabled()) {
+            HTTP_LOGGER.debugf("Handling exception [%s] for path [%s].", exception, request.getRequestURI());
+        }
 
         if (AuthenticationRequiredException.class.isInstance(exception)) {
             statusCode = SC_UNAUTHORIZED;
@@ -244,12 +261,16 @@ public class SecurityFilter implements Filter {
         }
 
         if (redirectUrl != null) {
-            response.sendRedirect(formatRedirectUrl(request, redirectUrl));
+            redirect(redirectUrl, request, response);
         } else {
             String message = exception.getMessage();
 
             if (message == null) {
                 message = "The server could not process your request.";
+            }
+
+            if (HTTP_LOGGER.isDebugEnabled()) {
+                HTTP_LOGGER.errorf("Exception [%s] thrown during processing for path [%s]. Sending error with status code [%s].", exception, request.getRequestURI(), statusCode);
             }
 
             response.sendError(statusCode, message);
@@ -305,6 +326,10 @@ public class SecurityFilter implements Filter {
 
     private void processRequest(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
         try {
+            if (HTTP_LOGGER.isDebugEnabled()) {
+                HTTP_LOGGER.debugf("Continuing to process request for path [%s].", request.getRequestURI());
+            }
+
             chain.doFilter(request, response);
         } catch (Exception e) {
             throw new RuntimeException("Could not process request.", e);
@@ -315,8 +340,8 @@ public class SecurityFilter implements Filter {
         HttpAuthenticationScheme authenticationScheme = getAuthenticationScheme(pathConfiguration, request);
 
         if (authenticationScheme != null) {
-            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-                AUTHENTICATION_LOGGER
+            if (HTTP_LOGGER.isDebugEnabled()) {
+                HTTP_LOGGER
                     .debugf("Challenging client using authentication scheme [%s].", authenticationScheme);
             }
 
@@ -346,17 +371,17 @@ public class SecurityFilter implements Filter {
         if (authenticationScheme != null) {
             DefaultLoginCredentials creds = extractCredentials(request, authenticationScheme);
 
-            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-                AUTHENTICATION_LOGGER.debugf("Credentials extracted from request [%s]", creds.getCredential());
+            if (HTTP_LOGGER.isDebugEnabled()) {
+                HTTP_LOGGER.debugf("Credentials extracted from request [%s]", creds.getCredential());
             }
 
             if (creds.getCredential() != null) {
-                if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-                    AUTHENTICATION_LOGGER
-                        .debugf("Forcing re-authentication. Logging out current user [%s]", identity.getAccount());
-                }
-
                 if (identity.isLoggedIn()) {
+                    if (HTTP_LOGGER.isDebugEnabled()) {
+                        HTTP_LOGGER
+                            .debugf("Forcing re-authentication. Logging out current user [%s]", identity.getAccount());
+                    }
+
                     identity.logout();
                 }
 
@@ -365,15 +390,15 @@ public class SecurityFilter implements Filter {
 
             if (creds.getCredential() != null) {
                 try {
-                    if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-                        AUTHENTICATION_LOGGER.debugf("Authenticating using credentials [%s]", creds.getCredential());
+                    if (HTTP_LOGGER.isDebugEnabled()) {
+                        HTTP_LOGGER.debugf("Authenticating using credentials [%s]", creds.getCredential());
                     }
 
                     identity.login();
 
                     authenticationScheme.onPostAuthentication(request, response);
                 } catch (AuthenticationException ae) {
-                    AUTHENTICATION_LOGGER.authenticationFailed(creds.getUserId(), ae);
+                    HTTP_LOGGER.authenticationFailed(creds.getUserId(), ae);
                 }
             }
         } else {

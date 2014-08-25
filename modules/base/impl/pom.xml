@@ -14,6 +14,12 @@
 
   <name>PicketLink Main Implementation</name>
 
+  <properties>
+    <version.weld>1.1.23.Final</version.weld>
+    <version.mockito>1.9.5</version.mockito>
+    <version.slf4j>1.6.0</version.slf4j>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.picketlink</groupId>
@@ -56,12 +62,6 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.el</groupId>
-      <artifactId>javax.el-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
@@ -70,23 +70,28 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
+      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.glassfish.web</groupId>
-      <artifactId>el-impl</artifactId><version>2.2</version>
+      <artifactId>javax.el</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se</artifactId>
-      <version>1.1.23.Final</version>
+      <version>${version.weld}</version>
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${version.slf4j}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-
 </project>

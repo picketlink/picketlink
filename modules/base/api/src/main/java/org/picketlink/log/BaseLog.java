@@ -48,6 +48,11 @@ public interface BaseLog extends Log {
      */
     BaseLog AUTHENTICATION_LOGGER = LogFactory.getLog(BaseLog.class, Identity.class.getPackage().getName() + ".authentication");
 
+    /**
+     * <p>This is the Http logger. All messages related with Http Security should be looged using it.</p>
+     */
+    BaseLog HTTP_LOGGER = LogFactory.getLog(BaseLog.class, Identity.class.getPackage().getName() + ".http");
+
     // General logging messages. Ids 2000-2099.
     @LogMessage(level = Logger.Level.INFO)
     @Message(id = 2000, value = "Bootstrapping PicketLink")
