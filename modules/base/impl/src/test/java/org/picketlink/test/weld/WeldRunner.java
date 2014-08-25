@@ -31,7 +31,7 @@ import org.junit.runners.model.TestClass;
  */
 public class WeldRunner extends BlockJUnit4ClassRunner {
 
-    private final WeldContainer container;
+    private WeldContainer container;
 
     /**
      * Creates a BlockJUnit4ClassRunner to run {@code klass}
@@ -42,7 +42,12 @@ public class WeldRunner extends BlockJUnit4ClassRunner {
      */
     public WeldRunner(Class<?> klass) throws InitializationError {
         super(klass);
+    }
 
+    @Override
+    protected Object createTest() throws Exception {
+        TestClass testClass = getTestClass();
+        Class<?> klass = testClass.getJavaClass();
         Deployment deploymentConfig = klass.getAnnotation(Deployment.class);
 
         if (deploymentConfig == null) {
@@ -64,12 +69,8 @@ public class WeldRunner extends BlockJUnit4ClassRunner {
         }
 
         this.container = weld.initialize();
-    }
 
-    @Override
-    protected Object createTest() throws Exception {
-        TestClass testClass = getTestClass();
-        return container.instance().select(testClass.getJavaClass()).get();
+        return container.instance().select(klass).get();
     }
 
 }

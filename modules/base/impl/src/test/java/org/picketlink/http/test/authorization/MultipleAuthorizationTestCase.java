@@ -48,15 +48,15 @@ import static org.mockito.Mockito.when;
  */
 @Deployment(
     beans = {
-        CustomPathAuthorizerTestCase.SecurityConfiguration.class, SecurityInitializer.class, CustomPathAuthorizerTestCase.CustomPathAuthorizer.class
+        MultipleAuthorizationTestCase.SecurityConfiguration.class, SecurityInitializer.class, MultipleAuthorizationTestCase.CustomPathAuthorizer.class
     },
     excludeBeansFromPackage = "org.picketlink.http.test"
 )
-public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase {
+public class MultipleAuthorizationTestCase extends AbstractSecurityFilterTestCase {
 
     @Test
-    public void testOnlyManagers() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/onlyManagerRole/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+    public void testMultipleAuthorization() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/multipleAuthorization/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -64,7 +64,7 @@ public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response).sendRedirect(CONTEXT_PATH);
 
-        when(this.request.getServletPath()).thenReturn("/onlyManagerRole");
+        when(this.request.getServletPath()).thenReturn("/multipleAuthorization");
         reset(this.response);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
@@ -74,8 +74,8 @@ public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase
     }
 
     @Test
-    public void testCustomAuthorizer() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+    public void testMultipleAuthorizationFailed() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/multipleAuthorizationFailed/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -83,22 +83,13 @@ public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response).sendRedirect(CONTEXT_PATH);
 
-        when(this.request.getServletPath()).thenReturn("/customAuthorizer");
+        when(this.request.getServletPath()).thenReturn("/multipleAuthorizationFailed");
         reset(this.response);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
-
-        when(this.request.getServletPath()).thenReturn("/customAuthorizer");
-        when(this.request.getParameter("authz_flag")).thenReturn("true");
-        reset(this.response);
-
-        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
-
-        verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        verify(this.response, times(0)).sendError(HttpServletResponse.SC_FORBIDDEN);
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     public static class SecurityConfiguration {
@@ -109,12 +100,16 @@ public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase
                 .allPaths()
                 .authenticateWith()
                 .form()
-                .forPath("/onlyManagerRole")
-                .authorizeWith()
-                .role("Manager")
-                .forPath("/customAuthorizer")
-                .authorizeWith()
-                .authorizer(CustomPathAuthorizer.class);
+                .forPath("/multipleAuthorization")
+                    .authorizeWith()
+                        .role("Manager")
+                        .group("Administrators")
+                        .realm("default")
+                .forPath("/multipleAuthorizationFailed")
+                    .authorizeWith()
+                        .role("Manager")
+                        .group("Invalid Group");
+            ;
         }
     }
 
