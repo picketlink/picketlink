@@ -23,6 +23,10 @@ package org.picketlink.config.http;
 
 import org.picketlink.http.authorization.PathAuthorizer;
 
+import java.util.List;
+
+import static java.util.Collections.unmodifiableList;
+
 /**
  * @author Pedro Igor
  */
@@ -32,7 +36,7 @@ public class AuthorizationConfiguration {
     private final String[] allowedGroups;
     private final String[] allowedRealms;
     private final String[] expressions;
-    private final Class<? extends PathAuthorizer> pathAuthorizer;
+    private final List<Class<? extends PathAuthorizer>> authorizers;
     private final PathConfiguration pathConfiguration;
 
     public AuthorizationConfiguration(
@@ -41,13 +45,13 @@ public class AuthorizationConfiguration {
         String[] allowedGroups,
         String[] allowedRealms,
         String[] expressions,
-        Class<? extends PathAuthorizer> pathAuthorizer) {
+        List<Class<? extends PathAuthorizer>> authorizers) {
         this.pathConfiguration = pathConfiguration;
         this.allowedRoles = allowedRoles;
         this.allowedGroups = allowedGroups;
         this.allowedRealms = allowedRealms;
         this.expressions = expressions;
-        this.pathAuthorizer = pathAuthorizer;
+        this.authorizers = authorizers;
     }
 
     public String[] getAllowedRoles() {
@@ -66,7 +70,7 @@ public class AuthorizationConfiguration {
         return this.expressions;
     }
 
-    public Class<? extends PathAuthorizer> getPathAuthorizer() {
-        return this.pathAuthorizer;
+    public List<Class<? extends PathAuthorizer>> getAuthorizers() {
+        return unmodifiableList(this.authorizers);
     }
 }

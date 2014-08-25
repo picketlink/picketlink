@@ -23,6 +23,10 @@ package org.picketlink.config.http;
 
 import org.picketlink.http.authorization.PathAuthorizer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>Provides a set of options to configure authorization for a specific path.</p>
  *
@@ -34,7 +38,7 @@ public class AuthorizationConfigurationBuilder extends AbstractPathConfiguration
     private String[] groupsAllowed;
     private String[] realmsAllowed;
     private String[] elExpresion;
-    private Class<? extends PathAuthorizer> pathAuthorizer;
+    private List<Class<? extends PathAuthorizer>> authorizers = new ArrayList<Class<? extends PathAuthorizer>>();
 
     AuthorizationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
@@ -97,12 +101,12 @@ public class AuthorizationConfigurationBuilder extends AbstractPathConfiguration
      * @param pathAuthorizer
      * @return
      */
-    public AuthorizationConfigurationBuilder authorizer(Class<? extends PathAuthorizer> pathAuthorizer) {
-        this.pathAuthorizer = pathAuthorizer;
+    public AuthorizationConfigurationBuilder authorizer(Class<? extends PathAuthorizer>... pathAuthorizer) {
+        this.authorizers.addAll(Arrays.asList(pathAuthorizer));
         return this;
     }
 
     AuthorizationConfiguration create(PathConfiguration pathConfiguration) {
-        return new AuthorizationConfiguration(pathConfiguration, this.rolesAllowed, this.groupsAllowed, this.realmsAllowed, this.elExpresion, this.pathAuthorizer);
+        return new AuthorizationConfiguration(pathConfiguration, this.rolesAllowed, this.groupsAllowed, this.realmsAllowed, this.elExpresion, this.authorizers);
     }
 }

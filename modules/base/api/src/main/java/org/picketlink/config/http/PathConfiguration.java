@@ -169,7 +169,7 @@ public class PathConfiguration {
                 String[] allowedRealms = this.authorizationConfiguration.getAllowedRealms();
                 String[] allowedRoles = this.authorizationConfiguration.getAllowedRoles();
                 String[] expressions = this.authorizationConfiguration.getExpressions();
-                Class<? extends PathAuthorizer> pathAuthorizer = this.authorizationConfiguration.getPathAuthorizer();
+                List<Class<? extends PathAuthorizer>> authorizers = this.authorizationConfiguration.getAuthorizers();
 
                 if (allowedGroups == null) {
                     allowedGroups = groupAuthz.getAllowedGroups();
@@ -187,11 +187,11 @@ public class PathConfiguration {
                     expressions = groupAuthz.getExpressions();
                 }
 
-                if (pathAuthorizer == null) {
-                    pathAuthorizer = groupAuthz.getPathAuthorizer();
+                if (authorizers == null) {
+                    authorizers = groupAuthz.getAuthorizers();
                 }
 
-                return new AuthorizationConfiguration(this, allowedRoles, allowedGroups, allowedRealms, expressions, pathAuthorizer);
+                return new AuthorizationConfiguration(this, allowedRoles, allowedGroups, allowedRealms, expressions, authorizers);
             } else if (groupAuthz != null) {
                 return groupConfiguration.getAuthorizationConfiguration();
             }

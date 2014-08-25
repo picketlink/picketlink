@@ -324,7 +324,7 @@ public class AuthorizationUtil {
      *
      * @return True if the user is associated with the partition. Otherwise, returns false.
      */
-    public static boolean hasPartition(Identity identity, Class<?> partitionType, String[] partitionNames) {
+    public static boolean hasPartition(Identity identity, Class<?> partitionType, String... partitionNames) {
         if (!isLoggedIn(identity)) {
             return false;
         }

@@ -51,7 +51,10 @@ import org.picketlink.http.internal.authentication.schemes.DigestAuthenticationS
 import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
 import org.picketlink.http.internal.authentication.schemes.TokenAuthenticationScheme;
 import org.picketlink.http.internal.authentication.schemes.X509AuthenticationScheme;
-import org.picketlink.http.internal.authorization.DefaultPathAuthorizer;
+import org.picketlink.http.internal.authorization.ExpressionPathAuthorizer;
+import org.picketlink.http.internal.authorization.GroupPathAuthorizer;
+import org.picketlink.http.internal.authorization.RealmPathAuthorizer;
+import org.picketlink.http.internal.authorization.RolePathAuthorizer;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.internal.el.ELProcessor;
 
@@ -68,6 +71,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +123,7 @@ public class SecurityFilter implements Filter {
     private HttpSecurityConfiguration configuration;
     private Map<PathConfiguration, HttpAuthenticationScheme> authenticationSchemes = new HashMap<PathConfiguration, HttpAuthenticationScheme>();
     private PathMatcher pathMatcher;
+    private List<PathAuthorizer> defaultPathAuthorizers = new ArrayList<PathAuthorizer>();
 
     @Override
     public void init(FilterConfig config) throws ServletException {
@@ -131,9 +136,9 @@ public class SecurityFilter implements Filter {
             throw new HttpSecurityConfigurationException("No configuration provided.");
         }
 
+        initializePathMatcher();
         initializeAuthenticationSchemes();
-
-        this.pathMatcher = new PathMatcher(this.configuration.getPaths(), this.elProcessor);
+        initializerDefaultAuthorizers();
     }
 
     @Override
@@ -308,20 +313,25 @@ public class SecurityFilter implements Filter {
             return true;
         }
 
-        Class<? extends PathAuthorizer> pathAuthorizerType = authorizationConfiguration.getPathAuthorizer();
+        List<PathAuthorizer> authorizers = new ArrayList<PathAuthorizer>(this.defaultPathAuthorizers);
 
-        if (pathAuthorizerType == null) {
-            pathAuthorizerType = DefaultPathAuthorizer.class;
+        for (Class<? extends PathAuthorizer> authorizerType : authorizationConfiguration.getAuthorizers()) {
+            try {
+                authorizers.add(resolveInstance(this.pathAuthorizerInstance, authorizerType));
+            } catch (Exception e) {
+                throw new HttpSecurityConfigurationException("Could not resolve PathAuthorizer [" + authorizerType + "].", e);
+            }
         }
 
-        try {
-            Instance<? extends PathAuthorizer> pathAuthorizerInstance = this.pathAuthorizerInstance.select(pathAuthorizerType);
-            PathAuthorizer pathAuthorizer = resolveInstance(pathAuthorizerInstance);
+        boolean isAuthorized = true;
 
-            return pathAuthorizer.authorize(pathConfiguration, request, response);
-        } catch (Exception e) {
-            throw new HttpSecurityConfigurationException("Could not resolve PathAuthorizer [" + pathAuthorizerType + "].", e);
+        for (PathAuthorizer authorizer : authorizers) {
+            if (!authorizer.authorize(pathConfiguration, request, response)) {
+                isAuthorized = false;
+            }
         }
+
+        return isAuthorized;
     }
 
     private void processRequest(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
@@ -509,6 +519,22 @@ public class SecurityFilter implements Filter {
         }
     }
 
+    private <I> I resolveInstance(Instance<I> fromInstance, Class<? extends I> type) {
+        try {
+            Instance<? extends I> instance = fromInstance.select(type);
+
+            if (instance.isUnsatisfied()) {
+                throw new IllegalStateException("Instance [" + instance + "] not found.");
+            } else if (instance.isAmbiguous()) {
+                throw new IllegalStateException("Instance [" + instance + "] is ambiguous.");
+            }
+
+            return instance.get();
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not retrieve fromInstance [" + fromInstance + "].", e);
+        }
+    }
+
     private HttpAuthenticationScheme resolveAuthenticationScheme(Class<? extends HttpAuthenticationScheme> authSchemeType) {
         Instance<? extends HttpAuthenticationScheme> configuredAuthScheme = this.authenticationSchemesInstance.select(authSchemeType);
 
@@ -545,4 +571,16 @@ public class SecurityFilter implements Filter {
             }
         }
     }
+
+    private void initializerDefaultAuthorizers() {
+        this.defaultPathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, RolePathAuthorizer.class));
+        this.defaultPathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, GroupPathAuthorizer.class));
+        this.defaultPathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, RealmPathAuthorizer.class));
+        this.defaultPathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, ExpressionPathAuthorizer.class));
+    }
+
+    private void initializePathMatcher() {
+        this.pathMatcher = new PathMatcher(this.configuration.getPaths(), this.elProcessor);
+    }
+
 }

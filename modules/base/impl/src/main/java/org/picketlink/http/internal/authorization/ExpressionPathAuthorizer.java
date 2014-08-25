@@ -21,17 +21,10 @@
  */
 package org.picketlink.http.internal.authorization;
 
-import org.picketlink.Identity;
-import org.picketlink.authorization.util.AuthorizationUtil;
-import org.picketlink.common.reflection.Reflections;
 import org.picketlink.config.http.AuthorizationConfiguration;
 import org.picketlink.config.http.PathConfiguration;
-import org.picketlink.http.authorization.PathAuthorizer;
-import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.model.Account;
 import org.picketlink.internal.el.ELProcessor;
 
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,72 +34,17 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Pedro Igor
  */
-public class DefaultPathAuthorizer implements PathAuthorizer {
-
-    @Inject
-    private PartitionManager partitionManager;
-
-    @Inject
-    private Instance<Identity> identityInstance;
+public class ExpressionPathAuthorizer extends AbstractPathAuthorizer {
 
     @Inject
     private ELProcessor elProcessor;
 
     @Override
-    public boolean authorize(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) {
-        boolean isAuthorized = true;
-
+    protected boolean doAuthorize(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) {
         AuthorizationConfiguration authorizationConfiguration = pathConfiguration.getAuthorizationConfiguration();
 
-        if (authorizationConfiguration == null) {
+        if (authorizationConfiguration.getExpressions() == null) {
             return true;
-        }
-
-        Identity identity = getIdentity();
-        String[] allowedRoles = authorizationConfiguration.getAllowedRoles();
-
-        if (allowedRoles != null) {
-            for (String roneName : allowedRoles) {
-                if (!AuthorizationUtil.hasRole(identity, this.partitionManager, roneName)) {
-                    isAuthorized = false;
-                    break;
-                }
-            }
-        }
-
-        String[] allowedGroups = authorizationConfiguration.getAllowedGroups();
-
-        if (allowedGroups != null) {
-            for (String groupName : allowedGroups) {
-                if (!AuthorizationUtil.isMember(identity, this.partitionManager, groupName)) {
-                    isAuthorized = false;
-                    break;
-                }
-            }
-        }
-
-        String[] allowedRealms = authorizationConfiguration.getAllowedRealms();
-
-        if (allowedRealms != null) {
-            for (String realmName : allowedRealms) {
-                Account validatedAccount = identity.getAccount();
-
-                if (!validatedAccount.getPartition().getName().equals(realmName)) {
-                    try {
-                        Class<Object> partitionType = Reflections.classForName(realmName);
-
-                        isAuthorized = AuthorizationUtil.hasPartition(identity, partitionType, null);
-                    } catch (Exception ignore) {
-                        isAuthorized = false;
-                    }
-
-                    if (isAuthorized) {
-                        break;
-                    }
-
-                    isAuthorized = false;
-                }
-            }
         }
 
         String protectedUri = request.getContextPath() + pathConfiguration.getUri();
@@ -125,8 +63,7 @@ public class DefaultPathAuthorizer implements PathAuthorizer {
                         }
 
                         if (!Boolean.valueOf(eval.toString())) {
-                            isAuthorized = false;
-                            break;
+                            return false;
                         }
                     } catch (Exception e) {
                         throw new RuntimeException("Failed to process authorization expression [" + expression + "] for path [" + protectedUri + "].", e);
@@ -149,8 +86,7 @@ public class DefaultPathAuthorizer implements PathAuthorizer {
                         String expressionPattern = expression.substring(1);
 
                         if (formattedProtectedUri.indexOf(expressionPattern) == -1) {
-                            isAuthorized = false;
-                            break;
+                            return false;
                         }
 
                         formattedProtectedUri = formattedProtectedUri.replace(expressionPattern, eval.toString());
@@ -166,33 +102,14 @@ public class DefaultPathAuthorizer implements PathAuthorizer {
                         String prefix = formattedProtectedUri.substring(0, prefixEnd);
 
                         if (!request.getRequestURI().startsWith(prefix)) {
-                            isAuthorized = false;
+                            return false;
                         }
-                    } else {
-                        isAuthorized = false;
                     }
                 }
             }
         }
 
-        return isAuthorized;
+        return true;
     }
 
-    private Identity getIdentity() {
-        return resolveInstance(this.identityInstance);
-    }
-
-    private <I> I resolveInstance(Instance<I> instance) {
-        if (instance.isUnsatisfied()) {
-            throw new IllegalStateException("Instance [" + instance + "] not found.");
-        } else if (instance.isAmbiguous()) {
-            throw new IllegalStateException("Instance [" + instance + "] is ambiguous.");
-        }
-
-        try {
-            return (I) instance.get();
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not retrieve instance [" + instance + "].", e);
-        }
-    }
 }
