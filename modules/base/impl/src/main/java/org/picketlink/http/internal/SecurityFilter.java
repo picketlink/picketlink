@@ -73,6 +73,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -123,7 +124,7 @@ public class SecurityFilter implements Filter {
     private HttpSecurityConfiguration configuration;
     private Map<PathConfiguration, HttpAuthenticationScheme> authenticationSchemes = new HashMap<PathConfiguration, HttpAuthenticationScheme>();
     private PathMatcher pathMatcher;
-    private List<PathAuthorizer> defaultPathAuthorizers = new ArrayList<PathAuthorizer>();
+    private Map<PathConfiguration, List<PathAuthorizer>> pathAuthorizers = new HashMap<PathConfiguration, List<PathAuthorizer>>();
 
     @Override
     public void init(FilterConfig config) throws ServletException {
@@ -138,7 +139,7 @@ public class SecurityFilter implements Filter {
 
         initializePathMatcher();
         initializeAuthenticationSchemes();
-        initializerDefaultAuthorizers();
+        initializePathAuthorizers();
     }
 
     @Override
@@ -160,25 +161,25 @@ public class SecurityFilter implements Filter {
             }
 
             response = (HttpServletResponse) servletResponse;
-            pathConfiguration = resolvePathConfiguration(request);
+            pathConfiguration = this.pathMatcher.matches(request);
 
             performAuthenticationIfRequired(pathConfiguration, request, response);
 
             if (isSecured(pathConfiguration)) {
                 if (!isMethodAllowed(pathConfiguration, request)) {
                     throw new MethodNotAllowedException("The given method is not allowed [" + request.getMethod() + "] for path [" + pathConfiguration.getUri() + "].");
-                } else {
-                    if (!response.isCommitted()) {
-                        Identity identity = getIdentity();
+                }
 
-                        if (!identity.isLoggedIn()) {
-                            challengeClientForCredentials(pathConfiguration, request, response);
-                        } else if (isLogoutPath(pathConfiguration)) {
-                            performLogout(request, response, identity, pathConfiguration);
-                        } else {
-                            if (!isAuthorized(pathConfiguration, request, response)) {
-                                throw new AccessDeniedException("The request for the given path [" + pathConfiguration.getUri() + "] was forbidden.");
-                            }
+                if (!response.isCommitted()) {
+                    Identity identity = getIdentity();
+
+                    if (!identity.isLoggedIn()) {
+                        challengeClientForCredentials(pathConfiguration, request, response);
+                    } else if (isLogoutPath(pathConfiguration)) {
+                        performLogout(request, response, identity, pathConfiguration);
+                    } else {
+                        if (!isAuthorized(pathConfiguration, request, response)) {
+                            throw new AccessDeniedException("The request for the given path [" + pathConfiguration.getUri() + "] was forbidden.");
                         }
                     }
                 }
@@ -299,39 +300,21 @@ public class SecurityFilter implements Filter {
     }
 
     private boolean isLogoutPath(PathConfiguration pathConfiguration) {
-        if (pathConfiguration != null) {
-            return pathConfiguration.getLogoutConfiguration() != null;
-        }
-
-        return false;
+        return pathConfiguration != null && pathConfiguration.getLogoutConfiguration() != null;
     }
 
     private boolean isAuthorized(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) {
-        AuthorizationConfiguration authorizationConfiguration = pathConfiguration.getAuthorizationConfiguration();
+        List<PathAuthorizer> authorizers = this.pathAuthorizers.get(pathConfiguration);
 
-        if (authorizationConfiguration == null) {
-            return true;
-        }
-
-        List<PathAuthorizer> authorizers = new ArrayList<PathAuthorizer>(this.defaultPathAuthorizers);
-
-        for (Class<? extends PathAuthorizer> authorizerType : authorizationConfiguration.getAuthorizers()) {
-            try {
-                authorizers.add(resolveInstance(this.pathAuthorizerInstance, authorizerType));
-            } catch (Exception e) {
-                throw new HttpSecurityConfigurationException("Could not resolve PathAuthorizer [" + authorizerType + "].", e);
+        if (authorizers != null) {
+            for (PathAuthorizer authorizer : authorizers) {
+                if (!authorizer.authorize(pathConfiguration, request, response)) {
+                    return false;
+                }
             }
         }
 
-        boolean isAuthorized = true;
-
-        for (PathAuthorizer authorizer : authorizers) {
-            if (!authorizer.authorize(pathConfiguration, request, response)) {
-                isAuthorized = false;
-            }
-        }
-
-        return isAuthorized;
+        return true;
     }
 
     private void processRequest(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
@@ -413,17 +396,11 @@ public class SecurityFilter implements Filter {
             }
         } else {
             if (!identity.isLoggedIn()) {
-                if (pathConfiguration != null) {
-                    if (pathConfiguration.getAuthorizationConfiguration() != null) {
-                        throw new AuthenticationRequiredException("The given path [" + pathConfiguration.getUri() + "] requires authentication.");
-                    }
+                if (pathConfiguration != null && pathConfiguration.getAuthorizationConfiguration() != null) {
+                    throw new AuthenticationRequiredException("The given path [" + pathConfiguration.getUri() + "] requires authentication.");
                 }
             }
         }
-    }
-
-    private PathConfiguration resolvePathConfiguration(HttpServletRequest request) {
-        return this.pathMatcher.matches(request);
     }
 
     private HttpAuthenticationScheme getAuthenticationScheme(PathConfiguration pathConfiguration, HttpServletRequest request) {
@@ -438,20 +415,26 @@ public class SecurityFilter implements Filter {
                 authenticationScheme = this.authenticationSchemes.get(pathConfiguration);
 
                 if (authenticationScheme == null) {
+                    Class<? extends HttpAuthenticationScheme> authcSchemeType;
+
                     if (FormAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(FormAuthenticationScheme.class);
+                        authcSchemeType = FormAuthenticationScheme.class;
                     } else if (DigestAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(DigestAuthenticationScheme.class);
+                        authcSchemeType = DigestAuthenticationScheme.class;
                     } else if (BasicAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(BasicAuthenticationScheme.class);
+                        authcSchemeType = BasicAuthenticationScheme.class;
                     } else if (X509AuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(X509AuthenticationScheme.class);
+                        authcSchemeType = X509AuthenticationScheme.class;
                     } else if (TokenAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(TokenAuthenticationScheme.class);
+                        authcSchemeType = TokenAuthenticationScheme.class;
                     } else if (CustomAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
                         CustomAuthenticationConfiguration customAuthcConfig = (CustomAuthenticationConfiguration) authSchemeConfiguration;
-                        authenticationScheme = resolveAuthenticationScheme(customAuthcConfig.getSchemeType());
+                        authcSchemeType = customAuthcConfig.getSchemeType();
+                    } else {
+                        throw new HttpSecurityConfigurationException("Unexpected Authentication Scheme configuration [" + authSchemeConfiguration + "].");
                     }
+
+                    authenticationScheme = resolveInstance(this.authenticationSchemesInstance, authcSchemeType);
 
                     this.authenticationSchemes.put(pathConfiguration, authenticationScheme);
                 }
@@ -506,22 +489,18 @@ public class SecurityFilter implements Filter {
     }
 
     private <I> I resolveInstance(Instance<I> instance) {
-        if (instance.isUnsatisfied()) {
-            throw new IllegalStateException("Instance [" + instance + "] not found.");
-        } else if (instance.isAmbiguous()) {
-            throw new IllegalStateException("Instance [" + instance + "] is ambiguous.");
-        }
-
-        try {
-            return (I) instance.get();
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not retrieve instance [" + instance + "].", e);
-        }
+        return resolveInstance(instance, null);
     }
 
     private <I> I resolveInstance(Instance<I> fromInstance, Class<? extends I> type) {
         try {
-            Instance<? extends I> instance = fromInstance.select(type);
+            Instance<? extends I> instance;
+
+            if (type != null) {
+                instance = fromInstance.select(type);
+            } else {
+                instance = fromInstance;
+            }
 
             if (instance.isUnsatisfied()) {
                 throw new IllegalStateException("Instance [" + instance + "] not found.");
@@ -533,20 +512,6 @@ public class SecurityFilter implements Filter {
         } catch (Exception e) {
             throw new IllegalStateException("Could not retrieve fromInstance [" + fromInstance + "].", e);
         }
-    }
-
-    private HttpAuthenticationScheme resolveAuthenticationScheme(Class<? extends HttpAuthenticationScheme> authSchemeType) {
-        Instance<? extends HttpAuthenticationScheme> configuredAuthScheme = this.authenticationSchemesInstance.select(authSchemeType);
-
-        if (configuredAuthScheme.isAmbiguous()) {
-            throw new IllegalStateException("Ambiguous beans found for Http Authentication Scheme type [" + authSchemeType + "].");
-        }
-
-        if (configuredAuthScheme.isUnsatisfied()) {
-            throw new IllegalStateException("No bean found for Http Authentication Scheme with type [" + authSchemeType + "].");
-        }
-
-        return configuredAuthScheme.get();
     }
 
     private void initializeAuthenticationSchemes() {
@@ -572,15 +537,45 @@ public class SecurityFilter implements Filter {
         }
     }
 
-    private void initializerDefaultAuthorizers() {
-        this.defaultPathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, RolePathAuthorizer.class));
-        this.defaultPathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, GroupPathAuthorizer.class));
-        this.defaultPathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, RealmPathAuthorizer.class));
-        this.defaultPathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, ExpressionPathAuthorizer.class));
+    private void initializePathAuthorizers() {
+        for (List<PathConfiguration> configurations : this.configuration.getPaths().values()) {
+            for (PathConfiguration pathConfiguration : configurations) {
+                if (pathConfiguration.isSecured()) {
+                    AuthorizationConfiguration authorizationConfiguration = pathConfiguration.getAuthorizationConfiguration();
+
+                    if (authorizationConfiguration != null) {
+                        List<PathAuthorizer> pathAuthorizers = new ArrayList<PathAuthorizer>();
+                        List<Class<? extends PathAuthorizer>> pathAuthorizerTypes = new ArrayList<Class<? extends PathAuthorizer>>(authorizationConfiguration.getAuthorizers());
+
+                        pathAuthorizerTypes.addAll(getDefaultPathAuthorizers());
+
+                        for (Class<? extends PathAuthorizer> authorizerType : pathAuthorizerTypes) {
+                            try {
+                                pathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, authorizerType));
+                            } catch (Exception e) {
+                                throw new HttpSecurityConfigurationException("Could not resolve PathAuthorizer [" + authorizerType + "].", e);
+                            }
+                        }
+
+                        this.pathAuthorizers.put(pathConfiguration, pathAuthorizers);
+                    }
+                }
+            }
+        }
+    }
+
+    private Set<Class<? extends PathAuthorizer>> getDefaultPathAuthorizers() {
+        Set<Class<? extends PathAuthorizer>> defaultAuthorizers = new HashSet<Class<? extends PathAuthorizer>>();
+
+        defaultAuthorizers.add(RolePathAuthorizer.class);
+        defaultAuthorizers.add(GroupPathAuthorizer.class);
+        defaultAuthorizers.add(RealmPathAuthorizer.class);
+        defaultAuthorizers.add(ExpressionPathAuthorizer.class);
+
+        return defaultAuthorizers;
     }
 
     private void initializePathMatcher() {
         this.pathMatcher = new PathMatcher(this.configuration.getPaths(), this.elProcessor);
     }
-
 }
