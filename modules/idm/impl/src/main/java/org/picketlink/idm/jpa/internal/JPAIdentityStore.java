@@ -86,6 +86,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -509,6 +510,32 @@ public class JPAIdentityStore
         cq.select(rootEntity.get(idProperty.getName()));
 
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        QueryParameter[] sortParameters = identityQuery.getSortParameters();
+
+        if (sortParameters != null) {
+            List<Order> orders = new ArrayList<Order>();
+
+            for (QueryParameter queryParameter : sortParameters) {
+                if (!AttributeParameter.class.isInstance(queryParameter)) {
+                    throw new IdentityManagementException("Sorting query parameter is not a [" + AttributeParameter.class + "].");
+                }
+
+                AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
+
+                Order order;
+
+                if (identityQuery.isSortAscending()) {
+                    order = cb.asc(rootEntity.get(attributeParameter.getName()));
+                } else {
+                    order = cb.desc(rootEntity.get(attributeParameter.getName()));
+                }
+
+                orders.add(order);
+            }
+
+            cq.orderBy(orders);
+        }
 
         Query query = entityManager.createQuery(cq);
 
