@@ -509,16 +509,19 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             if (userPrincipal == null) {
                 userPrincipal = httpRequest.getUserPrincipal();
             }
-
+            String principalName = null;
             if (userPrincipal == null) {
-                throw logger.samlHandlerPrincipalNotFoundError();
+            	principalName = "UKNOWN_USER";
+                //throw logger.samlHandlerPrincipalNotFoundError();
+            } else {
+            	principalName = userPrincipal.getName();
             }
 
             try {
                 LogoutRequestType lot = samlRequest.createLogoutRequest(request.getIssuer().getValue());
 
                 NameIDType nameID = new NameIDType();
-                nameID.setValue(userPrincipal.getName());
+                nameID.setValue(principalName);
                 //Deal with NameID Format
                 String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
                 if(StringUtil.isNullOrEmpty(nameIDFormat)){
