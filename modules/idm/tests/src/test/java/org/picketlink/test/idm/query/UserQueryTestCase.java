@@ -18,7 +18,6 @@
 
 package org.picketlink.test.idm.query;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.IdentityType;
@@ -172,7 +171,8 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
     }
 
     @Test
-    @Ignore
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class,
+        LDAPUserGroupJPARoleConfigurationTester.class})
     public void testFindWithPaginationAndSorting() throws Exception {
         createPopulatedUser("john", "John", "Anthony");
         // Sleep is needed to avoid same createdDate
@@ -240,6 +240,37 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
         assertEquals(users.get(0).getLoginName(), "john");
         assertEquals(users.get(1).getLoginName(), "root");
         assertEquals(users.get(2).getLoginName(), "mary");
+    }
+
+    @Test
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class,
+        LDAPUserGroupJPARoleConfigurationTester.class})
+    public void testSortingDesc() throws Exception {
+        createPopulatedUser("john", "John", "Anthony");
+        // Sleep is needed to avoid same createdDate
+        Thread.sleep(1000);
+        createPopulatedUser("mary", "Mary", "Kelly");
+        Thread.sleep(1000);
+        createPopulatedUser("demo", "Demo", "Demo");
+        Thread.sleep(1000);
+        createPopulatedUser("mary2", "Mary", "Anthony");
+        Thread.sleep(1000);
+        createPopulatedUser("john2", "John", "Kelly");
+
+        // Page1 with default sorting (loginName)
+        IdentityQuery<User> userQuery = getIdentityManager().createIdentityQuery(User.class);
+
+        userQuery.setSortParameters(User.LOGIN_NAME);
+        userQuery.setSortAscending(false);
+
+        List<User> users = userQuery.getResultList();
+
+        assertEquals(5, users.size());
+        assertEquals(users.get(4).getLoginName(), "demo");
+        assertEquals(users.get(3).getLoginName(), "john");
+        assertEquals(users.get(2).getLoginName(), "john2");
+        assertEquals(users.get(1).getLoginName(), "mary");
+        assertEquals(users.get(0).getLoginName(), "mary2");
     }
 
     private void createPopulatedUser(String username, String firstName, String lastName) {
