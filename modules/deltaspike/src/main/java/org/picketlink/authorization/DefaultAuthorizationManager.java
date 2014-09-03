@@ -87,14 +87,12 @@ public class DefaultAuthorizationManager {
     @Secures
     @Restrict
     public boolean checkExpression(InvocationContext invocationContext) {
-        if (isLoggedIn(invocationContext)) {
-            Restrict restrict = getAnnotation(invocationContext, Restrict.class);
-            String expression = restrict.value();
-            Object result = this.elProcessor.eval(expression);
+        Restrict restrict = getAnnotation(invocationContext, Restrict.class);
+        String expression = restrict.value();
+        Object result = this.elProcessor.eval(expression);
 
-            if (Boolean.class.isInstance(result)) {
-                return Boolean.valueOf(result.toString());
-            }
+        if (Boolean.class.isInstance(result)) {
+            return Boolean.valueOf(result.toString());
         }
 
         return false;
