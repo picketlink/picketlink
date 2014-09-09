@@ -220,7 +220,9 @@ public class IDPFilter implements Filter {
             }
 
             handleSAMLMessage(httpServletRequest, httpServletResponse, chain);
-        }else {
+        }
+
+        if (!response.isCommitted()) {
             chain.doFilter(request,response);
         }
     }
@@ -279,8 +281,6 @@ public class IDPFilter implements Filter {
             } else if (request.getServletPath().equals(request.getContextPath() + "/")) {
                 // no SAML processing and the request is asking for /.
                 forwardHosted(request, response);
-            } else {
-                chain.doFilter(request, response);
             }
         }
     }
@@ -575,53 +575,55 @@ public class IDPFilter implements Filter {
                     this.idpConfiguration.isSupportsSignature());
             isErrorResponse = true;
         } finally {
-            try {
-                // if the destination is null, probably because some error occur during authentication, use the AuthnRequest
-                // AssertionConsumerServiceURL as the destination
-                if (destination == null && samlObject instanceof AuthnRequestType) {
-                    AuthnRequestType authRequest = (AuthnRequestType) samlObject;
+            if (!response.isCommitted()) {
+                try {
+                    // if the destination is null, probably because some error occur during authentication, use the AuthnRequest
+                    // AssertionConsumerServiceURL as the destination
+                    if (destination == null && samlObject instanceof AuthnRequestType) {
+                        AuthnRequestType authRequest = (AuthnRequestType) samlObject;
 
-                    destination = authRequest.getAssertionConsumerServiceURL().toASCIIString();
-                }
+                        destination = authRequest.getAssertionConsumerServiceURL().toASCIIString();
+                    }
 
-                // if destination is still empty redirect the user to the identity url. If the user is already authenticated he
-                // will be probably redirected to the idp hosted page.
-                if (destination == null) {
-                    response.sendRedirect(getIdentityURL());
-                } else {
-                    IDPWebRequestUtil.WebRequestUtilHolder holder = webRequestUtil.getHolder();
-                    holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
+                    // if destination is still empty redirect the user to the identity url. If the user is already authenticated he
+                    // will be probably redirected to the idp hosted page.
+                    if (destination == null) {
+                        response.sendRedirect(getIdentityURL());
+                    } else {
+                        IDPWebRequestUtil.WebRequestUtilHolder holder = webRequestUtil.getHolder();
+                        holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                             .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
                             .setErrorResponse(isErrorResponse).setServletResponse(response)
                             .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
 
-                    holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
+                        holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
 
-                    if (requestedPostProfile != null)
-                        holder.setPostBindingRequested(requestedPostProfile);
-                    else
-                        holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
+                        if (requestedPostProfile != null)
+                            holder.setPostBindingRequested(requestedPostProfile);
+                        else
+                            holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
 
-                    if (this.idpConfiguration.isSupportsSignature()) {
-                        holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+                        if (this.idpConfiguration.isSupportsSignature()) {
+                            holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+                        }
+
+                        if (enableAudit) {
+                            PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                            auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
+                            auditEvent.setDestination(destination);
+                            auditEvent.setWhoIsAuditing(contextPath);
+                            auditHelper.audit(auditEvent);
+                        }
+
+                        webRequestUtil.send(holder);
                     }
-
-                    if (enableAudit) {
-                        PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
-                        auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
-                        auditEvent.setDestination(destination);
-                        auditEvent.setWhoIsAuditing(contextPath);
-                        auditHelper.audit(auditEvent);
-                    }
-
-                    webRequestUtil.send(holder);
+                } catch (ParsingException e) {
+                    logger.samlAssertionPasingFailed(e);
+                } catch (GeneralSecurityException e) {
+                    logger.trace("Security Exception:", e);
+                } catch (Exception e) {
+                    logger.error(e);
                 }
-            } catch (ParsingException e) {
-                logger.samlAssertionPasingFailed(e);
-            } catch (GeneralSecurityException e) {
-                logger.trace("Security Exception:", e);
-            } catch (Exception e) {
-                logger.error(e);
             }
         }
         return;
