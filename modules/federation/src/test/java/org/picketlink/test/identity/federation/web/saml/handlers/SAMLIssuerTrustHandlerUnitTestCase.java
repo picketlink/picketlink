@@ -24,6 +24,7 @@ import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
 import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.config.federation.TrustType;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
@@ -35,6 +36,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;
@@ -50,7 +52,7 @@ import java.util.Map;
  */
 public class SAMLIssuerTrustHandlerUnitTestCase extends TestCase {
 
-    public void testIssuer() throws Exception {
+    public void testIssuerForIdp() throws Exception {
         SAML2IssuerTrustHandler issuerTrustHandler = new SAML2IssuerTrustHandler();
 
         // Create a Protocol Context
@@ -105,6 +107,63 @@ public class SAMLIssuerTrustHandlerUnitTestCase extends TestCase {
 
         issuer.setValue("google.com/a/mposolda1.com");
         issuerTrustHandler.handleRequestType(request, response);
+    }
+
+    public void testIssuerForSp() throws Exception {
+        SAML2IssuerTrustHandler issuerTrustHandler = new SAML2IssuerTrustHandler();
+
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+
+        // Create chainConfig for SP
+        TrustType trustType = new TrustType();
+        Map<String, Object> chainOptionsIdp = new HashMap<String, Object>();
+        SPType spType = new SPType();
+        spType.setTrust(trustType);
+        chainOptionsIdp.put(GeneralConstants.CONFIGURATION, spType);
+        SAML2HandlerChainConfig chainConfigIdp = new DefaultSAML2HandlerChainConfig(chainOptionsIdp);
+        issuerTrustHandler.initChainConfig(chainConfigIdp);
+
+        // Create documentHolder
+        NameIDType issuer = new NameIDType();
+        ResponseType responseType = new ResponseType("ID_123456789", null);
+        responseType.setIssuer(issuer);
+        SAMLDocumentHolder documentHolder = new SAMLDocumentHolder(responseType);
+
+        // Create request and response
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, null, documentHolder,
+            SAML2Handler.HANDLER_TYPE.IDP);
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+
+        // Test localhost
+        issuer.setValue("http://localhost:8080/idp");
+        trustType.setDomains("localhost,google.com,somedomain.com");
+        issuerTrustHandler.handleStatusResponseType(request, response);
+
+        // Test somedomain
+        issuer.setValue("http://www.somedomain.com:8080/idp/");
+        issuerTrustHandler.handleStatusResponseType(request, response);
+
+        // Test non-trusted domain
+        try {
+            issuer.setValue("http://www.evil.com:8080/idp/");
+            issuerTrustHandler.handleStatusResponseType(request, response);
+
+            fail("www.evil.com is non-trusted domain");
+        } catch (ProcessingException pe) {
+            Assert.assertEquals(pe.getCause().getClass(), IssuerNotTrustedException.class);
+        }
+
+        // Test google.com
+        issuer.setValue("google.com");
+        issuerTrustHandler.handleStatusResponseType(request, response);
+
+        issuer.setValue("google.com/a/mposolda1.com");
+        issuerTrustHandler.handleStatusResponseType(request, response);
     }
 
 }

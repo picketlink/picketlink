@@ -29,6 +29,7 @@ import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -130,19 +131,24 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
 
         public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, ProviderType spConfiguration)
                 throws ProcessingException {
-            trustIssuer(spConfiguration, request);
+            RequestAbstractType statusResponseType = (RequestAbstractType) request.getSAML2Object();
+            String issuer = statusResponseType.getIssuer().getValue();
+
+            trustIssuer(spConfiguration, request, issuer);
         }
 
         public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response, ProviderType spConfiguration)
                 throws ProcessingException {
-            trustIssuer(spConfiguration, request);
+            StatusResponseType statusResponseType = (StatusResponseType) request.getSAML2Object();
+            String issuer = statusResponseType.getIssuer().getValue();
+
+            trustIssuer(spConfiguration, request, issuer);
         }
 
-        private void trustIssuer(ProviderType spConfiguration, SAML2HandlerRequest request) throws ProcessingException {
+        private void trustIssuer(ProviderType spConfiguration, SAML2HandlerRequest request, String issuer) throws ProcessingException {
             if (spConfiguration == null)
                 throw logger.nullArgumentError("SP Configuration");
 
-            String issuer = request.getIssuer().getValue();
             Map<String, Object> requestOptions = request.getOptions();
             PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
             String contextPath = (String) requestOptions.get(GeneralConstants.CONTEXT_PATH);
