@@ -42,6 +42,9 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.interceptor.InvocationContext;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
+import static org.apache.deltaspike.core.util.ProxyUtils.getUnproxiedClass;
 
 /**
  * <p>Default implementation of the authorization checks provided by the built-in security annotations provided by PicketLink.</p>
@@ -152,11 +155,16 @@ public class DefaultAuthorizationManager {
     }
 
     private <T extends Annotation> T getAnnotation(InvocationContext invocationContext, Class<T> annotationType) {
-        Object targetBean = invocationContext.getTarget();
-        T annotation = targetBean.getClass().getAnnotation(annotationType);
+        Class unproxiedClass = getUnproxiedClass(invocationContext.getTarget().getClass());
+        T annotation = (T) unproxiedClass.getAnnotation(annotationType);
+        Method invocationContextMethod = invocationContext.getMethod();
 
         if (annotation == null) {
-            annotation = invocationContext.getMethod().getAnnotation(annotationType);
+            annotation = invocationContextMethod.getAnnotation(annotationType);
+        }
+
+        if (annotation == null) {
+            throw new IllegalArgumentException("No annotation [" + annotationType + " found in type [" + unproxiedClass + "] or method [" + invocationContextMethod + ".");
         }
 
         return annotation;
