@@ -1482,7 +1482,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public IssuerNotTrustedException samlIssuerNotTrustedError(String issuer) {
-        return new IssuerNotTrustedException("Issuer not Trusted by the IDP: " + issuer);
+        return new IssuerNotTrustedException("Issuer not Trusted: " + issuer);
     }
 
     /*
