@@ -74,6 +74,15 @@ public class StringUtilTestCase {
     }
 
     @Test
+    public void testSystemProperty() throws Exception {
+        System.setProperty("signingkey.pass", "abc$$bcd");
+
+        String systemPropertyAsString = StringUtil.getSystemPropertyAsString("${signingkey.pass}");
+
+        assertEquals("abc$$bcd", systemPropertyAsString);
+    }
+
+    @Test
     public void trim() throws Exception {
         assertNotNull("".trim());
         assertEquals(0, "".trim().length());
