@@ -21,6 +21,8 @@
  */
 package org.picketlink.config;
 
+import java.lang.annotation.Annotation;
+
 /**
  * <p>Represents all the available configuration options for the {@link org.picketlink.Identity} bean.</p>
  *
@@ -28,13 +30,17 @@ package org.picketlink.config;
  */
 public class IdentityBeanConfiguration {
 
-    private final boolean stateless;
+    private final Class<? extends Annotation> scope;
 
-    IdentityBeanConfiguration(boolean stateless) {
-        this.stateless = stateless;
+    IdentityBeanConfiguration(Class<? extends Annotation> scope) {
+        if (scope == null) {
+            throw new IllegalArgumentException("You must provide the Identity bean scope.");
+        }
+
+        this.scope = scope;
     }
 
-    public boolean isStateless() {
-        return this.stateless;
+    public Class<? extends Annotation> getScope() {
+        return this.scope;
     }
 }

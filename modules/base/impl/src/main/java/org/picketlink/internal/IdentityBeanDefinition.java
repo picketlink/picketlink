@@ -24,7 +24,6 @@ package org.picketlink.internal;
 import org.picketlink.Identity;
 import org.picketlink.config.SecurityConfiguration;
 
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.Any;
@@ -90,11 +89,17 @@ public class IdentityBeanDefinition implements Bean<DefaultIdentity>, Serializab
 
     @Override
     public Class<? extends Annotation> getScope() {
-        if (isStateless()) {
-            return RequestScoped.class;
+        Class<? extends Annotation> scope = SessionScoped.class;
+
+        if (this.securityConfiguration != null && this.securityConfiguration.getIdentityBeanConfiguration() != null) {
+            scope = this.securityConfiguration.getIdentityBeanConfiguration().getScope();
         }
 
-        return SessionScoped.class;
+        if (scope == null) {
+            throw new IllegalStateException("No scope defined for " + Identity.class.getSimpleName() + " bean. Check your configuration.");
+        }
+
+        return scope;
     }
 
     @Override
@@ -142,10 +147,6 @@ public class IdentityBeanDefinition implements Bean<DefaultIdentity>, Serializab
         this.injectionTarget.preDestroy(instance);
         this.injectionTarget.dispose(instance);
         creationalContext.release();
-    }
-
-    private boolean isStateless() {
-        return this.securityConfiguration != null && this.securityConfiguration.getIdentityBeanConfiguration().isStateless();
     }
 
     @Override

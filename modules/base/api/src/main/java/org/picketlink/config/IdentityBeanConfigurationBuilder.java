@@ -24,6 +24,10 @@ package org.picketlink.config;
 import org.picketlink.idm.config.Builder;
 import org.picketlink.idm.config.SecurityConfigurationException;
 
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
+import java.lang.annotation.Annotation;
+
 /**
  * <p>A configuration builder with covenience methods to configure the behavior of the {@link org.picketlink.Identity} bean.</p>
  *
@@ -31,37 +35,48 @@ import org.picketlink.idm.config.SecurityConfigurationException;
  */
 public class IdentityBeanConfigurationBuilder extends AbstractSecurityConfigurationBuilder<IdentityBeanConfiguration> {
 
-    private boolean stateless;
+    private Class<? extends Annotation> scope = SessionScoped.class;
 
     public IdentityBeanConfigurationBuilder(SecurityConfigurationBuilder builder) {
         super(builder);
     }
 
     /**
-     * <p>Enables the stateless mode of the {@link org.picketlink.Identity} bean.</p>
+     * <p>Enables the stateless mode of the {@link org.picketlink.Identity} bean. In this case, the bean will be
+     * {@link javax.enterprise.context.RequestScoped}.</p>
      *
      * <p>Default is false.</p>
      *
      * @return
      */
     public IdentityBeanConfigurationBuilder stateless() {
-        this.stateless = true;
+        scope(RequestScoped.class);
+        return this;
+    }
+
+    /**
+     * <p>Sepcifies the scope of the {@link org.picketlink.Identity} bean.</p>
+     *
+     * @param scope The scope of the identity bean. It can not be null.
+     * @return
+     */
+    public IdentityBeanConfigurationBuilder scope(Class<? extends Annotation> scope) {
+        this.scope = scope;
         return this;
     }
 
     @Override
     protected IdentityBeanConfiguration create() throws SecurityConfigurationException {
-        return new IdentityBeanConfiguration(this.stateless);
+        return new IdentityBeanConfiguration(this.scope);
     }
 
     @Override
     protected void validate() throws SecurityConfigurationException {
-
     }
 
     @Override
     protected Builder<IdentityBeanConfiguration> readFrom(IdentityBeanConfiguration fromConfiguration) throws SecurityConfigurationException {
-        if (fromConfiguration.isStateless()) {
+        if (RequestScoped.class.equals(fromConfiguration.getScope())) {
             this.stateless();
         }
 
