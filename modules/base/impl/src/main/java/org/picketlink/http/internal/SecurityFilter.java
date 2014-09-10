@@ -276,7 +276,7 @@ public class SecurityFilter implements Filter {
             }
 
             if (HTTP_LOGGER.isEnabled(Logger.Level.ERROR)) {
-                HTTP_LOGGER.errorf(exception, "Exception thrown during processing for path [%s]. Sending error with status code [%s].", request.getRequestURI(), statusCode, exception);
+                HTTP_LOGGER.errorf(exception, "Exception thrown during processing for path [%s]. Sending error with status code [%s].", request.getRequestURI(), statusCode);
             }
 
             response.sendError(statusCode, message);
