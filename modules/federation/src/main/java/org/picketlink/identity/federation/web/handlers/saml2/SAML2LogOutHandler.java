@@ -511,8 +511,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             }
 
             if (userPrincipal == null) {
-            	return;
-            	//throw logger.samlHandlerPrincipalNotFoundError();
+                return;
             }
 
             try {
