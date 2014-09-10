@@ -93,6 +93,9 @@ public class KeyStoreKeyManager implements TrustKeyManager {
      * @see TrustKeyManager#getSigningKey()
      */
     public PrivateKey getSigningKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (this.signingKeyPass == null || this.signingKeyPass.length == 0)
+            throw logger.keyStoreNullSigningKeyPass();
+
         try {
             initKeyStore();
             return (PrivateKey) ks.getKey(this.signingAlias, this.signingKeyPass);
@@ -115,6 +118,9 @@ public class KeyStoreKeyManager implements TrustKeyManager {
      * @see org.picketlink.identity.federation.bindings.interfaces.TrustKeyManager#getSigningKeyPair()
      */
     public KeyPair getSigningKeyPair() throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (this.signingKeyPass == null || this.signingKeyPass.length == 0)
+            throw logger.keyStoreNullSigningKeyPass();
+
         try {
             initKeyStore();
             PrivateKey privateKey = this.getSigningKey();
@@ -199,6 +205,9 @@ public class KeyStoreKeyManager implements TrustKeyManager {
                 publicKey = KeyStoreUtil.getPublicKey(ks, domainAlias, this.keyStorePass.toCharArray());
             } catch (UnrecoverableKeyException urke) {
                 // Try with the signing key pass
+                if (this.signingKeyPass == null || this.signingKeyPass.length == 0)
+                    throw logger.keyStoreNullSigningKeyPass();
+
                 publicKey = KeyStoreUtil.getPublicKey(ks, domainAlias, this.signingKeyPass);
             }
         } catch (KeyStoreException e) {
@@ -238,9 +247,10 @@ public class KeyStoreKeyManager implements TrustKeyManager {
         this.signingAlias = this.authPropsMap.get(SIGNING_KEY_ALIAS);
 
         String keypass = this.authPropsMap.get(SIGNING_KEY_PASS);
-        if (keypass == null || keypass.length() == 0)
-            throw logger.keyStoreNullSigningKeyPass();
-        this.signingKeyPass = keypass.toCharArray();
+
+        if (keypass != null) {
+            this.signingKeyPass = keypass.toCharArray();
+        }
     }
 
     /**
