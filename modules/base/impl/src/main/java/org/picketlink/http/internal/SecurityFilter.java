@@ -21,6 +21,7 @@
  */
 package org.picketlink.http.internal;
 
+import org.jboss.logging.Logger;
 import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
@@ -149,9 +150,9 @@ public class SecurityFilter implements Filter {
             throw new ServletException("This filter can only process HttpServletRequest requests.");
         }
 
-        HttpServletRequest request = null;
-        HttpServletResponse response = null;
         PathConfiguration pathConfiguration = null;
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         try {
             request = this.picketLinkHttpServletRequest.get();
@@ -160,7 +161,6 @@ public class SecurityFilter implements Filter {
                 HTTP_LOGGER.debugf("Processing request to path [%s].", request.getRequestURI());
             }
 
-            response = (HttpServletResponse) servletResponse;
             pathConfiguration = this.pathMatcher.matches(request);
 
             performAuthenticationIfRequired(pathConfiguration, request, response);
@@ -275,8 +275,8 @@ public class SecurityFilter implements Filter {
                 message = "The server could not process your request.";
             }
 
-            if (HTTP_LOGGER.isDebugEnabled()) {
-                HTTP_LOGGER.errorf("Exception [%s] thrown during processing for path [%s]. Sending error with status code [%s].", exception, request.getRequestURI(), statusCode);
+            if (HTTP_LOGGER.isEnabled(Logger.Level.ERROR)) {
+                HTTP_LOGGER.errorf(exception, "Exception thrown during processing for path [%s]. Sending error with status code [%s].", request.getRequestURI(), statusCode, exception);
             }
 
             response.sendError(statusCode, message);
