@@ -21,6 +21,7 @@
  */
 package org.picketlink.config;
 
+import javax.enterprise.context.NormalScope;
 import java.lang.annotation.Annotation;
 
 /**
@@ -35,6 +36,10 @@ public class IdentityBeanConfiguration {
     IdentityBeanConfiguration(Class<? extends Annotation> scope) {
         if (scope == null) {
             throw new IllegalArgumentException("You must provide the Identity bean scope.");
+        }
+
+        if (!scope.isAnnotationPresent(NormalScope.class)) {
+            throw new IllegalArgumentException("The annotations [" + scope + " is not annotated with " + NormalScope.class + ".");
         }
 
         this.scope = scope;
