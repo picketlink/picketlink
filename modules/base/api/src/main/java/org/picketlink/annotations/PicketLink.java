@@ -19,10 +19,14 @@
 package org.picketlink.annotations;
 
 import javax.inject.Qualifier;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
 
 /**
  * <p>Qualifies a bean, injection or producer field as a PicketLink resource.</p>
@@ -41,7 +45,7 @@ import java.lang.annotation.Target;
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Target({TYPE, FIELD, METHOD, PARAMETER})
 public @interface PicketLink {
 
 }
