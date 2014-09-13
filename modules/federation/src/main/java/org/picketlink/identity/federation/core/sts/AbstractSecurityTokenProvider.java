@@ -28,6 +28,8 @@ import org.picketlink.identity.federation.core.sts.registry.JDBCRevocationRegist
 import org.picketlink.identity.federation.core.sts.registry.JDBCTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.JPABasedRevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.JPABasedTokenRegistry;
+import org.picketlink.identity.federation.core.sts.registry.OJDBCRevocationRegistry;
+import org.picketlink.identity.federation.core.sts.registry.OJDBCTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.RevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry;
 
@@ -51,6 +53,10 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
     protected static final String TOKEN_REGISTRY_JPA = "TokenRegistryJPA";
 
     protected static final String TOKEN_REGISTRY_JDBC = "TokenRegistryJDBC";
+    
+    protected static final String TOKEN_REGISTRY_JDBC_NAME_SPACE = "TokenRegistryJDBCNameSpace";
+    
+    protected static final String TOKEN_REGISTRY_JDBC_DATASOURCE = "TokenRegistryJDBCDataSource";
 
     protected static final String REVOCATION_REGISTRY = "RevocationRegistry";
 
@@ -60,6 +66,10 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
 
     protected static final String REVOCATION_REGISTRY_JDBC_CONFIG = "RevocationRegistryJDBCConfig";
 
+    protected static final String REVOCATION_REGISTRY_JDBC_NAME_SPACE = "RevocationRegistryJDBCNameSpace";
+    
+    protected static final String REVOCATION_REGISTRY_JDBC_DATA_SOURCE = "RevocationRegistryJDBCDataSource";
+    
     protected static final String ATTRIBUTE_PROVIDER = "AttributeProvider";
 
     protected static final String USE_ABSOLUTE_KEYIDENTIFIER = "USE_ABSOLUTE_KEYIDENTIFIER";
@@ -97,6 +107,16 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                     this.tokenRegistry = new JDBCTokenRegistry(tokenRegistryjdbc);
                 else
                     this.tokenRegistry = new JDBCTokenRegistry();
+            } else if ("OJDBC".equalsIgnoreCase(tokenRegistryOption)) {
+                String jndiNameSpace = this.properties.get(TOKEN_REGISTRY_JDBC_NAME_SPACE);
+                String jndiDataSource = this.properties.get(TOKEN_REGISTRY_JDBC_DATASOURCE);
+                if (jndiNameSpace != null && jndiDataSource != null) {
+                    this.tokenRegistry = new OJDBCTokenRegistry(jndiNameSpace, jndiDataSource);
+                } else if (jndiDataSource != null){
+                	this.tokenRegistry = new OJDBCTokenRegistry(jndiDataSource);
+                } else {
+                    this.tokenRegistry = new OJDBCTokenRegistry();
+                }
             }
 
             // the user has specified its own registry implementation class.
@@ -149,6 +169,16 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                     this.revocationRegistry = new JDBCRevocationRegistry(configuration);
                 else
                     this.revocationRegistry = new JDBCRevocationRegistry();
+            } else if ("OJDBC".equalsIgnoreCase(registryOption)) {
+                String jndiNameSpace = this.properties.get(REVOCATION_REGISTRY_JDBC_NAME_SPACE);
+                String jndiDataSource = this.properties.get(REVOCATION_REGISTRY_JDBC_DATA_SOURCE);
+                if (jndiNameSpace != null && jndiDataSource != null) {
+                    this.revocationRegistry = new OJDBCRevocationRegistry(jndiNameSpace, jndiDataSource);
+                } else if (jndiDataSource != null) { 
+                	this.revocationRegistry = new OJDBCRevocationRegistry(jndiDataSource);
+                } else {
+                    this.revocationRegistry = new OJDBCRevocationRegistry();
+                }
             }
             // the user has specified its own registry implementation class.
             else {

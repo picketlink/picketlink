@@ -28,28 +28,27 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * @author Anil Saldhana
  * @since August 06, 2013
  */
 public class AbstractJDBCRegistry {
-
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     protected DataSource dataSource;
 
     public AbstractJDBCRegistry() {
-        this("jdbc/picketlink-sts");
+        this("java:comp/env", "jdbc/picketlink-sts");
     }
 
     public AbstractJDBCRegistry(String jndiName) {
+        this("java:comp/env", jndiName);
+    }
+    
+    public AbstractJDBCRegistry(String envName, String jndiName) {
         try {
             Context initContext = new InitialContext();
-            Context envContext = (Context) initContext.lookup("java:comp/env");
+            Context envContext = (Context) initContext.lookup(envName);
             dataSource = (DataSource) envContext.lookup(jndiName);
             if (dataSource == null) {
                 throw logger.datasourceIsNull();
@@ -59,30 +58,12 @@ public class AbstractJDBCRegistry {
         }
     }
 
-    protected void safeClose(Connection conn) {
-        if (conn != null) {
+    protected void safeClose(AutoCloseable auto) {
+        if (auto != null) {
             try {
-                conn.close();
-            } catch (SQLException e) {
-            }
-        }
-    }
-
-    protected void safeClose(ResultSet resultSet) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-            }
-        }
-    }
-
-    protected void safeClose(Statement statement) {
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
-            }
+                auto.close();
+            } catch (Exception e) {
+			}
         }
     }
 }
