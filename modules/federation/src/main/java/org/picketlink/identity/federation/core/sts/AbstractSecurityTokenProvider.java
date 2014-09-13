@@ -53,9 +53,9 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
     protected static final String TOKEN_REGISTRY_JPA = "TokenRegistryJPA";
 
     protected static final String TOKEN_REGISTRY_JDBC = "TokenRegistryJDBC";
-    
+
     protected static final String TOKEN_REGISTRY_JDBC_NAME_SPACE = "TokenRegistryJDBCNameSpace";
-    
+
     protected static final String TOKEN_REGISTRY_JDBC_DATASOURCE = "TokenRegistryJDBCDataSource";
 
     protected static final String REVOCATION_REGISTRY = "RevocationRegistry";
@@ -67,9 +67,9 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
     protected static final String REVOCATION_REGISTRY_JDBC_CONFIG = "RevocationRegistryJDBCConfig";
 
     protected static final String REVOCATION_REGISTRY_JDBC_NAME_SPACE = "RevocationRegistryJDBCNameSpace";
-    
+
     protected static final String REVOCATION_REGISTRY_JDBC_DATA_SOURCE = "RevocationRegistryJDBCDataSource";
-    
+
     protected static final String ATTRIBUTE_PROVIDER = "AttributeProvider";
 
     protected static final String USE_ABSOLUTE_KEYIDENTIFIER = "USE_ABSOLUTE_KEYIDENTIFIER";
@@ -91,29 +91,32 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
             // if a file is to be used as registry, check if the user has specified the file name.
             if ("FILE".equalsIgnoreCase(tokenRegistryOption)) {
                 String tokenRegistryFile = this.properties.get(TOKEN_REGISTRY_FILE);
-                if (tokenRegistryFile != null)
+                if (tokenRegistryFile != null) {
                     this.tokenRegistry = new FileBasedTokenRegistry(tokenRegistryFile);
-                else
+                } else {
                     this.tokenRegistry = new FileBasedTokenRegistry();
+                }
             } else if ("JPA".equalsIgnoreCase(tokenRegistryOption)) {
                 String tokenRegistryjpa = this.properties.get(TOKEN_REGISTRY_JPA);
-                if (tokenRegistryjpa != null)
+                if (tokenRegistryjpa != null) {
                     this.tokenRegistry = new JPABasedTokenRegistry(tokenRegistryjpa);
-                else
+                } else {
                     this.tokenRegistry = new JPABasedTokenRegistry();
+                }
             } else if ("JDBC".equalsIgnoreCase(tokenRegistryOption)) {
                 String tokenRegistryjdbc = this.properties.get(TOKEN_REGISTRY_JDBC);
-                if (tokenRegistryjdbc != null)
+                if (tokenRegistryjdbc != null) {
                     this.tokenRegistry = new JDBCTokenRegistry(tokenRegistryjdbc);
-                else
+                } else {
                     this.tokenRegistry = new JDBCTokenRegistry();
+                }
             } else if ("OJDBC".equalsIgnoreCase(tokenRegistryOption)) {
                 String jndiNameSpace = this.properties.get(TOKEN_REGISTRY_JDBC_NAME_SPACE);
                 String jndiDataSource = this.properties.get(TOKEN_REGISTRY_JDBC_DATASOURCE);
                 if (jndiNameSpace != null && jndiDataSource != null) {
                     this.tokenRegistry = new OJDBCTokenRegistry(jndiNameSpace, jndiDataSource);
-                } else if (jndiDataSource != null){
-                	this.tokenRegistry = new OJDBCTokenRegistry(jndiDataSource);
+                } else if (jndiDataSource != null) {
+                    this.tokenRegistry = new OJDBCTokenRegistry(jndiDataSource);
                 } else {
                     this.tokenRegistry = new OJDBCTokenRegistry();
                 }
@@ -125,9 +128,9 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                     Class<?> clazz = SecurityActions.loadClass(getClass(), tokenRegistryOption);
                     if (clazz != null) {
                         Object object = clazz.newInstance();
-                        if (object instanceof SecurityTokenRegistry)
+                        if (object instanceof SecurityTokenRegistry) {
                             this.tokenRegistry = (SecurityTokenRegistry) object;
-                        else {
+                        } else {
                             logger.stsTokenRegistryInvalidType(tokenRegistryOption);
                         }
                     }
@@ -138,10 +141,11 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
             }
         }
 
-        if (this.tokenRegistry == null)
+        if (this.tokenRegistry == null) {
             tokenRegistry = new
 
-                    DefaultTokenRegistry();
+                DefaultTokenRegistry();
+        }
 
         // check if a revocation registry option has been set.
         String registryOption = this.properties.get(REVOCATION_REGISTRY);
@@ -151,31 +155,34 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
             // if a file is to be used as registry, check if the user has specified the file name.
             if ("FILE".equalsIgnoreCase(registryOption)) {
                 String registryFile = this.properties.get(REVOCATION_REGISTRY_FILE);
-                if (registryFile != null)
+                if (registryFile != null) {
                     this.revocationRegistry = new FileBasedRevocationRegistry(registryFile);
-                else
+                } else {
                     this.revocationRegistry = new FileBasedRevocationRegistry();
+                }
             }
             // another option is to use the default JPA registry to store the revoked ids.
             else if ("JPA".equalsIgnoreCase(registryOption)) {
                 String configuration = this.properties.get(REVOCATION_REGISTRY_JPA_CONFIG);
-                if (configuration != null)
+                if (configuration != null) {
                     this.revocationRegistry = new JPABasedRevocationRegistry(configuration);
-                else
+                } else {
                     this.revocationRegistry = new JPABasedRevocationRegistry();
+                }
             } else if ("JDBC".equalsIgnoreCase(registryOption)) {
                 String configuration = this.properties.get(REVOCATION_REGISTRY_JDBC_CONFIG);
-                if (configuration != null)
+                if (configuration != null) {
                     this.revocationRegistry = new JDBCRevocationRegistry(configuration);
-                else
+                } else {
                     this.revocationRegistry = new JDBCRevocationRegistry();
+                }
             } else if ("OJDBC".equalsIgnoreCase(registryOption)) {
                 String jndiNameSpace = this.properties.get(REVOCATION_REGISTRY_JDBC_NAME_SPACE);
                 String jndiDataSource = this.properties.get(REVOCATION_REGISTRY_JDBC_DATA_SOURCE);
                 if (jndiNameSpace != null && jndiDataSource != null) {
                     this.revocationRegistry = new OJDBCRevocationRegistry(jndiNameSpace, jndiDataSource);
-                } else if (jndiDataSource != null) { 
-                	this.revocationRegistry = new OJDBCRevocationRegistry(jndiDataSource);
+                } else if (jndiDataSource != null) {
+                    this.revocationRegistry = new OJDBCRevocationRegistry(jndiDataSource);
                 } else {
                     this.revocationRegistry = new OJDBCRevocationRegistry();
                 }
@@ -186,9 +193,9 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                     Class<?> clazz = SecurityActions.loadClass(getClass(), registryOption);
                     if (clazz != null) {
                         Object object = clazz.newInstance();
-                        if (object instanceof RevocationRegistry)
+                        if (object instanceof RevocationRegistry) {
                             this.revocationRegistry = (RevocationRegistry) object;
-                        else {
+                        } else {
                             logger.stsRevocationRegistryInvalidType(registryOption);
                         }
                     }
@@ -199,9 +206,10 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
             }
         }
 
-        if (this.revocationRegistry == null)
+        if (this.revocationRegistry == null) {
             this.revocationRegistry = new
 
-                    DefaultRevocationRegistry();
+                DefaultRevocationRegistry();
+        }
     }
 }

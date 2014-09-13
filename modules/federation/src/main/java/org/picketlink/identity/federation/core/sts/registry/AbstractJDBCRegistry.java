@@ -34,6 +34,7 @@ import javax.sql.DataSource;
  * @since August 06, 2013
  */
 public class AbstractJDBCRegistry {
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     protected DataSource dataSource;
 
@@ -44,7 +45,7 @@ public class AbstractJDBCRegistry {
     public AbstractJDBCRegistry(String jndiName) {
         this("java:comp/env", jndiName);
     }
-    
+
     public AbstractJDBCRegistry(String envName, String jndiName) {
         try {
             Context initContext = new InitialContext();
@@ -63,7 +64,7 @@ public class AbstractJDBCRegistry {
             try {
                 auto.close();
             } catch (Exception e) {
-			}
+            }
         }
     }
 }
