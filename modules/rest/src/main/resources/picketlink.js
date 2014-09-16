@@ -32,7 +32,7 @@ var pl = {
             r.onreadystatechange = function() {};
           }, 0);
           if (callback) {
-            callback(r.responseText);
+            callback(r);
           }
         } else if (r.status == 401) { // unauthorized
           // Done to avoid a memory leak
@@ -40,7 +40,7 @@ var pl = {
             r.onreadystatechange = function() {};
           }, 0);
           if (failCallback) {
-            failCallback(r.responseText);
+            failCallback(r);
           }        
         }
       }
@@ -49,12 +49,19 @@ var pl = {
   },
   status: function(callback) {
     var cb = function(response) {
-      if (typeof response == "string" && response.length > 0) {
-        var acct = JSON.parse(response);
-        if (acct != null) {
-          pl.loggedIn = true;
-          pl.account = acct;
+      var auth = response.getResponseHeader("X-PL-Authenticated");
+      if ("true" == auth) {
+        var content = response.responseText;
+        if (typeof content == "string" && content.length > 0) {
+          var acct = JSON.parse(response);
+          if (acct != null) {
+            pl.loggedIn = true;
+            pl.account = acct;
+          }
         }
+      } else {
+        pl.loggedIn = false;
+        pl.account = null;
       }
       if (callback) {
         callback.call();
@@ -75,8 +82,9 @@ var pl = {
   },
   login: function(username, password, callback) {
     var cb = function(response) {
-      if (typeof response == "string" && response.length > 0) {
-        var acct = JSON.parse(response);
+      var content = response.responseText;
+      if (typeof content == "string" && content.length > 0) {
+        var acct = JSON.parse(content);
         if (acct != null) {
           pl.loggedIn = true;
 //          var wt = pl.jwt.WebTokenParser.parse(acct.authctoken);
