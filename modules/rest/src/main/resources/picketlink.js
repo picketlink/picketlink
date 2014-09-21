@@ -53,7 +53,7 @@ var pl = {
       if ("true" == auth) {
         var content = response.responseText;
         if (typeof content == "string" && content.length > 0) {
-          var acct = JSON.parse(response);
+          var acct = JSON.parse(content);
           if (acct != null) {
             pl.loggedIn = true;
             pl.account = acct;

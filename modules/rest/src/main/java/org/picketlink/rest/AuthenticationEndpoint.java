@@ -27,8 +27,6 @@ import org.picketlink.idm.model.Account;
 @RequestScoped
 public class AuthenticationEndpoint {
 
-    public static final String AUTHENTICATED_HEADER = "X-PL-Authenticated";
-
     @Inject
     DefaultLoginCredentials credentials;
 
@@ -64,10 +62,8 @@ public class AuthenticationEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Account status(@Context HttpServletResponse response) {
         if (identity.isLoggedIn()) {
-            response.setHeader(AUTHENTICATED_HEADER, "true");
             return identity.getAccount();
         } else {
-            response.setHeader(AUTHENTICATED_HEADER, "false");
             return null;
         }
     }
