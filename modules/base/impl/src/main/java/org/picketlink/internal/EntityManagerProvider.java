@@ -112,12 +112,14 @@ public class EntityManagerProvider {
             for (EntityType<?> entityType : entityManager.getMetamodel().getEntities()) {
                 Class<?> javaType = entityType.getJavaType();
 
-                if (!isAbstract(javaType.getModifiers()) && isMappedEntity(javaType)) {
-                    if (ROOT_LOGGER.isDebugEnabled()) {
-                        ROOT_LOGGER.debugf("PicketLink IDM mapped entity found [%s].", entityType);
-                    }
+                if (javaType != null) {
+                    if (!isAbstract(javaType.getModifiers()) && isMappedEntity(javaType)) {
+                        if (ROOT_LOGGER.isDebugEnabled()) {
+                            ROOT_LOGGER.debugf("PicketLink IDM mapped entity found [%s].", entityType);
+                        }
 
-                    entities.add(javaType);
+                        entities.add(javaType);
+                    }
                 }
             }
         }
