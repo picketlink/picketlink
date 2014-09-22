@@ -1,21 +1,32 @@
 var pl = {
+  TOKEN_KEY: "pl_jwt_token",
+  PATH_STATUS: "/auth/status",
+  PATH_LOGIN: "/auth/login",
+  PATH_LOGOUT: "/auth/logout",
+  AUTH_BASIC: "BASIC",
+  AUTH_REST: "REST",
+  authMode: "BASIC",
   loggedIn: undefined,
   token: null,
   account: null,
   basePath: "",
   getToken: function() {
-    var token = window.localStorage.getItem("token");
+    var token = window.localStorage.getItem(pl.TOKEN_KEY);
     if (token == null) {
       token = pl.token;
     }
     return token;
   },
   setToken: function(token) {
-    window.localStorage.setItem("token", token);
+    if (token == null || token == undefined) {
+      pl.clearToken();
+    } else {
+      window.localStorage.setItem(pl.TOKEN_KEY, token);
+    }
     pl.token = token;
   },
   clearToken: function() {
-    window.localStorage.removeItem("token");
+    window.localStorage.removeItem(pl.TOKEN_KEY);
   },
   createRequestObject: function(callback, failCallback) {
     var r;
@@ -74,10 +85,11 @@ var pl = {
       }
     }
     var r = pl.createRequestObject(cb, cbFail);
-    r.open("GET", pl.basePath + "/auth/status", true);
+    r.open("GET", pl.basePath + pl.PATH_STATUS, true);
     if (pl.getToken() != null) {
       r.setRequestHeader("Authorization", "Token " + pl.getToken());
     }
+    r.setRequestHeader("X-Requested-With", "XMLHttpRequest");
     r.send();
   },
   login: function(username, password, callback) {
@@ -99,16 +111,22 @@ var pl = {
       }
     };
     var r = pl.createRequestObject(cb);
-    r.open("POST", pl.basePath + "/auth/login", true);
-//    r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    r.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
-//    r.send(JSON.stringify({username: username, password: password}));
-    r.send(JSON.stringify({}));
+    
+    if (pl.authMode == pl.AUTH_BASIC) {
+      r.open("POST", pl.basePath + pl.PATH_STATUS, true);
+      r.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));    
+      r.send();
+    } else if (pl.authMode == pl.AUTH_REST) {
+      r.open("POST", pl.basePath + pl.PATH_LOGIN, true);
+      r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");    
+      r.send(JSON.stringify({username: username, password: password}));
+    }
   },
   logout: function(callback) {
     var cb = function(response) {
-      if (typeof response == "string" && response.length > 0) {
-        var result = JSON.parse(response);
+      var content = response.responseText;
+      if (typeof content == "string" && content.length > 0) {
+        var result = JSON.parse(content);
         if (result == true) {
           pl.loggedIn = false;
           pl.account = null;
@@ -120,7 +138,7 @@ var pl = {
       }
     }
     var r = pl.createRequestObject(cb);
-    r.open("GET", pl.basePath + "/auth/logout", true);
+    r.open("GET", pl.basePath + pl.PATH_LOGOUT, true);
     if (pl.getToken() != null) {
       r.setRequestHeader("Authorization", "Token " + pl.getToken());
     }    

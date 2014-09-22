@@ -4,13 +4,11 @@ import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.picketlink.Identity;
@@ -60,7 +58,7 @@ public class AuthenticationEndpoint {
     @GET
     @Path("/status")
     @Produces(MediaType.APPLICATION_JSON)
-    public Account status(@Context HttpServletResponse response) {
+    public Account status() {
         if (identity.isLoggedIn()) {
             return identity.getAccount();
         } else {
