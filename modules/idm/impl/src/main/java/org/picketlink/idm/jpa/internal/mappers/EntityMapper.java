@@ -68,7 +68,7 @@ public class EntityMapper {
         }
 
         if (mappings.isEmpty()) {
-            throw new IdentityManagementException("Entity [" + entityType + "] does not have any mapping.");
+            throw new IdentityManagementException("Entity [" + entityType + "] does not have any mapping. Check if it is properly mapped with the JPA Store mapping annotations.");
         }
 
         this.entityMappings = Collections.unmodifiableList(mappings);
