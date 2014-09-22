@@ -159,7 +159,11 @@ public class IdentityManagementProducer {
 
                 defaultPartition = new Realm(Realm.DEFAULT_REALM);
 
-                partitionManager.add(defaultPartition);
+                try {
+                    partitionManager.add(defaultPartition);
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not create default partition. If you're using the JPA identity store, check if there is an active transaction.");
+                }
             } else {
                 if (ROOT_LOGGER.isDebugEnabled()) {
                     ROOT_LOGGER.debugf("Found existing partitions. The default partition was not created.");
