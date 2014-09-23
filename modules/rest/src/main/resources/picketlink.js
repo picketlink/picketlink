@@ -1,10 +1,8 @@
 var pl = {
   TOKEN_KEY: "pl_jwt_token",
   PATH_STATUS: "/auth/status",
-  PATH_LOGIN: "/auth/login",
   PATH_LOGOUT: "/auth/logout",
   AUTH_BASIC: "BASIC",
-  AUTH_REST: "REST",
   authMode: "BASIC",
   loggedIn: undefined,
   token: null,

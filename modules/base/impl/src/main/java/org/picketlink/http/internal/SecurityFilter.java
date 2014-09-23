@@ -96,8 +96,6 @@ public class SecurityFilter implements Filter {
 
     public static final String AUTHENTICATION_ORIGINAL_PATH = SecurityFilter.class.getName() + ".authc.original.path";
 
-    public static final String AUTHENTICATED_HEADER = "X-PL-Authenticated";
-
     @Inject
     private PicketLinkExtension picketLinkExtension;
 
@@ -176,19 +174,14 @@ public class SecurityFilter implements Filter {
                 if (!response.isCommitted()) {
                     Identity identity = getIdentity();
 
-                    try {
-                        if (!identity.isLoggedIn()) {
-                            challengeClientForCredentials(pathConfiguration, request, response);
-                        } else if (isLogoutPath(pathConfiguration)) {
-                            performLogout(request, response, identity, pathConfiguration);
-                        } else {
-                            if (!isAuthorized(pathConfiguration, request, response)) {
-                                throw new AccessDeniedException("The request for the given path [" + pathConfiguration.getUri() + "] was forbidden.");
-                            }
+                    if (!identity.isLoggedIn()) {
+                        challengeClientForCredentials(pathConfiguration, request, response);
+                    } else if (isLogoutPath(pathConfiguration)) {
+                        performLogout(request, response, identity, pathConfiguration);
+                    } else {
+                        if (!isAuthorized(pathConfiguration, request, response)) {
+                            throw new AccessDeniedException("The request for the given path [" + pathConfiguration.getUri() + "] was forbidden.");
                         }
-                    } finally {
-                        response.setHeader(AUTHENTICATED_HEADER, identity.isLoggedIn() ?
-                                Boolean.TRUE.toString() : Boolean.FALSE.toString());
                     }
                 }
             }
