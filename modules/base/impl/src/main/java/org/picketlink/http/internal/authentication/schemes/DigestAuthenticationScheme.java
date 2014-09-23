@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Timer;
 
+import static org.picketlink.http.internal.util.RequestUtil.isAjaxRequest;
+
 /**
  * @author Shane Bryzak
  * @author anil saldhana
@@ -129,9 +131,5 @@ public class DigestAuthenticationScheme implements HttpAuthenticationScheme<Dige
         String authorizationHeader = getAuthorizationHeader(request);
 
         return authorizationHeader != null && authorizationHeader.startsWith("Digest ");
-    }
-
-    private boolean isAjaxRequest(HttpServletRequest request) {
-        return request.getHeader("X-Requested-With") != null && "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
     }
 }
