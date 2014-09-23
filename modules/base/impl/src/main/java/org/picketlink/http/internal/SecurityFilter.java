@@ -56,6 +56,7 @@ import org.picketlink.http.internal.authorization.ExpressionPathAuthorizer;
 import org.picketlink.http.internal.authorization.GroupPathAuthorizer;
 import org.picketlink.http.internal.authorization.RealmPathAuthorizer;
 import org.picketlink.http.internal.authorization.RolePathAuthorizer;
+import org.picketlink.http.internal.util.RequestUtil;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.internal.el.ELProcessor;
 
@@ -71,7 +72,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -220,8 +220,14 @@ public class SecurityFilter implements Filter {
         if (isSecured(pathConfiguration)) {
             String redirectUrl = pathConfiguration.getRedirectUrl(OK);
 
-            if (redirectUrl == null && isLogoutPath(pathConfiguration)) {
-                redirectUrl = request.getContextPath();
+            if (isLogoutPath(pathConfiguration)) {
+                if (RequestUtil.isAjaxRequest(request)) {
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                } else {
+                    if (redirectUrl == null) {
+                        redirectUrl = request.getContextPath();
+                    }
+                }
             }
 
             if (redirectUrl != null) {
@@ -482,6 +488,8 @@ public class SecurityFilter implements Filter {
 
     private DefaultLoginCredentials extractCredentials(HttpServletRequest request, HttpAuthenticationScheme authenticationScheme) {
         DefaultLoginCredentials creds = getCredentials();
+
+        creds.invalidate();
 
         authenticationScheme.extractCredential(request, creds);
 

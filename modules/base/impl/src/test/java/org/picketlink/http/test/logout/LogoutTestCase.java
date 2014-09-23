@@ -33,12 +33,17 @@ import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.picketlink.config.http.InboundHeaderConfiguration.X_REQUESTED_WITH_AJAX;
+import static org.picketlink.config.http.InboundHeaderConfiguration.X_REQUESTED_WITH_HEADER_NAME;
 
 /**
  * @author Pedro Igor
@@ -88,6 +93,38 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
         verify(this.response, times(1)).sendRedirect(eq("/picketlink-app/login.html"));
     }
 
+    @Test
+    public void testLogoutFromAjax() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
+        when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response).sendRedirect(CONTEXT_PATH);
+
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri");
+        reset(this.filterChain);
+        reset(this.response);
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        when(this.request.getServletPath()).thenReturn("/logoutFromAjax");
+        when(this.request.getHeader(X_REQUESTED_WITH_HEADER_NAME)).thenReturn(X_REQUESTED_WITH_AJAX);
+        when(this.request.getHeaders(X_REQUESTED_WITH_HEADER_NAME)).thenReturn(Collections
+            .enumeration(Arrays.asList(new String[]{X_REQUESTED_WITH_AJAX})));
+        reset(this.filterChain);
+        reset(this.response);
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response).setStatus(HttpServletResponse.SC_OK);
+    }
+
     public static class SecurityConfiguration {
         public void configureHttpSecurity(@Observes SecurityConfigurationEvent event) {
             SecurityConfigurationBuilder builder = event.getBuilder();
@@ -99,7 +136,9 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
                 .form()
                 .forPath("/logout")
                 .logout()
-                .redirectTo("/logout.html");
+                .redirectTo("/logout.html")
+                .forPath("/logoutFromAjax")
+                .logout();
         }
     }
 }

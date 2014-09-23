@@ -31,8 +31,7 @@ import org.picketlink.http.authentication.HttpAuthenticationScheme;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.picketlink.config.http.InboundHeaderConfiguration.X_REQUESTED_WITH_AJAX;
-import static org.picketlink.config.http.InboundHeaderConfiguration.X_REQUESTED_WITH_HEADER_NAME;
+import static org.picketlink.http.internal.util.RequestUtil.isAjaxRequest;
 
 /**
  * @author Shane Bryzak
@@ -116,10 +115,4 @@ public class BasicAuthenticationScheme implements HttpAuthenticationScheme<Basic
 
         return new String[]{username, password};
     }
-
-    private boolean isAjaxRequest(HttpServletRequest request) {
-        String requestedWith = request.getHeader(X_REQUESTED_WITH_HEADER_NAME);
-        return requestedWith != null && X_REQUESTED_WITH_AJAX.equalsIgnoreCase(requestedWith);
-    }
-
 }
