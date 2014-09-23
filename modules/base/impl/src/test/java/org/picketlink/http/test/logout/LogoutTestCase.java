@@ -122,7 +122,7 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        verify(this.response).setStatus(HttpServletResponse.SC_OK);
+        verify(this.response).setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
     public static class SecurityConfiguration {
