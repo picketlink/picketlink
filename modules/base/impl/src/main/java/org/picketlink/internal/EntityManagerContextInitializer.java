@@ -24,7 +24,9 @@ public class EntityManagerContextInitializer implements ContextInitializer {
     @Override
     public void initContextForStore(IdentityContext context, IdentityStore<?> store) {
         if (store instanceof JPAIdentityStore) {
-            context.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, this.entityManagerProvider.getEntityManager());
+            if (!context.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
+                context.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, this.entityManagerProvider.getEntityManager());
+            }
         }
     }
 }
