@@ -25,7 +25,7 @@ import org.picketlink.config.AbstractSecurityConfigurationBuilder;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public abstract class AbstractHttpSecurityBuilder extends AbstractSecurityConfigurationBuilder<HttpSecurityConfiguration> implements HttpSecurityConfigurationChildBuilder {
 
-    private final List<PathConfigurationBuilder> uriConfigBuilder = new ArrayList<PathConfigurationBuilder>();
+    private final List<PathConfigurationBuilder> uriConfigBuilder = new LinkedList<PathConfigurationBuilder>();
     private FilteringMode filteringMode;
 
     public AbstractHttpSecurityBuilder(SecurityConfigurationBuilder builder) {
@@ -101,8 +101,7 @@ public abstract class AbstractHttpSecurityBuilder extends AbstractSecurityConfig
      * <p>Indicates if the default behavior is to enforce security to all paths regardless they have a respective path configuration
      * or not.
      *
-     * <p>If the protection mode is not specified (eg.: {@link org.picketlink.config.http.AbstractHttpSecurityBuilder#permissive()} or
-     * {@link org.picketlink.config.http.AbstractHttpSecurityBuilder#restrictive()}), default is to be permissive.</p>
+     * <p>If the protection mode is not specified (eg.: {@link AbstractHttpSecurityBuilder#restrictive()}, default is to be permissive.</p>
      *
      * @return
      */
@@ -113,7 +112,7 @@ public abstract class AbstractHttpSecurityBuilder extends AbstractSecurityConfig
 
     @Override
     protected HttpSecurityConfiguration create() throws SecurityConfigurationException {
-        List<PathConfiguration> uriConfigs = new ArrayList<PathConfiguration>();
+        List<PathConfiguration> uriConfigs = new LinkedList<PathConfiguration>();
 
         for (PathConfigurationBuilder uriConfigBuilder : this.uriConfigBuilder) {
             uriConfigs.add(uriConfigBuilder.create());

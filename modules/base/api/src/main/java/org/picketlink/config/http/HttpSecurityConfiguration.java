@@ -22,7 +22,7 @@
 package org.picketlink.config.http;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +35,8 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class HttpSecurityConfiguration {
 
-    private final Map<String, List<PathConfiguration>> uriConfiguration = new HashMap<String, List<PathConfiguration>>();
-    private final Map<String, PathConfiguration> groupConfiguration = new HashMap<String, PathConfiguration>();
+    private final Map<String, List<PathConfiguration>> uriConfiguration = new LinkedHashMap<String, List<PathConfiguration>>();
+    private final Map<String, PathConfiguration> groupConfiguration = new LinkedHashMap<String, PathConfiguration>();
     private final FilteringMode filteringMode;
 
     public HttpSecurityConfiguration(List<PathConfiguration> uriConfigs, FilteringMode filteringMode) {
