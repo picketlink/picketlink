@@ -1,12 +1,10 @@
 var pl = {
   TOKEN_KEY: "pl_jwt_token",
+  PATH_LOGIN: "/auth/login",
   PATH_STATUS: "/auth/status",
   PATH_LOGOUT: "/auth/logout",
-  AUTH_BASIC: "BASIC",
-  authMode: "BASIC",
   loggedIn: undefined,
   token: null,
-  account: null,
   basePath: "",
   getToken: function() {
     var token = window.localStorage.getItem(pl.TOKEN_KEY);
@@ -26,7 +24,7 @@ var pl = {
   clearToken: function() {
     window.localStorage.removeItem(pl.TOKEN_KEY);
   },
-  createRequestObject: function(callback, failCallback) {
+  createRequestObject: function(method, path, callback, failCallback) {
     var r;
     if (window.XMLHttpRequest) {
       r = new XMLHttpRequest();
@@ -54,23 +52,20 @@ var pl = {
         }
       }
     }
+    r.open(method, path, true);
+    r.setRequestHeader("X-Requested-With", "XMLHttpRequest");
     return r;
   },
   status: function(callback) {
     var cb = function(response) {
-      var auth = response.getResponseHeader("X-PL-Authenticated");
-      if ("true" == auth) {
-        var content = response.responseText;
-        if (typeof content == "string" && content.length > 0) {
-          var acct = JSON.parse(content);
-          if (acct != null) {
-            pl.loggedIn = true;
-            pl.account = acct;
-          }
+      var content = response.responseText;
+      if (typeof content == "string" && content.length > 0) {
+        var valid = JSON.parse(content);
+        if (valid) {
+          pl.loggedIn = true;
+        } else {
+          pl.loggedIn = false;
         }
-      } else {
-        pl.loggedIn = false;
-        pl.account = null;
       }
       if (callback) {
         callback.call();
@@ -82,12 +77,10 @@ var pl = {
         callback.call();
       }
     }
-    var r = pl.createRequestObject(cb, cbFail);
-    r.open("GET", pl.basePath + pl.PATH_STATUS, true);
+    var r = pl.createRequestObject("GET", pl.basePath + pl.PATH_STATUS, cb, cbFail);
     if (pl.getToken() != null) {
       r.setRequestHeader("Authorization", "Token " + pl.getToken());
     }
-    r.setRequestHeader("X-Requested-With", "XMLHttpRequest");
     r.send();
   },
   login: function(username, password, callback) {
@@ -97,28 +90,19 @@ var pl = {
         var acct = JSON.parse(content);
         if (acct != null) {
           pl.loggedIn = true;
-//          var wt = pl.jwt.WebTokenParser.parse(acct.authctoken);
-//          var payload = JSON.parse(pl.jwt.base64urldecode(wt.payloadSegment));
+          var wt = pl.jwt.WebTokenParser.parse(acct.authctoken);
+          var payload = JSON.parse(pl.jwt.base64urldecode(wt.payloadSegment));
 //          pl.token = payload.jti;
           pl.setToken(acct.authctoken);
-          pl.account = acct;
           if (callback) {
             callback.call();
           }
         }
       }
     };
-    var r = pl.createRequestObject(cb);
-    
-    if (pl.authMode == pl.AUTH_BASIC) {
-      r.open("POST", pl.basePath + pl.PATH_STATUS, true);
-      r.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));    
-      r.send();
-    } else if (pl.authMode == pl.AUTH_REST) {
-      r.open("POST", pl.basePath + pl.PATH_LOGIN, true);
-      r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");    
-      r.send(JSON.stringify({username: username, password: password}));
-    }
+    var r = pl.createRequestObject("POST", pl.basePath + pl.PATH_LOGIN, cb);
+    r.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));    
+    r.send();
   },
   logout: function(callback) {
     var cb = function(response) {
@@ -127,7 +111,6 @@ var pl = {
         var result = JSON.parse(content);
         if (result == true) {
           pl.loggedIn = false;
-          pl.account = null;
           pl.clearToken();
           if (callback) {
             callback.call();
@@ -135,8 +118,7 @@ var pl = {
         }
       }
     }
-    var r = pl.createRequestObject(cb);
-    r.open("GET", pl.basePath + pl.PATH_LOGOUT, true);
+    var r = pl.createRequestObject("GET", pl.basePath + pl.PATH_LOGOUT, cb);
     if (pl.getToken() != null) {
       r.setRequestHeader("Authorization", "Token " + pl.getToken());
     }    
