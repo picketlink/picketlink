@@ -21,12 +21,6 @@
  */
 package org.picketlink.http.test.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
 import org.picketlink.config.http.AuthenticationConfiguration;
 import org.picketlink.config.http.BasicAuthenticationConfiguration;
@@ -38,6 +32,12 @@ import org.picketlink.config.http.TokenAuthenticationConfiguration;
 import org.picketlink.config.http.X509AuthenticationConfiguration;
 import org.picketlink.http.internal.HttpSecurityAnnotationsParser;
 
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Giriraj Sharma
  */
@@ -45,7 +45,6 @@ public class HttpSecurityAnnotationsTestCase {
 
     @Test
     public void testHttpPathAnnotation() {
-        
         HttpSecurityConfiguration configuration = null;
         configuration = new HttpSecurityAnnotationsParser().processAnnotatedType(HttpSecurityPathConfig.class).build().getHttpSecurityConfiguration();
 
@@ -58,7 +57,6 @@ public class HttpSecurityAnnotationsTestCase {
 
     @Test
     public void testHttpPathGroupAnnotation() {
-        
         HttpSecurityConfiguration configuration = null;
         configuration = new HttpSecurityAnnotationsParser().processAnnotatedType(HttpSecurityPathGroupConfig.class).build().getHttpSecurityConfiguration();
 
@@ -68,7 +66,6 @@ public class HttpSecurityAnnotationsTestCase {
     
     @Test
     public void testHttpFormAnnotation() {
-        
         HttpSecurityConfiguration configuration = null;
         configuration = new HttpSecurityAnnotationsParser().processAnnotatedType(HttpSecurityFormAuthConfig.class).build().getHttpSecurityConfiguration();
         assertEquals(1, configuration.getPaths().size());
@@ -84,7 +81,6 @@ public class HttpSecurityAnnotationsTestCase {
     
     @Test
     public void testHttpBasicAnnotation() {
-        
         HttpSecurityConfiguration configuration = null;
         configuration = new HttpSecurityAnnotationsParser().processAnnotatedType(HttpSecurityBasicAuthConfig.class).build().getHttpSecurityConfiguration();
         assertEquals(1, configuration.getPaths().size());
@@ -100,7 +96,6 @@ public class HttpSecurityAnnotationsTestCase {
     
     @Test
     public void testHttpDigestAnnotation() {
-
         HttpSecurityConfiguration configuration = null;
         configuration = new HttpSecurityAnnotationsParser().processAnnotatedType(HttpSecurityDigestAuthConfig.class).build().getHttpSecurityConfiguration();
         assertEquals(1, configuration.getPaths().size());
@@ -116,7 +111,6 @@ public class HttpSecurityAnnotationsTestCase {
     
     @Test
     public void testHttpTokenAnnotation() {
-        
         HttpSecurityConfiguration configuration = null;
         configuration = new HttpSecurityAnnotationsParser().processAnnotatedType(HttpSecurityTokenAuthConfig.class).build().getHttpSecurityConfiguration();
         assertEquals(1, configuration.getPaths().size());
@@ -132,7 +126,6 @@ public class HttpSecurityAnnotationsTestCase {
     
     @Test
     public void testHttpX509Annotation() {
-        
         HttpSecurityConfiguration configuration = null;
         configuration = new HttpSecurityAnnotationsParser().processAnnotatedType(HttpSecurityX509AuthConfig.class).build().getHttpSecurityConfiguration();
         assertEquals(1, configuration.getPaths().size());

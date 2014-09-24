@@ -43,16 +43,6 @@ import org.picketlink.config.http.annotations.X509;
 @HttpSecurity
 public enum HttpSecurityPathConfig {
 
-    @AllPaths
-    @Authc
-    @Form(errorPage = "/errorA.html", loginPage = "/loginA.html", restoreOriginalRequest = "no")
-    @Authz
-    @AllowedRoles(roles = { "Role A", "Role B" })
-    @AllowedGroups(groups = { "Group A", "Group B" })
-    @AllowedRealms(realms = { "Realm A", "Realm B" })
-    @Expressions(expressions = { "#{identity.isLoggedIn()}" })
-    OWNER,
-
     @Path(pathGroup = "", pathName = "/formProtectedUri/*")
     @Authc
     @Form(errorPage = "/errorA.html", loginPage = "/loginA.html", restoreOriginalRequest = "no")
@@ -62,6 +52,16 @@ public enum HttpSecurityPathConfig {
     @AllowedRealms(realms = { "Realm A", "Realm B" })
     @Expressions(expressions = { "#{identity.isLoggedIn()}" })
     ADMIN_FORM,
+    
+    @AllPaths
+    @Authc
+    @Form(errorPage = "/errorA.html", loginPage = "/loginA.html", restoreOriginalRequest = "no")
+    @Authz
+    @AllowedRoles(roles = { "Role A", "Role B" })
+    @AllowedGroups(groups = { "Group A", "Group B" })
+    @AllowedRealms(realms = { "Realm A", "Realm B" })
+    @Expressions(expressions = { "#{identity.isLoggedIn()}" })
+    OWNER,
 
     @Path(pathGroup = "", pathName = "/basicProtectedUri/*")
     @Authc
