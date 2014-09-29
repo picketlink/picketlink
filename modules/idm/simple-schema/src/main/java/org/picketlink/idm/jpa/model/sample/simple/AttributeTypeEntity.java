@@ -17,16 +17,17 @@
  */
 package org.picketlink.idm.jpa.model.sample.simple;
 
-import java.io.Serializable;
+import org.picketlink.idm.jpa.annotations.AttributeClass;
+import org.picketlink.idm.jpa.annotations.AttributeName;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import org.picketlink.idm.jpa.annotations.AttributeClass;
-import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.OwnerReference;
+import java.io.Serializable;
 
 /**
  * @author pedroigor
@@ -103,7 +104,7 @@ public class AttributeTypeEntity implements Serializable {
             return false;
         }
 
-        AttributedTypeEntity other = (AttributedTypeEntity) obj;
+        AttributeTypeEntity other = (AttributeTypeEntity) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
