@@ -130,7 +130,11 @@ public class IdentityManagementProducer {
     @Produces
     @RequestScoped
     public PermissionManager producePermissionManager() {
-        return this.partitionManager.createPermissionManager();
+        if (this.defaultPartition.isUnsatisfied() || this.defaultPartition.get() == null) {
+            return this.partitionManager.createPermissionManager();
+        }
+
+        return this.partitionManager.createPermissionManager(this.defaultPartition.get());
     }
 
     private PartitionManager createEmbeddedPartitionManager() {
