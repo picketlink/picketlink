@@ -92,9 +92,9 @@ public class RelationshipIdentityTypeEntity implements Serializable {
             return false;
         }
 
-        AttributedTypeEntity other = (AttributedTypeEntity) obj;
+        RelationshipIdentityTypeEntity other = (RelationshipIdentityTypeEntity) obj;
 
-        return getIdentifier() != null && other.getId() != null && getIdentifier().equals(other.getId());
+        return getIdentifier() != null && other.getIdentifier() != null && getIdentifier().equals(other.getIdentifier());
     }
 
     @Override
