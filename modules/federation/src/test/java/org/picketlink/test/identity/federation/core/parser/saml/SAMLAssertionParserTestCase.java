@@ -254,6 +254,32 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest {
 
     }
 
+    @Test
+    public void testSAML2AssertionWithSubjectConfirmationHavingNameIDAndRecipient() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-assertion-subjectconfirmation-nameid-recipient.xml");
+
+        SAMLParser parser = new SAMLParser();
+        AssertionType assertion = (AssertionType) parser.parse(configStream);
+        assertNotNull(assertion);
+
+        SubjectType subjectType = assertion.getSubject();
+        STSubType stType = subjectType.getSubType();
+        assertEquals("A_DUDE", ((NameIDType) stType.getBaseID()).getValue());
+
+        List<SubjectConfirmationType> subjectConfirmationTypes = subjectType.getConfirmation();
+        assertNotNull(subjectConfirmationTypes);
+        assertEquals(1, subjectConfirmationTypes.size());
+        SubjectConfirmationType sct = subjectConfirmationTypes.get(0);
+        assertEquals("urn:oasis:names:tc:SAML:2.0:cm:sender-vouches", sct.getMethod());
+        NameIDType nameID = sct.getNameID();
+        assertNotNull(nameID);
+        assertEquals("CN=theDUDE", nameID.getValue());
+        SubjectConfirmationDataType subjectConfirmationData = sct.getSubjectConfirmationData();
+        assertNotNull(subjectConfirmationData);
+        assertEquals("https://sample.sp.com/consumer", subjectConfirmationData.getRecipient());
+    }
+
     /**
      * PLFED-252
      *

@@ -104,9 +104,25 @@ public class SAMLSubjectParser implements ParserNamespaceSupport {
 
                 // There may be additional things under subject confirmation
                 xmlEvent = StaxParserUtil.peek(xmlEventReader);
-                if (xmlEvent instanceof StartElement) {
-                    StartElement startElement = (StartElement) xmlEvent;
-                    String startTag = StaxParserUtil.getStartElementName(startElement);
+
+                while (xmlEventReader.hasNext()) {
+                    xmlEvent = StaxParserUtil.peek(xmlEventReader);
+
+                    if (xmlEvent instanceof EndElement) {
+                        EndElement endElement = (EndElement) xmlEvent;
+                        if (StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get())) {
+                            StaxParserUtil.getNextEndElement(xmlEventReader);
+                            break;
+                        } else
+                            throw logger.parserUnknownEndElement(StaxParserUtil.getEndElementName(endElement));
+                    }
+
+                    peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+
+                    if (peekedElement == null)
+                        break;
+
+                    String startTag = StaxParserUtil.getStartElementName(peekedElement);
 
                     if (startTag.equals(JBossSAMLConstants.NAMEID.get())) {
                         NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
@@ -123,10 +139,6 @@ public class SAMLSubjectParser implements ParserNamespaceSupport {
                 }
 
                 subject.addConfirmation(subjectConfirmationType);
-
-                // Get the end tag
-                EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
-                StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get());
             } else
                 throw logger.parserUnknownTag(tag, peekedElement.getLocation());
         }
