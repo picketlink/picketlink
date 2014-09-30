@@ -34,18 +34,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.namespace.QName;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.util.HashMap;
@@ -53,7 +45,9 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.picketlink.common.constants.GeneralConstants.SAML_SIGNATURE_REQUEST_KEY;
 
 /**
  * @author Pedro Igor
@@ -159,13 +153,13 @@ public class SAML2AssertionAndResponseSignatureTestCase {
 
         Node signatureElement = (Node) expr.evaluate(resultingDocument, XPathConstants.NODE);
 
-        assertNotNull(signatureElement);
+        assertNull(signatureElement);
 
         String queryStringWithSignature = handlerResponse.getDestinationQueryStringWithSignature();
 
         assertNotNull(queryStringWithSignature);
         assertTrue(queryStringWithSignature.contains("&" + GeneralConstants.SAML_SIG_ALG_REQUEST_KEY + "="));
-        assertTrue(queryStringWithSignature.contains("&" + GeneralConstants.SAML_SIGNATURE_REQUEST_KEY + "="));
+        assertTrue(queryStringWithSignature.contains("&" + SAML_SIGNATURE_REQUEST_KEY + "="));
 
         DefaultSAML2HandlerRequest handlerValidationRequest = createHandlerRequest("GET", assertingPartyUrl, responseType);
 
@@ -178,8 +172,9 @@ public class SAML2AssertionAndResponseSignatureTestCase {
 
         DefaultSAML2HandlerResponse handlerValidationResponse = createHandlerResponse("GET", responseType);
 
-        this.validationHandler.handleStatusResponseType(handlerValidationRequest, handlerValidationResponse);
+        mockRequest.addParameter(SAML_SIGNATURE_REQUEST_KEY, queryStringWithSignature);
 
+        this.validationHandler.handleStatusResponseType(handlerValidationRequest, handlerValidationResponse);
     }
 
     private DefaultSAML2HandlerResponse createHandlerResponse(final String httpMethod, final ResponseType responseType) throws Exception {

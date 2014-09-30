@@ -33,18 +33,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.namespace.QName;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.util.HashMap;
@@ -52,7 +44,9 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.picketlink.common.constants.GeneralConstants.SAML_SIGNATURE_REQUEST_KEY;
 
 /**
  * @author Pedro Igor
@@ -154,10 +148,9 @@ public class SAML2AssertionWithinResponseSignatureTestCase {
         XPath xpath = xPathfactory.newXPath();
         XPathExpression expr = xpath.compile("//*[local-name()='Signature']");
 
-        NodeList signatureElement = (NodeList) expr.evaluate(resultingDocument, XPathConstants.NODESET);
+        NodeList signatureElement = (NodeList) expr.evaluate(resultingDocument, XPathConstants.NODE);
 
-        assertNotNull(signatureElement);
-        assertEquals(1, signatureElement.getLength());
+        assertNull(signatureElement);
 
         String queryStringWithSignature = handlerResponse.getDestinationQueryStringWithSignature();
 
@@ -174,6 +167,8 @@ public class SAML2AssertionWithinResponseSignatureTestCase {
         mockRequest.setQueryString(queryStringWithSignature);
 
         DefaultSAML2HandlerResponse handlerValidationResponse = createHandlerResponse("GET", responseType);
+
+        mockRequest.addParameter(SAML_SIGNATURE_REQUEST_KEY, queryStringWithSignature);
 
         this.validationHandler.handleStatusResponseType(handlerValidationRequest, handlerValidationResponse);
 

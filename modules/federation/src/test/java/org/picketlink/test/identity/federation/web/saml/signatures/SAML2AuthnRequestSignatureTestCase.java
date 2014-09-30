@@ -40,7 +40,9 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.picketlink.common.constants.GeneralConstants.SAML_SIGNATURE_REQUEST_KEY;
 
 /**
  * @author Pedro Igor
@@ -134,7 +136,7 @@ public class SAML2AuthnRequestSignatureTestCase {
 
         Node signatureElement = (Node) expr.evaluate(resultingDocument, XPathConstants.NODE);
 
-        assertNotNull(signatureElement);
+        assertNull(signatureElement);
 
         String queryStringWithSignature = handlerResponse.getDestinationQueryStringWithSignature();
 
@@ -152,6 +154,8 @@ public class SAML2AuthnRequestSignatureTestCase {
         mockRequest.setQueryString(queryStringWithSignature);
 
         DefaultSAML2HandlerResponse handlerValidationResponse = createHandlerResponse("GET", authnRequestType);
+
+        mockRequest.addParameter(SAML_SIGNATURE_REQUEST_KEY, queryStringWithSignature);
 
         this.validationHandler.handleStatusResponseType(handlerValidationRequest, handlerValidationResponse);
     }

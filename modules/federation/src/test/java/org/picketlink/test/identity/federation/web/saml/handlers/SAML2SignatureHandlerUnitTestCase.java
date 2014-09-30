@@ -58,6 +58,8 @@ import java.security.KeyPairGenerator;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.picketlink.common.constants.GeneralConstants.SAML_SIGNATURE_REQUEST_KEY;
+
 /**
  * Unit test the {@code SAML2SignatureHandler}
  *
@@ -131,6 +133,10 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
+        if (!isPostBinding) {
+            servletRequest.addParameter(SAML_SIGNATURE_REQUEST_KEY, "");
+        }
+
         SAMLDocumentHolder docHolder = new SAMLDocumentHolder(authnRequest, authDoc);
         IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
         SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
@@ -150,8 +156,8 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         handler.generateSAMLRequest(request, response);
         Document signedDoc = response.getResultingDocument();
 
-        validatedSignatureMethod(handlerConfig, signedDoc);
-        validatedSignatureDigest(handlerConfig, signedDoc);
+        validatedSignatureMethod(handlerConfig, signedDoc, isPostBinding);
+        validatedSignatureDigest(handlerConfig, signedDoc, isPostBinding);
 
         assertNotNull("Signed Doc is not null", signedDoc);
         SAMLDocumentHolder signedHolder = new SAMLDocumentHolder(signedDoc);
@@ -171,47 +177,55 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         validHandler.handleStatusResponseType(request, response);
     }
 
-    private void validatedSignatureMethod(SAML2HandlerConfig handlerConfig, Document signedDoc) throws XPathExpressionException {
+    private void validatedSignatureMethod(SAML2HandlerConfig handlerConfig, Document signedDoc, boolean isPostBinding) throws XPathExpressionException {
         XPathFactory xPathfactory = XPathFactory.newInstance();
         XPath xpath = xPathfactory.newXPath();
         XPathExpression expr = xpath.compile("//*[local-name()='SignatureMethod']");
 
         Node signatureMethodElement = (Node) expr.evaluate(signedDoc, XPathConstants.NODE);
 
-        assertNotNull(signatureMethodElement);
+        if (isPostBinding) {
+            assertNotNull(signatureMethodElement);
 
-        Node algorithm = signatureMethodElement.getAttributes().getNamedItem("Algorithm");
+            Node algorithm = signatureMethodElement.getAttributes().getNamedItem("Algorithm");
 
-        assertNotNull(algorithm);
+            assertNotNull(algorithm);
 
-        Object expectedSignatureMethod = handlerConfig.getParameter(SAML2SignatureGenerationHandler.SIGN_METHOD);
+            Object expectedSignatureMethod = handlerConfig.getParameter(SAML2SignatureGenerationHandler.SIGN_METHOD);
 
-        if (expectedSignatureMethod != null) {
-            assertEquals(expectedSignatureMethod.toString(), algorithm.getNodeValue());
+            if (expectedSignatureMethod != null) {
+                assertEquals(expectedSignatureMethod.toString(), algorithm.getNodeValue());
+            } else {
+                assertEquals(SignatureMethod.RSA_SHA1, algorithm.getNodeValue());
+            }
         } else {
-            assertEquals(SignatureMethod.RSA_SHA1, algorithm.getNodeValue());
+            assertNull(signatureMethodElement);
         }
     }
 
-    private void validatedSignatureDigest(SAML2HandlerConfig handlerConfig, Document signedDoc) throws XPathExpressionException {
+    private void validatedSignatureDigest(SAML2HandlerConfig handlerConfig, Document signedDoc, boolean isPostBinding) throws XPathExpressionException {
         XPathFactory xPathfactory = XPathFactory.newInstance();
         XPath xpath = xPathfactory.newXPath();
         XPathExpression expr = xpath.compile("//*[local-name()='DigestMethod']");
 
         Node digestMethodElement = (Node) expr.evaluate(signedDoc, XPathConstants.NODE);
 
-        assertNotNull(digestMethodElement);
+        if (isPostBinding) {
+            assertNotNull(digestMethodElement);
 
-        Node algorithm = digestMethodElement.getAttributes().getNamedItem("Algorithm");
+            Node algorithm = digestMethodElement.getAttributes().getNamedItem("Algorithm");
 
-        assertNotNull(algorithm);
+            assertNotNull(algorithm);
 
-        Object expectedSignatureDigest = handlerConfig.getParameter(SAML2SignatureGenerationHandler.SIGN_DIGEST);
+            Object expectedSignatureDigest = handlerConfig.getParameter(SAML2SignatureGenerationHandler.SIGN_DIGEST);
 
-        if (expectedSignatureDigest != null) {
-            assertEquals(expectedSignatureDigest.toString(), algorithm.getNodeValue());
+            if (expectedSignatureDigest != null) {
+                assertEquals(expectedSignatureDigest.toString(), algorithm.getNodeValue());
+            } else {
+                assertEquals(DigestMethod.SHA1, algorithm.getNodeValue());
+            }
         } else {
-            assertEquals(DigestMethod.SHA1, algorithm.getNodeValue());
+            assertNull(digestMethodElement);
         }
     }
 }
