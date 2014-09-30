@@ -17,18 +17,6 @@
  */
 package org.picketlink.idm.jdbc.internal.model.db;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Grant;
@@ -37,8 +25,16 @@ import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Storage utility for {@link Relationship}
+ * Storage utility for {@link org.picketlink.idm.model.Relationship}
  *
  * @author Anil Saldhana
  * @since October 25, 2013
@@ -57,8 +53,6 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
         if (id == null) {
             throw IDMMessages.MESSAGES.nullArgument("id");
         }
-        Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
-        Date expiration = calendar.getTime();
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -93,9 +87,6 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
         if (id == null) {
             throw IDMMessages.MESSAGES.nullArgument("id");
         }
-
-        Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
-        Date expiration = calendar.getTime();
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -486,8 +477,6 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
         if (dataSource == null) {
             throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
-        Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
-        Date expiration = calendar.getTime();
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -520,8 +509,6 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
         if (dataSource == null) {
             throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
-        Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
-        Date expiration = calendar.getTime();
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
