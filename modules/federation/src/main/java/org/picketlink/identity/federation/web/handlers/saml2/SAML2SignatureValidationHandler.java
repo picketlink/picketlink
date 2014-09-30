@@ -19,7 +19,6 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
@@ -29,12 +28,11 @@ import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.saml.v2.SAML2Object;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.w3c.dom.Document;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.PublicKey;
 import java.util.Map;
 
@@ -82,7 +80,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
 
             HTTPContext httpContext = (HTTPContext) request.getContext();
 
-            if (isPostBinding(request, httpContext)) {
+            if (isPostBinding(httpContext)) {
                 isValid = verifyPostBindingSignature(signedDocument, publicKey);
                 logger.trace("HTTP method for validating response: POST");
             } else {
@@ -112,18 +110,11 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
         }
     }
 
-    private boolean isPostBinding(SAML2HandlerRequest request, HTTPContext httpContext) {
-        boolean isPost = httpContext.getRequest().getMethod().equalsIgnoreCase("POST");
-        SAML2Object saml2Object = request.getSAML2Object();
+    private boolean isPostBinding(HTTPContext httpContext) {
+        HttpServletRequest httpServletRequest = httpContext.getRequest();
+        Map<String, String[]> parameterMap = httpServletRequest.getParameterMap();
 
-        if (AuthnRequestType.class.isInstance(saml2Object)) {
-            AuthnRequestType authnRequest = (AuthnRequestType) saml2Object;
-            String authnRequestBinding = authnRequest.getProtocolBinding().toString();
-
-            isPost = authnRequestBinding.equals(JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get());
-        }
-
-        return isPost;
+        return !parameterMap.containsKey(GeneralConstants.SAML_SIGNATURE_REQUEST_KEY);
     }
 
     private Boolean isIgnoreSignature(SAML2HandlerRequest request) {

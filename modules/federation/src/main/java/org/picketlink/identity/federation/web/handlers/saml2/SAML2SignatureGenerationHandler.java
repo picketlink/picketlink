@@ -120,7 +120,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
                 temporaryDocument.adoptNode(clonedAssertionElement);
                 temporaryDocument.appendChild(clonedAssertionElement);
 
-                signDocument(temporaryDocument, keypair, x509Certificate);
+                signDocument(temporaryDocument, keypair, x509Certificate, response);
 
                 samlDocument.adoptNode(clonedAssertionElement);
 
@@ -130,45 +130,45 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
             }
 
             if (!isSignAssertionOnly()) {
-                signDocument(samlDocument, keypair, x509Certificate);
+                signDocument(samlDocument, keypair, x509Certificate, response);
             }
         } else {
-            signDocument(samlDocument, keypair, x509Certificate);
-        }
-
-        if (!response.isPostBindingForResponse()) {
-            logger.trace("Going to sign response document with REDIRECT binding type");
-            String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair,
-                    response.getSendRequest());
-            response.setDestinationQueryStringWithSignature(destinationQueryString);
+            signDocument(samlDocument, keypair, x509Certificate, response);
         }
     }
 
-    private void signDocument(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate) throws ProcessingException {
-        SAML2Signature samlSignature = new SAML2Signature();
+    private void signDocument(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate, SAML2HandlerResponse response) throws ProcessingException {
+        if (response.isPostBindingForResponse()) {
+            SAML2Signature samlSignature = new SAML2Signature();
 
-        String signatureMethod = getSignatureMethod();
+            String signatureMethod = getSignatureMethod();
 
-        if (signatureMethod != null) {
-            samlSignature.setSignatureMethod(signatureMethod);
+            if (signatureMethod != null) {
+                samlSignature.setSignatureMethod(signatureMethod);
+            }
+
+            String signatureDigest = getSignatureDigestMethod();
+
+            if (signatureDigest != null) {
+                samlSignature.setDigestMethod(signatureDigest);
+            }
+
+            Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
+
+            samlSignature.setNextSibling(nextSibling);
+
+            if (x509Certificate != null) {
+                samlSignature.setX509Certificate(x509Certificate);
+            }
+
+            logger.trace("Going to sign document.");
+            samlSignature.signSAMLDocument(samlDocument, keypair);
+        } else {
+            logger.trace("Going to sign response document with REDIRECT binding type");
+            String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair,
+                response.getSendRequest());
+            response.setDestinationQueryStringWithSignature(destinationQueryString);
         }
-
-        String signatureDigest = getSignatureDigestMethod();
-
-        if (signatureDigest != null) {
-            samlSignature.setDigestMethod(signatureDigest);
-        }
-
-        Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
-
-        samlSignature.setNextSibling(nextSibling);
-
-        if (x509Certificate != null) {
-            samlSignature.setX509Certificate(x509Certificate);
-        }
-
-        logger.trace("Going to sign document.");
-        samlSignature.signSAMLDocument(samlDocument, keypair);
     }
 
     private String signRedirect(Document samlDocument, String relayState, KeyPair keypair,
