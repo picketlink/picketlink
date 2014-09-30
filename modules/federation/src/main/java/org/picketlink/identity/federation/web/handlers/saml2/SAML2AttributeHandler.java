@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.picketlink.common.constants.GeneralConstants.SESSION_ATTRIBUTE_MAP;
+
 /**
  * <p>
  * Handler dealing with attributes for SAML2
@@ -178,18 +180,30 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
                 AttributeStatementType attrStat = (AttributeStatementType) statement;
                 List<ASTChoiceType> attrs = attrStat.getAttributes();
                 for (ASTChoiceType attrChoice : attrs) {
-                    AttributeType attr = attrChoice.getAttribute();
-                    Map<String, List<Object>> attrMap = (Map<String, List<Object>>) session
-                            .getAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP);
+                    Map<String, List<Object>> attrMap = (Map<String, List<Object>>) session.getAttribute(SESSION_ATTRIBUTE_MAP);
+
                     if (attrMap == null) {
                         attrMap = new HashMap<String, List<Object>>();
-                        session.setAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP, attrMap);
+                        session.setAttribute(SESSION_ATTRIBUTE_MAP, attrMap);
                     }
+
+                    AttributeType attr = attrChoice.getAttribute();
+                    String attributeName;
+
                     if (chooseFriendlyName) {
-                        attrMap.put(attr.getFriendlyName(), attr.getAttributeValue());
+                        attributeName = attr.getFriendlyName();
                     } else {
-                        attrMap.put(attr.getName(), attr.getAttributeValue());
+                        attributeName = attr.getName();
                     }
+
+                    List<Object> values = attrMap.get(attributeName);
+
+                    if (values == null) {
+                        values = new ArrayList<Object>();
+                        attrMap.put(attributeName, values);
+                    }
+
+                    values.addAll(attr.getAttributeValue());
                 }
             }
         }

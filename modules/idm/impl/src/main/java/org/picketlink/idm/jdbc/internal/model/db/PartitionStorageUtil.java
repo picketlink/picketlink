@@ -17,19 +17,15 @@
  */
 package org.picketlink.idm.jdbc.internal.model.db;
 
+import org.picketlink.idm.IDMMessages;
+import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
+import org.picketlink.idm.model.Partition;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
-import javax.sql.DataSource;
-
-import org.picketlink.idm.IDMMessages;
-import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
-import org.picketlink.idm.model.Partition;
 
 /**
  * Storage utility for {@link Partition}
@@ -122,9 +118,6 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
         if (dataSource == null) {
             throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
-        Date now = new Date();
-        Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
-        Date expiration = calendar.getTime();
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;

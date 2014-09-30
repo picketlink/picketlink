@@ -24,6 +24,7 @@ import org.picketlink.config.federation.ProviderType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
@@ -50,6 +51,7 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 
+import java.io.InputStream;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +59,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test the {@code SAML2AttributeHandler}
@@ -69,6 +72,77 @@ public class SAML2AttributeHandlerUnitTestCase {
     private static String name = "anil";
 
     private static String email = "anil@test";
+
+
+    @Test
+    public void testSAMLAttributesFromAssertion() throws Exception {
+        SAML2AttributeHandler handler = new SAML2AttributeHandler();
+
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        ProviderType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-assertion.xml");
+
+        SAMLParser parser = new SAMLParser();
+        AssertionType assertion = (AssertionType) parser.parse(configStream);
+
+        ResponseType responseType = new ResponseType("id", null);
+
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(responseType, null);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+            SAML2Handler.HANDLER_TYPE.IDP);
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+
+        request.addOption(GeneralConstants.ASSERTION, assertion);
+
+        handler.handleStatusResponseType(request, response);
+
+        Map<String, List<Object>> attributes = (Map<String, List<Object>>) session.getAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP);
+
+        assertNotNull(attributes);
+
+        List<Object> roles = attributes.get("Role");
+
+        assertNotNull(roles);
+        assertEquals(3, roles.size());
+
+        assertTrue(hasValue("manager", roles));
+        assertTrue(hasValue("sales", roles));
+        assertTrue(hasValue("employee", roles));
+
+        List<Object> attribute1 = attributes.get("Attribute1");
+
+        assertNotNull(attribute1);
+        assertEquals(2, attribute1.size());
+
+        assertTrue(hasValue("Attribute1", attribute1));
+        assertTrue(hasValue("Attribute11", attribute1));
+
+        List<Object> attribute3 = attributes.get("Attribute3");
+
+        assertNotNull(attribute3);
+        assertEquals(1, attribute3.size());
+
+        assertTrue(hasValue("Attribute3", attribute3));
+    }
 
     @SuppressWarnings("unchecked")
     @Test
@@ -175,5 +249,15 @@ public class SAML2AttributeHandlerUnitTestCase {
             }
             return attribs;
         }
+    }
+
+    private boolean hasValue(String value, List values) {
+        for (Object valueFromList : values) {
+            if (value.equals(valueFromList)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

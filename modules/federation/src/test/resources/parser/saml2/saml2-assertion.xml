@@ -42,4 +42,38 @@
       </ds:KeyValue>
     </ds:KeyInfo>
   </ds:Signature>
+  <saml2:AttributeStatement>
+    <saml2:Attribute Name="Role">
+      <saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:type="xs:string">employee</saml2:AttributeValue>
+      </saml2:Attribute>
+      <saml2:Attribute Name="Role">
+         <saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:type="xs:string">manager</saml2:AttributeValue>
+      </saml2:Attribute>
+      <saml2:Attribute Name="Role">
+         <saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:type="xs:string">sales</saml2:AttributeValue>
+        </saml2:Attribute>
+    </saml2:AttributeStatement>
+    <saml2:AttributeStatement>
+    <saml2:Attribute Name="Attribute1">
+      <saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                            xsi:type="xs:string">Attribute1</saml2:AttributeValue>
+      </saml2:Attribute>
+      <saml2:Attribute Name="Attribute1">
+         <saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                               xsi:type="xs:string">Attribute11</saml2:AttributeValue>
+      </saml2:Attribute>
+      <saml2:Attribute Name="Attribute3">
+         <saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                               xsi:type="xs:string">Attribute3</saml2:AttributeValue>
+        </saml2:Attribute>
+    </saml2:AttributeStatement>
 </saml2:Assertion>
