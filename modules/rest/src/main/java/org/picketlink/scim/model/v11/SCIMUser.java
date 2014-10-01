@@ -24,16 +24,10 @@ package org.picketlink.scim.model.v11;
  * @since Apr 8, 2013
  */
 public class SCIMUser extends AbstractResource {
-    private UserName name;
 
-    private Addresses[] addresses;
-    private PhoneNumbers[] phoneNumbers;
-    private Ims[] ims;
-    private Emails[] emails;
-    private Photos[] photos;
-    private SCIMGroups[] groups;
-    private X509Certificates[] x509Certificates;
-
+    private Name name;
+    private String[] externalId;
+    private String userName;
     private String displayName;
     private String nickName;
     private String profileUrl;
@@ -45,12 +39,38 @@ public class SCIMUser extends AbstractResource {
     private boolean active;
     private String password;
 
-    public UserName getName() {
+    private Addresses[] addresses;
+    private PhoneNumbers[] phoneNumbers;
+    private Ims[] ims;
+    private Emails[] emails;
+    private Photos[] photos;
+    private SCIMGroups[] groups;
+    private X509Certificates[] x509Certificates;
+
+    public Name getName() {
         return name;
     }
 
-    public SCIMUser setName(UserName name) {
+    public SCIMUser setName(Name name) {
         this.name = name;
+        return this;
+    }
+
+    public String[] getExternalId() {
+        return externalId;
+    }
+
+    public SCIMUser setExternalId(String[] externalId) {
+        this.externalId = externalId;
+        return this;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public SCIMUser setUserName(String userName) {
+        this.userName = userName;
         return this;
     }
 

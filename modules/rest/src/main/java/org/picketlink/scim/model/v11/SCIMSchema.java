@@ -15,30 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.rest;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.picketlink.Identity;
+package org.picketlink.scim.model.v11;
 
 /**
+ * SCIM Schema Type
  *
- * @author Shane Bryzak
+ * @author Giriraj Sharma
+ * @since Oct 1, 2014
  */
-@Path("/auth")
-@RequestScoped
-public class AuthenticationEndpoint {
-    @Inject Identity identity;
+public class SCIMSchema {
 
-    @Path("/status")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public boolean status() {
-        return identity.isLoggedIn();
+    private SCIMSchemaElement[] schemaElements;
+
+    public SCIMSchemaElement[] getSchemaElements() {
+        return schemaElements;
+    }
+
+    public SCIMSchema setSchemaElements(SCIMSchemaElement[] schemaElements) {
+        this.schemaElements = schemaElements;
+        return this;
     }
 }

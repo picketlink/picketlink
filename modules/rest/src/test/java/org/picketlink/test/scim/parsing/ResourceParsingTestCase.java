@@ -43,11 +43,11 @@ public class ResourceParsingTestCase {
         SCIMResource resource = parser.parseResource(is);
         assertNotNull(resource);
 
-        assertEquals("urn:scim:schemas:core:1.0:User", resource.getId());
+        assertEquals("User", resource.getId());
         assertEquals("User", resource.getName());
 
-        assertEquals("Core User", resource.getDescription());
-        assertEquals("urn:scim:schemas:core:1.0", resource.getSchema());
+        assertEquals("User Account", resource.getDescription());
+        assertEquals("urn:ietf:params:scim:schemas:core:2.0:User", resource.getSchema());
         assertEquals("/Users", resource.getEndpoint());
     }
 }

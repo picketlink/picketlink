@@ -1,5 +1,5 @@
 {
-  "schemas": ["urn:scim:schemas:core:1.0"],
+  "schemas": ["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"],
   "documentationUrl":"http://example.com/help/scim.html",
   "patch": {
     "supported":true
@@ -22,9 +22,6 @@
   "etag": {
     "supported":true
   },
-  "xmlDataFormat": {
-    "supported":true
-  },
   "authenticationSchemes": [
     {
       "name": "OAuth Bearer Token",
@@ -41,5 +38,12 @@
       "documentationUrl":"http://example.com/help/httpBasic.html",
       "type":"httpbasic"
      }
-  ]
+  ],
+  "meta": {
+    "location":"https://example.com/v2/ServiceProviderConfig",
+    "resourceType": "ServiceProviderConfig",
+    "created": "2010-01-23T04:56:22Z",
+    "lastModified": "2011-05-13T04:42:34Z",
+    "version": "W\/\"3694e05e9dff594\""
+  }
 }

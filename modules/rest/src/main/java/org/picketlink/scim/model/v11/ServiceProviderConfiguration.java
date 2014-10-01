@@ -28,11 +28,11 @@ public class ServiceProviderConfiguration {
     private AuthenticationSchemes[] authenticationSchemes;
     private SupportedAttribute etag;
     private SupportedAttribute sort;
-    private SupportedAttribute xmlDataFormat;
     private SupportedAttribute changePassword;
     private SupportedAttribute patch;
     private Bulk bulk;
     private Filter filter;
+    private Meta meta;
 
     public String[] getSchemas() {
         return schemas;
@@ -79,15 +79,6 @@ public class ServiceProviderConfiguration {
         return this;
     }
 
-    public SupportedAttribute getXmlDataFormat() {
-        return xmlDataFormat;
-    }
-
-    public ServiceProviderConfiguration setXmlDataFormat(SupportedAttribute xmlDataFormat) {
-        this.xmlDataFormat = xmlDataFormat;
-        return this;
-    }
-
     public SupportedAttribute getChangePassword() {
         return changePassword;
     }
@@ -121,6 +112,15 @@ public class ServiceProviderConfiguration {
 
     public ServiceProviderConfiguration setFilter(Filter filter) {
         this.filter = filter;
+        return this;
+    }
+
+    public Meta getMeta() {
+        return meta;
+    }
+
+    public ServiceProviderConfiguration setMeta(Meta meta) {
+        this.meta = meta;
         return this;
     }
 

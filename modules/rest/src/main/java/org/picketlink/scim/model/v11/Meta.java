@@ -24,11 +24,19 @@ package org.picketlink.scim.model.v11;
  * @since Apr 8, 2013
  */
 public class Meta {
+    private String resourceType;
     private String created;
     private String lastModified;
     private String location;
     private String version;
-    private String[] attributes;
+
+    public String getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
+    }
 
     public String getCreated() {
         return created;
@@ -63,15 +71,6 @@ public class Meta {
 
     public Meta setVersion(String version) {
         this.version = version;
-        return this;
-    }
-
-    public String[] getAttributes() {
-        return attributes;
-    }
-
-    public Meta setAttributes(String[] attributes) {
-        this.attributes = attributes;
         return this;
     }
 }
