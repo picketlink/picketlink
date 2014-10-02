@@ -143,8 +143,40 @@
 
       <dependency>
         <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-federation</artifactId>
+        <version>${project.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>apache-xalan</artifactId>
+            <groupId>xalan</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>apache-xalan</artifactId>
+            <groupId>serializer</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
         <artifactId>picketlink-json</artifactId>
         <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-social</artifactId>
+        <version>${project.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>xalan</artifactId>
+            <groupId>xalan</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>xalan</artifactId>
+            <groupId>serializer</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
