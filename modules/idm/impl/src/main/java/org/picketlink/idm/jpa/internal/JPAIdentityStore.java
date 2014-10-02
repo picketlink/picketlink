@@ -37,6 +37,7 @@ import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.internal.RelationshipReference;
+import org.picketlink.idm.internal.util.PermissionUtil;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
@@ -110,6 +111,7 @@ import static org.picketlink.common.reflection.Reflections.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMInternalLog.JPA_STORE_LOGGER;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
+import static org.picketlink.idm.internal.util.PermissionUtil.asOperationList;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database.
@@ -1499,74 +1501,35 @@ public class JPAIdentityStore
         return mapper;
     }
 
+    private List<EntityMapper> getPermissionMappers() {
+        List<EntityMapper> mappers = new ArrayList<EntityMapper>();
+
+        for (EntityMapper entityMapper: getEntityMappers()) {
+            if (entityMapper.getEntityType().isAnnotationPresent(PermissionManaged.class)) {
+                mappers.add(entityMapper);
+            }
+        }
+
+        if (mappers == null) {
+            throw MESSAGES.configJpaStoreNoPermissionEntityClassProvided();
+        }
+
+        return mappers;
+    }
+
     @Override
     public List<Permission> listPermissions(IdentityContext ctx, Object resource) {
         return listPermissions(ctx, resource, null);
     }
 
     @Override
+    public List<Permission> listPermissions(IdentityContext ctx, IdentityType identityType) {
+        return listPermissions(ctx, new IdentityPermission(null, identityType, null));
+    }
+
+    @Override
     public List<Permission> listPermissions(IdentityContext ctx, Object resource, String operation) {
-        if (resource == null) {
-            throw new IllegalArgumentException("Resource may not be null");
-        }
-
-        EntityManager em = getEntityManager(ctx);
-        Class<?> resourceClass = ctx.getPermissionHandlerPolicy().getResourceClass(resource);
-        EntityMapper mapper = getPermissionMapperForResource(resourceClass);
-
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery cq = cb.createQuery(mapper.getEntityType());
-        Root from = cq.from(mapper.getEntityType());
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        // Set the resource class and resource identifier predicates
-        predicates.add(cb.equal(from.get(mapper.getProperty(PermissionResourceClass.class).getValue().getName()),
-                ctx.getPermissionHandlerPolicy().getResourceClass(resource).getName()));
-        predicates.add(cb.equal(from.get(mapper.getProperty(PermissionResourceIdentifier.class).getValue().getName()),
-            ctx.getPermissionHandlerPolicy().getIdentifier(resource)));
-
-        cq.where(predicates.toArray(new Predicate[predicates.size()]));
-
-        List results = em.createQuery(cq).getResultList();
-
-        List<Permission> perms = new ArrayList<Permission>();
-        for (Object result : results) {
-            Object owner = mapper.getProperty(OwnerReference.class).getValue().getValue(result);
-            IdentityType assignee = null;
-            // If the owner value is a String, then it must be an identifier value
-            if (String.class.equals(owner.getClass())) {
-                assignee = lookupIdentityTypeById(ctx, IdentityType.class, (String) owner);
-            } else {
-
-                for (EntityMapper entityMapper : getEntityMappers()) {
-                    if (entityMapper.getMappingsFor(IdentityType.class) != null && entityMapper.isRoot()) {
-                        IdentityType identityType = entityMapper.<IdentityType>createType(owner, em);
-                        if (identityType != null) {
-                            assignee = identityType;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (assignee == null) {
-                throw new IdentityManagementException(String.format(
-                        "Could not determine permission assignee [%s] for resource [%s]",
-                        owner, resource));
-            }
-
-            PermissionOperationSet opSet = new PermissionOperationSet(result, resourceClass, mapper);
-
-            for (String op : opSet.getOperations()) {
-                if (operation != null && operation.equals(op)) {
-                    perms.add(new IdentityPermission(resource, assignee, op));
-                } else if (operation == null) {
-                    perms.add(new IdentityPermission(resource, assignee, op));
-                }
-            }
-        }
-
-        return perms;
+        return listPermissions(ctx, new IdentityPermission(resource, null, operation));
     }
 
     @Override
@@ -1587,67 +1550,119 @@ public class JPAIdentityStore
 
     @Override
     public List<Permission> listPermissions(IdentityContext ctx, Class<?> resourceClass, Serializable identifier, String operation) {
-        if (resourceClass == null) {
-            throw new IllegalArgumentException("Resource class may not be null");
-        }
+        return listPermissions(ctx, new IdentityPermission(resourceClass, identifier, null, operation));
+    }
 
-        if (identifier == null) {
-            throw new IllegalArgumentException("Resource identifier may not be null");
-        }
-
+    public List<Permission> listPermissions(IdentityContext ctx, IdentityPermission query) {
         EntityManager em = getEntityManager(ctx);
-        EntityMapper mapper = getPermissionMapperForResource(resourceClass);
+        List<EntityMapper> mappers = new ArrayList<EntityMapper>();
+        Object resource = query.getResource();
+        Class<?> resourceClass = query.getResourceClass();
+        Serializable resourceIdentifier = query.getResourceIdentifier();
 
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery cq = cb.createQuery(mapper.getEntityType());
-        Root from = cq.from(mapper.getEntityType());
-        List<Predicate> predicates = new ArrayList<Predicate>();
+        if (resource != null) {
+            resourceClass = ctx.getPermissionHandlerPolicy().getResourceClass(resource);
+            resourceIdentifier = ctx.getPermissionHandlerPolicy().getIdentifier(resource);
+        }
 
-        // Set the resource class and resource identifier predicates
-        Property resourceClassProperty = mapper.getProperty(PermissionResourceClass.class).getValue();
-        Property resourceIdentifier = mapper.getProperty(PermissionResourceIdentifier.class).getValue();
-        Property ownerProperty = mapper.getProperty(OwnerReference.class).getValue();
-
-        predicates.add(cb.equal(from.get(resourceClassProperty.getName()), resourceClass.getName()));
-        predicates.add(cb.equal(from.get(resourceIdentifier.getName()), identifier));
-
-        cq.where(predicates.toArray(new Predicate[predicates.size()]));
-
-        List results = em.createQuery(cq).getResultList();
+        if (resourceClass != null) {
+            mappers.add(getPermissionMapperForResource(resourceClass));
+        } else {
+            mappers.addAll(getPermissionMappers());
+        }
 
         List<Permission> perms = new ArrayList<Permission>();
-        for (Object result : results) {
-            Object owner = ownerProperty.getValue(result);
-            IdentityType assignee = null;
-            // If the owner value is a String, then it must be an identifier value
-            if (String.class.equals(owner.getClass())) {
-                assignee = lookupIdentityTypeById(ctx, IdentityType.class, (String) owner);
-            } else {
 
-                for (EntityMapper entityMapper : getEntityMappers()) {
-                    if (entityMapper.getMappingsFor(IdentityType.class) != null && entityMapper.isRoot()) {
-                        IdentityType identityType = entityMapper.<IdentityType>createType(owner, em);
-                        if (identityType != null) {
-                            assignee = identityType;
-                            break;
-                        }
-                    }
+        for (EntityMapper mapper : mappers) {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery cq = cb.createQuery(mapper.getEntityType());
+            Root from = cq.from(mapper.getEntityType());
+            List<Predicate> predicates = new ArrayList<Predicate>();
+
+            // Set the resource class and resource resourceIdentifier predicates
+            Property resourceClassProperty = mapper.getProperty(PermissionResourceClass.class).getValue();
+            Property resourceIdentifierProperty = mapper.getProperty(PermissionResourceIdentifier.class).getValue();
+            Property ownerProperty = mapper.getProperty(OwnerReference.class).getValue();
+
+            if (resourceClass != null) {
+                predicates.add(cb.equal(from.get(resourceClassProperty.getName()), resourceClass.getName()));
+            }
+
+            if (resourceIdentifier != null) {
+                predicates.add(cb.equal(from.get(resourceIdentifierProperty.getName()), resourceIdentifier));
+            }
+
+            IdentityType assignee = query.getAssignee();
+
+            if (assignee != null) {
+                // Set the assignee, resource class and resource resourceIdentifier predicates
+                if (String.class.equals(ownerProperty.getBaseType())) {
+                    predicates.add(cb.equal(from.get(ownerProperty.getName()), assignee.getId()));
+                } else {
+                    predicates.add(cb.equal(from.get(ownerProperty.getName()),
+                        getOwnerEntity(assignee, ownerProperty, em)));
                 }
             }
 
-            if (assignee == null) {
-                throw new IdentityManagementException(String.format(
-                        "Could not determine permission assignee [%s] for resource class [%s] with identifier [%s]",
-                        owner, resourceClass, identifier));
-            }
+            cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
-            PermissionOperationSet opSet = new PermissionOperationSet(result, resourceClass, mapper);
+            List results = em.createQuery(cq).getResultList();
 
-            for (String op : opSet.getOperations()) {
-                if (operation != null && operation.equals(op)) {
-                    perms.add(new IdentityPermission(resourceClass, identifier, assignee, op));
-                } else if (operation == null) {
-                    perms.add(new IdentityPermission(resourceClass, identifier, assignee, op));
+            for (Object result : results) {
+                Object owner = ownerProperty.getValue(result);
+
+                if (assignee == null) {
+                    // If the owner value is a String, then it must be an resourceIdentifier value
+                    if (String.class.equals(owner.getClass())) {
+                        assignee = lookupIdentityTypeById(ctx, IdentityType.class, (String) owner);
+                    } else {
+                        for (EntityMapper entityMapper : getEntityMappers()) {
+                            if (entityMapper.getMappingsFor(IdentityType.class) != null && entityMapper.isRoot()) {
+                                IdentityType identityType = entityMapper.<IdentityType>createType(owner, em);
+                                if (identityType != null) {
+                                    assignee = identityType;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (assignee == null) {
+                    throw new IdentityManagementException(String.format(
+                        "Could not determine permission assignee [%s] for resource class [%s] with resourceIdentifier [%s]",
+                        owner, resourceClass, resourceIdentifier));
+                }
+
+                if (resourceClass == null) {
+                    try {
+                        resourceClass = classForName((String) resourceClassProperty.getValue(result));
+                    } catch (ClassNotFoundException e) {
+                        throw new IdentityManagementException("Could not load type.", e);
+                    }
+                }
+
+                PermissionOperationSet opSet = new PermissionOperationSet(result, resourceClass, mapper);
+                String operation = query.getOperation();
+                Set<String> operationsToreturn;
+
+                if (operation != null) {
+                    operationsToreturn = asOperationList(operation);
+                } else {
+                    operationsToreturn = opSet.getOperations();
+                }
+
+                for (String op : operationsToreturn) {
+                    for (String operationPermission : opSet.getOperations()) {
+                        if (op.equals(operationPermission)) {
+                            if (resource != null) {
+                                perms.add(new IdentityPermission(resource, assignee, op));
+                            } else {
+                                perms.add(new IdentityPermission(resourceClass, (Serializable) resourceIdentifierProperty
+                                    .getValue(result), assignee, op));
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1655,7 +1670,7 @@ public class JPAIdentityStore
         return perms;
     }
 
-    private Object lookupPermissionEntity(IdentityContext ctx, EntityMapper mapper, IdentityType assignee, Object resource) {
+    private Object lookupPermissionEntity(IdentityContext ctx, EntityMapper mapper, IdentityType assignee, Class<?> resourceClass, Serializable identifier) {
         EntityManager em = getEntityManager(ctx);
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -1671,15 +1686,15 @@ public class JPAIdentityStore
             predicates.add(cb.equal(from.get(ownerProperty.getName()), assignee.getId()));
         } else {
             predicates.add(cb.equal(from.get(ownerProperty.getName()),
-                    getOwnerEntity(assignee, ownerProperty, em)));
+                getOwnerEntity(assignee, ownerProperty, em)));
         }
 
-        predicates.add(cb.equal(from.get(resourceClassProperty.getName()),
-                ctx.getPermissionHandlerPolicy().getResourceClass(resource).getName()));
+        predicates.add(cb.equal(from.get(resourceClassProperty.getName()), resourceClass.getName()));
 
-        // TODO we need some conversion API to convert identifiers to the correct type
-        predicates.add(cb.equal(from.get(resourceIdentifierProperty.getName()),
-            ctx.getPermissionHandlerPolicy().getIdentifier(resource).toString()));
+        if (identifier != null && !identifier.equals(resourceClass.getName())) {
+            // TODO we need some conversion API to convert identifiers to the correct type
+            predicates.add(cb.equal(from.get(resourceIdentifierProperty.getName()), identifier.toString()));
+        }
 
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
@@ -1699,10 +1714,17 @@ public class JPAIdentityStore
     public boolean grantPermission(IdentityContext context, IdentityType assignee, Object resource, String operation) {
         EntityManager em = getEntityManager(context);
         Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(resource);
+        Serializable resourceIdentifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
+
+        if (resourceIdentifier == null) {
+            throw new IdentityManagementException(String.format(
+                "No identifier value could be generated for resource [%s]", resource));
+        }
+
         EntityMapper mapper = getPermissionMapperForResource(resourceClass);
 
         // We first attempt to lookup an existing entity
-        Object entity = lookupPermissionEntity(context, mapper, assignee, resource);
+        Object entity = lookupPermissionEntity(context, mapper, assignee, resourceClass, resourceIdentifier);
 
         // If there is no existing entity we create a new one
         if (entity == null) {
@@ -1724,13 +1746,6 @@ public class JPAIdentityStore
 
                 // Set the resource class
                 resourceClassProperty.setValue(entity, context.getPermissionHandlerPolicy().getResourceClass(resource).getName());
-
-                // Set the resource identifier
-                Serializable resourceIdentifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
-                if (resourceIdentifier == null) {
-                    throw new IdentityManagementException(String.format(
-                            "No identifier value could be generated for resource [%s]", resource));
-                }
 
                 // TODO this is a nasty hack, we still need to support type conversion between a multitude of types
                 resourceIdentifierProperty.setValue(entity, resourceIdentifier.toString());
@@ -1774,30 +1789,16 @@ public class JPAIdentityStore
             adjustOperation(operation, false);
         }
 
-        private String adjustCSVOperation(String value, String operation, boolean mode) {
-            Set<String> ops = new HashSet<String>();
-
-            if (value != null && !"".equals(value)) {
-                for (String op : value.split(",")) {
-                    ops.add(op);
-                }
-            }
+        private String adjustCSVOperation(String operations, String operation, boolean mode) {
+            String operationsCSV;
 
             if (mode) {
-                ops.add(operation);
+                operationsCSV = PermissionUtil.addOperation(operations, operation);
             } else {
-                ops.remove(operation);
+                operationsCSV = PermissionUtil.removeOperation(operations, operation);
             }
 
-            StringBuilder sb = new StringBuilder();
-            for (String op : ops) {
-                if (sb.length() > 0) {
-                    sb.append(",");
-                }
-                sb.append(op);
-            }
-
-            return sb.toString();
+            return operationsCSV;
         }
 
         public Set<String> getOperations() {
@@ -1826,7 +1827,9 @@ public class JPAIdentityStore
 
             // Operations are stored as a comma separated value
             for (String op : ((String) opValue).split(",")) {
-                operations.add(op);
+                if (!isNullOrEmpty(op)) {
+                    operations.add(op);
+                }
             }
 
             return operations;
@@ -1834,7 +1837,6 @@ public class JPAIdentityStore
 
         private void adjustOperation(String operation, boolean mode) {
             Object operations = mapper.getProperty(PermissionOperation.class).getValue().getValue(entity);
-            Object newValue = null;
 
             // Determine how the permission operations are stored - first check if bitmasks are used
             if (perms != null) {
@@ -1886,22 +1888,37 @@ public class JPAIdentityStore
     @Override
     public boolean revokePermission(IdentityContext context, IdentityType assignee, Object resource, String operation) {
         EntityManager em = getEntityManager(context);
-
-        EntityMapper mapper = getPermissionMapperForResource(resource.getClass());
+        List<EntityMapper> mappers = new ArrayList<EntityMapper>();
         Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(resource);
+        Serializable resourceIdentifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
 
-        // We first attempt to lookup an existing entity
-        Object entity = lookupPermissionEntity(context, mapper, assignee, resource);
-
-        // If there's no entity found then there's nothing to do
-        if (entity == null) {
-            return false;
+        if (resourceClass != null) {
+            mappers.add(getPermissionMapperForResource(resourceClass));
         } else {
-            PermissionOperationSet operationSet = new PermissionOperationSet(entity, resourceClass, mapper);
-            operationSet.removeOperation(operation);
-            em.merge(entity);
-            return true;
+            mappers.addAll(getPermissionMappers());
         }
+
+        for (EntityMapper mapper : mappers) {
+            // We first attempt to lookup an existing entity
+            Object entity = lookupPermissionEntity(context, mapper, assignee, resourceClass, resourceIdentifier);
+
+            // If there's no entity found then there's nothing to do
+            if (entity != null) {
+                PermissionOperationSet operationSet = new PermissionOperationSet(entity, resourceClass, mapper);
+                operationSet.removeOperation(operation);
+                Set<String> operations = operationSet.getOperations();
+
+                if (operations.isEmpty()) {
+                    em.remove(entity);
+                } else {
+                    em.merge(entity);
+                }
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

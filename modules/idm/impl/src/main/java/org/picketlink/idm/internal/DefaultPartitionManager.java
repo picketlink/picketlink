@@ -259,9 +259,15 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         Partition storedPartition = getStoredPartition(partition);
 
         try {
-            return new ContextualIdentityManager(storedPartition, eventBridge, idGenerator, this, createRelationshipManager());
+            PermissionManager permissionManager = null;
+
+            if (supportsPermission(storedPartition)) {
+                permissionManager = createPermissionManager(storedPartition);
+            }
+
+            return new ContextualIdentityManager(storedPartition, eventBridge, idGenerator, this, createRelationshipManager(), permissionManager);
         } catch (Exception e) {
-            throw MESSAGES.partitionCouldNotCreateIdentityManager(storedPartition);
+            throw MESSAGES.partitionCouldNotCreateIdentityManager(storedPartition, e);
         }
     }
 
@@ -278,9 +284,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         Partition storedPartition = getStoredPartition(partition);
 
-        IdentityConfiguration configuration = getConfigurationForPartition(storedPartition);
-
-        if (!configuration.supportsPermission()) {
+        if (!supportsPermission(storedPartition)) {
             throw MESSAGES.permissionUnsupportedOperation();
         }
 
@@ -1013,5 +1017,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 ROOT_LOGGER.debug("  ]");
             }
         }
+    }
+
+    private boolean supportsPermission(Partition partition) {
+        return getConfigurationForPartition(partition).supportsPermission();
     }
 }

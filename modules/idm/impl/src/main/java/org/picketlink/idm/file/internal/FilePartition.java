@@ -17,13 +17,14 @@
  */
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.idm.model.Partition;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.picketlink.idm.model.Partition;
 
 /**
  * @author pedroigor
@@ -37,6 +38,7 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
     private transient Map<String, Map<String, FileIdentityType>> identityTypes = new ConcurrentHashMap<String,
             Map<String,FileIdentityType>>();
     private transient Map<String, Map<String, List<FileCredentialStorage>>> credentials = new ConcurrentHashMap<String, Map<String, List<FileCredentialStorage>>>();
+    private Map<String, List<FilePermission>> permissions;
 
     protected FilePartition(Partition object, String configurationName) {
         super(VERSION, object);
@@ -97,5 +99,13 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
 
     public void setCredentials(Map<String, Map<String, List<FileCredentialStorage>>> credentials) {
         this.credentials = credentials;
+    }
+
+    public void setPermissions(Map<String, List<FilePermission>> permissions) {
+        this.permissions = permissions;
+    }
+
+    public Map<String, List<FilePermission>> getPermissions() {
+        return this.permissions;
     }
 }

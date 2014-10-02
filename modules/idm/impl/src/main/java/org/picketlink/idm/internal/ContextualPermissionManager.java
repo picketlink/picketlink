@@ -1,10 +1,5 @@
 package org.picketlink.idm.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
-import java.io.Serializable;
-import java.util.List;
-
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.event.EventBridge;
@@ -13,6 +8,11 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 import org.picketlink.idm.spi.StoreSelector;
+
+import java.io.Serializable;
+import java.util.List;
+
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default implementation of PermissionManager
@@ -50,6 +50,16 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     }
 
     @Override
+    public List<Permission> listPermissions(Class<?> resource, String operation) {
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, (Object) resource, operation);
+    }
+
+    @Override
+    public List<Permission> listPermissions(IdentityType identityType) {
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, identityType);
+    }
+
+    @Override
     public void grantPermission(IdentityType assignee, Object resource, String operation) {
         try {
             storeSelector.getStoreForPermissionOperation(this).grantPermission(this, assignee, resource, operation);
@@ -68,6 +78,15 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     }
 
     @Override
+    public void revokePermission(IdentityType assignee, Class<?> resourceclass, String operation) {
+        try {
+            storeSelector.getStoreForPermissionOperation(this).revokePermission(this, assignee, resourceclass, operation);
+        } catch (Exception ex) {
+            throw MESSAGES.permissionRevokeFailed(assignee, resourceclass, operation, ex);
+        }
+    }
+
+    @Override
     public void clearPermissions(Object resource) {
         try {
             storeSelector.getStoreForPermissionOperation(this).revokeAllPermissions(this, resource);
@@ -75,11 +94,4 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
             throw MESSAGES.permissionRevokeAllFailed(resource, ex);
         }
     }
-
-    @Override
-    public List<String> listOperations(Class<?> resourceClass) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

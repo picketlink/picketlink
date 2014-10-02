@@ -37,10 +37,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMInternalLog.FILE_STORE_LOGGER;
 import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
 import static org.picketlink.idm.file.internal.FileUtils.delete;
 import static org.picketlink.idm.file.internal.FileUtils.readObject;
-import static org.picketlink.idm.IDMInternalLog.FILE_STORE_LOGGER;
 
 /**
  * @author Pedro Silva
@@ -64,6 +64,7 @@ public class FileDataSource {
     private static final String ATTRIBUTES_FILE_NAME = "pl-idm-attributes.db";
     private static final String RELATIONSHIPS_FILE_NAME = "pl-idm-relationships.db";
     private static final String CREDENTIALS_FILE_NAME = "pl-idm-credentials.db";
+    private static final String PERMISSIONS_FILE_NAME = "pl-idm-permissions.db";
 
     private final FileIdentityStoreConfiguration configuration;
 
@@ -154,6 +155,11 @@ public class FileDataSource {
     void flushCredentials(FilePartition partition) {
         FilePartition filePartition = getPartitions().get(partition.getId());
         flush(filePartition, CREDENTIALS_FILE_NAME, filePartition.getCredentials());
+    }
+
+    void flushPermissions(FilePartition partition) {
+        FilePartition filePartition = getPartitions().get(partition.getId());
+        flush(filePartition, PERMISSIONS_FILE_NAME, filePartition.getPermissions());
     }
 
     /**
@@ -275,6 +281,20 @@ public class FileDataSource {
 
         if (isDebugEnabled()) {
             FILE_STORE_LOGGER.debugf("Loaded Credentials [%s] for Partition [%s].", filePartition.getCredentials().size(), filePartition.getId());
+        }
+
+        File permissionsFile = createFileIfNotExists(getWorkingDirFile(partitionId + File.separator + PERMISSIONS_FILE_NAME));
+
+        Map<String, List<FilePermission>> permissions = readObject(permissionsFile);
+
+        if (permissions == null) {
+            permissions = new ConcurrentHashMap<String, List<FilePermission>>();
+        }
+
+        filePartition.setPermissions(permissions);
+
+        if (isDebugEnabled()) {
+            FILE_STORE_LOGGER.debugf("Loaded Permissions [%s] for Partition [%s].", filePartition.getPermissions().size(), filePartition.getId());
         }
     }
 

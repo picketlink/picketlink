@@ -90,6 +90,11 @@ public class JDBCIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return this;
     }
 
+    @Override
+    public boolean supportsPermissions() {
+        return false;
+    }
+
     public Map<String,Class<?>> getCustomClassMapping(){
         return Collections.unmodifiableMap(customClassMapping);
     }

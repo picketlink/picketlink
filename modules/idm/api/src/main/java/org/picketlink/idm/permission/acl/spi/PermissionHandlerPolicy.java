@@ -18,14 +18,14 @@
 
 package org.picketlink.idm.permission.acl.spi;
 
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
 
 /**
  * Manages a set of PermissionHandler instances that overall define a "policy" for
@@ -61,7 +61,12 @@ public class PermissionHandlerPolicy {
             return String.class;
         }
 
+//        if (Class.class.isInstance(resource)) {
+//            return (Class<?>) resource;
+//        }
+
         PermissionHandler handler = getHandlerForResource(resource);
+
         if (handler == null) {
             throw new IdentityManagementException(String.format(
                     "No permission handler registered for resource [%s]", resource.toString()));
@@ -92,7 +97,14 @@ public class PermissionHandlerPolicy {
             for (PermissionHandler s : registeredHandlers) {
                 if (s.canHandle(resource.getClass())) {
                     handler = s;
-                    classHandlers.put(resource.getClass(), handler);
+
+                    Class<?> resourceClassKey = resource.getClass();
+
+                    if (Class.class.isInstance(resource)) {
+                        resourceClassKey = (Class<?>) resource;
+                    }
+
+                    classHandlers.put(resourceClassKey, handler);
                     break;
                 }
             }
