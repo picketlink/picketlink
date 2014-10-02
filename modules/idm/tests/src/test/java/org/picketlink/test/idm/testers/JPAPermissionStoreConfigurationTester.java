@@ -20,6 +20,7 @@ package org.picketlink.test.idm.testers;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PermissionTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
@@ -29,7 +30,6 @@ import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Realm;
-import org.picketlink.test.idm.permission.entity.BasicPermissionTypeEntity;
 import org.picketlink.test.idm.permission.entity.TypedPermissionTypeEntity;
 import org.picketlink.test.idm.util.JPAContextInitializer;
 
@@ -62,7 +62,7 @@ public class JPAPermissionStoreConfigurationTester implements IdentityConfigurat
                             AccountTypeEntity.class,
                             RoleTypeEntity.class,
                             GroupTypeEntity.class,
-                            BasicPermissionTypeEntity.class,
+                            PermissionTypeEntity.class,
                             TypedPermissionTypeEntity.class,
                             RelationshipTypeEntity.class,
                             RelationshipIdentityTypeEntity.class
