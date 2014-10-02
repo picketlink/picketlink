@@ -85,7 +85,7 @@ public interface IDMInternalMessages extends IDMMessages {
 
     @Message(id = 405, value = "Could not create contextual IdentityManager for Partition [%s]. Partition not found " +
             "or it was null.")
-    IdentityManagementException partitionCouldNotCreateIdentityManager(Partition partition);
+    IdentityManagementException partitionCouldNotCreateIdentityManager(Partition partition, @Cause Throwable t);
 
     @Message(id = 406, value = "Partition [%s] not found with the given name [%s].")
     IdentityManagementException partitionNotFoundWithName(Class<? extends Partition> type, String name);

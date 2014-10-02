@@ -1,12 +1,12 @@
 package org.picketlink.idm.permission.acl.spi;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
-
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.spi.IdentityContext;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Permission Store interface
@@ -14,6 +14,7 @@ import org.picketlink.idm.spi.IdentityContext;
  * @author Shane Bryzak
  */
 public interface PermissionStore {
+
     /**
      * Returns a List value containing all permissions for the specified resource.
      *
@@ -21,6 +22,14 @@ public interface PermissionStore {
      * @return
      */
     List<Permission> listPermissions(IdentityContext context, Object resource);
+
+    /**
+     * <p>Returns a list of all {@link org.picketlink.idm.permission.Permission} for the given {@link org.picketlink.idm.model.IdentityType}.</p>
+     *
+     * @param identityType
+     * @return
+     */
+    List<Permission> listPermissions(IdentityContext context, IdentityType identityType);
 
     /**
      * Returns a List value containing all permissions for the specified resource, having the specified operation

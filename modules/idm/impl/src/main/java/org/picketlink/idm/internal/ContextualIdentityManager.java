@@ -25,6 +25,7 @@ import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.Credentials;
@@ -41,6 +42,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.Unique;
+import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
@@ -70,13 +72,15 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
     private final StoreSelector storeSelector;
     private final RelationshipManager relationshipManager;
+    private final PermissionManager permissionManager;
 
     public ContextualIdentityManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
-                                     StoreSelector storeSelector, RelationshipManager relationshipManager) {
+                                     StoreSelector storeSelector, RelationshipManager relationshipManager, PermissionManager permissionManager) {
         super(partition, eventBridge, idGenerator);
         this.storeSelector = storeSelector;
         setParameter(IDENTITY_MANAGER_CTX_PARAMETER, this);
         this.relationshipManager = relationshipManager;
+        this.permissionManager = permissionManager;
     }
 
     @Override
@@ -130,6 +134,14 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
             for (Relationship relationship : query.getResultList()) {
                 this.relationshipManager.remove(relationship);
+            }
+
+            if (this.permissionManager != null) {
+                List<Permission> permissions = this.permissionManager.listPermissions(identityType);
+
+                for (Permission permission : permissions) {
+                    this.permissionManager.revokePermission(identityType, permission.getResourceClass(), permission.getOperation());
+                }
             }
 
             removeAllAttributes(identityType);
