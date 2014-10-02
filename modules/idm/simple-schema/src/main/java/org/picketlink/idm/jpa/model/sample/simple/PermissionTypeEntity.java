@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.test.idm.permission.entity;
+package org.picketlink.idm.jpa.model.sample.simple;
 
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PermissionOperation;
@@ -32,11 +32,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 /**
+ * <p>A simple entity mapping for permissions.</p>
+ *
  * @author Pedro Igor
  */
 @Entity
 @PermissionManaged
-public class BasicPermissionTypeEntity {
+public class PermissionTypeEntity {
 
     @Id
     @GeneratedValue
@@ -93,5 +95,5 @@ public class BasicPermissionTypeEntity {
     public void setOperation(String operation) {
         this.operation = operation;
     }
-
 }
+
