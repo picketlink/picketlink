@@ -404,6 +404,8 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
         result = entityManager.createQuery("from PermissionTypeEntity p").getResultList();
 
         assertEquals(1, result.size());
+
+        assertEquals(1, permissionManager.listPermissions(entity, "load").size());
     }
 
     public boolean hasPermission(IdentityType identityType, List<Permission> permissions) {

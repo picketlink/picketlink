@@ -1589,12 +1589,12 @@ public class JPAIdentityStore
             }
 
             if (resourceIdentifier != null) {
-                predicates.add(cb.equal(from.get(resourceIdentifierProperty.getName()), resourceIdentifier));
+                predicates.add(cb.equal(from.get(resourceIdentifierProperty.getName()), resourceIdentifier.toString()));
             }
 
-            IdentityType assignee = query.getAssignee();
+            if (query.getAssignee() != null) {
+                IdentityType assignee = query.getAssignee();
 
-            if (assignee != null) {
                 // Set the assignee, resource class and resource resourceIdentifier predicates
                 if (String.class.equals(ownerProperty.getBaseType())) {
                     predicates.add(cb.equal(from.get(ownerProperty.getName()), assignee.getId()));
@@ -1610,25 +1610,24 @@ public class JPAIdentityStore
 
             for (Object result : results) {
                 Object owner = ownerProperty.getValue(result);
+                IdentityType ownerIdentityType = null;
 
-                if (assignee == null) {
-                    // If the owner value is a String, then it must be an resourceIdentifier value
-                    if (String.class.equals(owner.getClass())) {
-                        assignee = lookupIdentityTypeById(ctx, IdentityType.class, (String) owner);
-                    } else {
-                        for (EntityMapper entityMapper : getEntityMappers()) {
-                            if (entityMapper.getMappingsFor(IdentityType.class) != null && entityMapper.isRoot()) {
-                                IdentityType identityType = entityMapper.<IdentityType>createType(owner, em);
-                                if (identityType != null) {
-                                    assignee = identityType;
-                                    break;
-                                }
+                // If the owner value is a String, then it must be an resourceIdentifier value
+                if (String.class.equals(owner.getClass())) {
+                    ownerIdentityType = lookupIdentityTypeById(ctx, IdentityType.class, (String) owner);
+                } else {
+                    for (EntityMapper entityMapper : getEntityMappers()) {
+                        if (entityMapper.getMappingsFor(IdentityType.class) != null && entityMapper.isRoot()) {
+                            IdentityType identityType = entityMapper.<IdentityType>createType(owner, em);
+                            if (identityType != null) {
+                                ownerIdentityType = identityType;
+                                break;
                             }
                         }
                     }
                 }
 
-                if (assignee == null) {
+                if (ownerIdentityType == null) {
                     throw new IdentityManagementException(String.format(
                         "Could not determine permission assignee [%s] for resource class [%s] with resourceIdentifier [%s]",
                         owner, resourceClass, resourceIdentifier));
@@ -1656,10 +1655,10 @@ public class JPAIdentityStore
                     for (String operationPermission : opSet.getOperations()) {
                         if (op.equals(operationPermission)) {
                             if (resource != null) {
-                                perms.add(new IdentityPermission(resource, assignee, op));
+                                perms.add(new IdentityPermission(resource, ownerIdentityType, op));
                             } else {
                                 perms.add(new IdentityPermission(resourceClass, (Serializable) resourceIdentifierProperty
-                                    .getValue(result), assignee, op));
+                                    .getValue(result), ownerIdentityType, op));
                             }
                         }
                     }
@@ -1838,50 +1837,51 @@ public class JPAIdentityStore
         private void adjustOperation(String operation, boolean mode) {
             Object operations = mapper.getProperty(PermissionOperation.class).getValue().getValue(entity);
 
+            if (operations == null) {
+                operations = "";
+            }
+
+            Object newOperations = operation;
+
             // Determine how the permission operations are stored - first check if bitmasks are used
-            if (perms != null) {
+            if (perms != null && perms.value().length > 0) {
                 AllowedOperation perm = null;
+                long ops = operations == null || isNullOrEmpty(operations.toString()) ? 0 : Long.valueOf(operations.toString());
 
-                for (AllowedOperation o : perms.value()) {
-                    if (o.value().equals(operation)) {
-                        perm = o;
-                        break;
-                    }
-                }
-
-                // Check if there is a bitmask value for the operation
-                if (perm != null && perm.mask() > 0) {
-
-                    // Convert the operations value to a long for convenience
-                    long ops = operations != null ? Long.valueOf(operations.toString()) : 0;
-                    if (mode) {
-                        ops |= perm.mask();
-                    } else {
-                        ops ^= perm.mask();
+                for (String op : asOperationList(operation)) {
+                    for (AllowedOperation o : perms.value()) {
+                        if (o.value().equals(op)) {
+                            perm = o;
+                            break;
+                        }
                     }
 
-                    if (String.class.equals(mapper.getProperty(PermissionOperation.class).getValue().getBaseType())) {
-                        mapper.getProperty(PermissionOperation.class).getValue().setValue(entity, Long.toString(ops));
-                    } else {
-                        // TODO may need to do some further type conversion here...
-                        mapper.getProperty(PermissionOperation.class).getValue().setValue(entity, ops);
-                    }
-
-                // Otherwise the operations should be stored as a comma-separated String
-                } else if (perm != null || (perm == null && perms.value().length == 0)) {
-                    mapper.getProperty(PermissionOperation.class).getValue().setValue(entity,
-                            adjustCSVOperation((String) mapper.getProperty(PermissionOperation.class).getValue().getValue(entity), operation, mode));
-                } else {
-                    // Trying to set an operation value that isn't defined - throw an exception
-                    throw new IllegalArgumentException(String.format(
+                    if (perm == null) {
+                        // Trying to set an operation value that isn't defined - throw an exception
+                        throw new IllegalArgumentException(String.format(
                             "Attempted to set illegal permission operation [%s] for resource [%s]",
-                            operation, resourceClass));
+                            op, resourceClass));
+                    }
+
+                    // Check if there is a bitmask value for the operation
+                    if (perm != null && perm.mask() > 0) {
+                        // Convert the operations value to a long for convenience
+                        if (mode) {
+                            ops |= perm.mask();
+                        } else {
+                            ops ^= perm.mask();
+                        }
+                    }
+
+                    if (ops > 0) {
+                        newOperations = ops;
+                    }
                 }
             } else {
-                mapper.getProperty(PermissionOperation.class).getValue().setValue(entity,
-                    adjustCSVOperation((String) mapper.getProperty(PermissionOperation.class).getValue()
-                        .getValue(entity), operation, mode));
+                newOperations = adjustCSVOperation(operations.toString(), newOperations.toString(), mode);
             }
+
+            mapper.getProperty(PermissionOperation.class).getValue().setValue(entity, newOperations.toString());
         }
     }
 
