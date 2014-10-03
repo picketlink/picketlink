@@ -63,7 +63,7 @@ public class ELFunctionMethods {
         ELEvaluationContext evaluationContext = ELEvaluationContext.get();
         Identity identity = evaluationContext.getIdentity();
 
-        return AuthorizationUtil.hasPermission(identity, resource, operation);
+        return AuthorizationUtil.hasPermission(identity, resource, null, null, operation);
     }
 
     /**

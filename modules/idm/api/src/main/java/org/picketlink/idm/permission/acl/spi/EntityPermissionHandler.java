@@ -1,5 +1,10 @@
 package org.picketlink.idm.permission.acl.spi;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.IdentityManagementException;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
@@ -8,10 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.picketlink.common.properties.Property;
-import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
-import org.picketlink.common.properties.query.PropertyQueries;
-import org.picketlink.idm.IdentityManagementException;
+import static org.picketlink.common.reflection.Reflections.classForName;
 
 /**
  *
@@ -31,8 +33,8 @@ public class EntityPermissionHandler extends BaseAbstractPermissionHandler {
 
     public EntityPermissionHandler() {
         try {
-            entityAnnotationClass = (Class<? extends Annotation>) Class.forName("javax.persistence.Entity");
-            idAnnotationClass = (Class<? extends Annotation>) Class.forName("javax.persistence.Id");
+            entityAnnotationClass = classForName("javax.persistence.Entity");
+            idAnnotationClass = classForName("javax.persistence.Id");
         } catch (ClassNotFoundException ex) {
             // Entity permissions not supported
         }

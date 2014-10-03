@@ -106,13 +106,11 @@ public class DefaultAuthorizationManager {
     public boolean hasPermission(InvocationContext invocationContext) {
         RequiresPermission requiresPermission = getAnnotation(invocationContext, RequiresPermission.class);
         String resource = requiresPermission.resource();
+        Class<?> resourceClass = requiresPermission.resourceClass();
+        String resourceIdentifier = requiresPermission.resourceIdentifier();
         String operation = requiresPermission.operation();
 
-        if (AuthorizationUtil.hasPermission(getIdentity(), resource, operation)) {
-            return true;
-        }
-
-        return false;
+        return AuthorizationUtil.hasPermission(getIdentity(), resource, resourceClass, resourceIdentifier, operation);
     }
 
     @Secures

@@ -48,5 +48,11 @@ public @interface RequiresPermission {
     String resource() default "";
 
     @Nonbinding
+    Class<?> resourceClass() default RequiresPermission.class;
+
+    @Nonbinding
+    String resourceIdentifier() default "";
+
+    @Nonbinding
     String operation() default "";
 }
