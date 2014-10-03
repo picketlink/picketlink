@@ -22,6 +22,7 @@
 package org.picketlink.test.idm.permission;
 
 import org.junit.Test;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.model.IdentityType;
@@ -33,6 +34,7 @@ import org.picketlink.idm.permission.IdentityPermission;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.permission.entity.AllowedOperationTypeEntity;
 import org.picketlink.test.idm.permission.entity.ProtectedEntity;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
@@ -406,6 +408,87 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
         assertEquals(1, result.size());
 
         assertEquals(1, permissionManager.listPermissions(entity, "load").size());
+    }
+
+    @Test
+    @Configuration(exclude = FileStoreConfigurationTester.class)
+    public void testGrantAllowedOperation() {
+        User bob = createUser("bob");
+        EntityManager entityManager = getEntityManager();
+        AllowedOperationTypeEntity entity = new AllowedOperationTypeEntity();
+
+        entityManager.persist(entity);
+
+        PermissionManager permissionManager = getPermissionManager();
+
+        permissionManager.grantPermission(bob, entity, "create");
+
+        assertEquals(1, permissionManager.listPermissions(entity, "create").size());
+
+        permissionManager.grantPermission(bob, entity, "delete");
+
+        List<Permission> permissions = permissionManager.listPermissions(entity, "delete");
+
+        List<String> operations = new ArrayList<String>();
+
+        for (Permission permission : permissions) {
+            operations.add(permission.getOperation());
+        }
+
+        assertEquals(1, permissions.size());
+        assertTrue(operations.contains("delete"));
+
+        permissions = permissionManager.listPermissions(entity, "delete, create");
+        operations = new ArrayList<String>();
+
+        for (Permission permission : permissions) {
+            operations.add(permission.getOperation());
+        }
+
+        assertEquals(2, permissions.size());
+        assertTrue(operations.contains("delete"));
+        assertTrue(operations.contains("create"));
+
+        permissionManager.grantPermission(bob, entity, "update, delete, create");
+
+        permissions = permissionManager.listPermissions(entity);
+        operations = new ArrayList<String>();
+
+        for (Permission permission : permissions) {
+            operations.add(permission.getOperation());
+        }
+
+        assertEquals(3, permissions.size());
+        assertTrue(operations.contains("delete"));
+        assertTrue(operations.contains("create"));
+        assertTrue(operations.contains("update"));
+
+        permissionManager.revokePermission(bob, entity, "delete");
+
+        permissions = permissionManager.listPermissions(entity);
+        operations = new ArrayList<String>();
+
+        for (Permission permission : permissions) {
+            operations.add(permission.getOperation());
+        }
+
+        assertEquals(2, permissions.size());
+        assertTrue(operations.contains("create"));
+        assertTrue(operations.contains("update"));
+    }
+
+    @Test (expected = IdentityManagementException.class)
+    @Configuration(exclude = FileStoreConfigurationTester.class)
+    public void testGrantInvalidAllowedOperation() {
+        User bob = createUser("bob");
+        EntityManager entityManager = getEntityManager();
+        AllowedOperationTypeEntity entity = new AllowedOperationTypeEntity();
+
+        entityManager.persist(entity);
+
+        PermissionManager permissionManager = getPermissionManager();
+
+        permissionManager.grantPermission(bob, entity, "insert");
     }
 
     public boolean hasPermission(IdentityType identityType, List<Permission> permissions) {
