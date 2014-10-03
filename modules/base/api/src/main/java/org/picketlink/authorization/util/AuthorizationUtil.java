@@ -39,6 +39,7 @@ import org.picketlink.idm.model.annotation.IdentityStereotype;
 import org.picketlink.idm.model.annotation.RelationshipStereotype;
 import org.picketlink.idm.model.annotation.StereotypeProperty;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,20 +78,34 @@ public class AuthorizationUtil {
      *
      * @param identity The {@link org.picketlink.Identity} instance representing an authenticated user.
      * @param resource The resource.
+     * @param resourceClass The resource class if specified.
+     * @param resourceIdentifier The resource identifier, if specified.
      * @param operation The operation.
-     *
-     * @return True if the user has permission. Otherwise, returns false.
      */
-    public static boolean hasPermission(Identity identity, Object resource, String operation) {
-        if (resource == null) {
-            throw new IllegalArgumentException("You must provide a resource in order to check a permission.");
+    public static boolean hasPermission(Identity identity, Object resource, Class<?> resourceClass, Serializable resourceIdentifier, String operation) {
+        if (resource == null && resourceClass == null) {
+            throw new IllegalArgumentException("You must provide a resource or resourceClass in order to check a permission.");
         }
 
         if (isNullOrEmpty(operation)) {
             throw new IllegalArgumentException("You must provide an operation in order to check a permission.");
         }
 
-        return isLoggedIn(identity) && identity.hasPermission(resource, operation);
+        if (!isLoggedIn(identity)) {
+            return false;
+        }
+
+        if (resource != null && !isNullOrEmpty(resource.toString())) {
+            return identity.hasPermission(resource, operation);
+        } else if (resourceClass != null) {
+            if (resourceIdentifier == null || isNullOrEmpty(resourceIdentifier.toString())) {
+                resourceIdentifier = null;
+            }
+
+            return identity.hasPermission(resourceClass, resourceIdentifier, operation);
+        }
+
+        return false;
     }
 
     /**

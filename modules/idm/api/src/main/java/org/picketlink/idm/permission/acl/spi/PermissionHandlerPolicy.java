@@ -61,10 +61,6 @@ public class PermissionHandlerPolicy {
             return String.class;
         }
 
-//        if (Class.class.isInstance(resource)) {
-//            return (Class<?>) resource;
-//        }
-
         PermissionHandler handler = getHandlerForResource(resource);
 
         if (handler == null) {
@@ -76,37 +72,35 @@ public class PermissionHandlerPolicy {
     }
 
     private PermissionHandler getHandlerForResource(Object resource) {
-        PermissionHandler handler = classHandlers.get(resource.getClass());
+        PermissionHandler handler = null;
 
-        if (handler == null) {
-            if (resource.getClass().isAnnotationPresent(PermissionsHandledBy.class)) {
-                Class<? extends PermissionHandler> handlerClass =
-                        resource.getClass().getAnnotation(PermissionsHandledBy.class).value();
+        if (resource.getClass().isAnnotationPresent(PermissionsHandledBy.class)) {
+            Class<? extends PermissionHandler> handlerClass =
+                    resource.getClass().getAnnotation(PermissionsHandledBy.class).value();
 
-                if (handlerClass != PermissionHandler.class) {
-                    try {
-                        handler = handlerClass.newInstance();
-                        classHandlers.put(resource.getClass(), handler);
-                    }
-                    catch (Exception ex) {
-                        throw new RuntimeException("Error instantiating IdentifierStrategy for object " + resource, ex);
-                    }
+            if (handlerClass != PermissionHandler.class) {
+                try {
+                    handler = handlerClass.newInstance();
+                    classHandlers.put(resource.getClass(), handler);
+                }
+                catch (Exception ex) {
+                    throw new RuntimeException("Error instantiating IdentifierStrategy for object " + resource, ex);
                 }
             }
+        }
 
-            for (PermissionHandler s : registeredHandlers) {
-                if (s.canHandle(resource.getClass())) {
-                    handler = s;
+        for (PermissionHandler s : registeredHandlers) {
+            if (s.canHandle(resource.getClass())) {
+                handler = s;
 
-                    Class<?> resourceClassKey = resource.getClass();
+                Class<?> resourceClassKey = resource.getClass();
 
-                    if (Class.class.isInstance(resource)) {
-                        resourceClassKey = (Class<?>) resource;
-                    }
-
-                    classHandlers.put(resourceClassKey, handler);
-                    break;
+                if (Class.class.isInstance(resource)) {
+                    resourceClassKey = (Class<?>) resource;
                 }
+
+                classHandlers.put(resourceClassKey, handler);
+                break;
             }
         }
 
