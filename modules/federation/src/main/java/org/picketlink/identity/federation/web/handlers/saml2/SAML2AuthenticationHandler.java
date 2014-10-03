@@ -156,6 +156,18 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
         }
     }
 
+    /**
+     * <p>This method is invoked right after the {@link org.picketlink.identity.federation.saml.v2.assertion.AssertionType} is created.</p>
+     *
+     * <p>Subclasses may override this method to perform any processing to the newly created assertion.</p>
+     *
+     * @param request
+     * @param assertion
+     */
+    protected void onAssertionCreated(SAML2HandlerRequest request, AssertionType assertion) {
+
+    }
+
     private class IDPAuthenticationHandler {
 
         public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
@@ -278,6 +290,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             // Add information on the roles
             AssertionType assertion = responseType.getAssertions().get(0).getAssertion();
+
+            onAssertionCreated(request, assertion);
 
             // Create an AuthnStatementType
             if (handlerConfig.getParameter(DISABLE_AUTHN_STATEMENT) == null) {

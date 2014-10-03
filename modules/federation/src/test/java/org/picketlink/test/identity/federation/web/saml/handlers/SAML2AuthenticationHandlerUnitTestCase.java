@@ -466,4 +466,99 @@ public class SAML2AuthenticationHandlerUnitTestCase {
 
         assertEquals(AuthnContextComparisonType.MINIMUM, requestedAuthnContextType.getComparison());
     }
+
+    @Test
+    public void handleAssertionCustomization() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
+
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        ProviderType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        // Create a Protocol Context
+        MockServletContext servletContext = createServletContext();
+        MockHttpSession session = new MockHttpSession();
+
+        session.setServletContext(servletContext);
+
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+
+        SAML2Object saml2Object = new SAML2Object() {
+        };
+
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+            SAML2Handler.HANDLER_TYPE.SP);
+        request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
+
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        handler.generateSAMLRequest(request, response);
+
+        Document samlReq = response.getResultingDocument();
+        SAMLParser parser = new SAMLParser();
+        AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(DocumentUtil.getNodeAsStream(samlReq));
+        NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
+        assertEquals(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get(), nameIDPolicy.getFormat().toString());
+
+        request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), new SAMLDocumentHolder(authnRequest),
+            SAML2Handler.HANDLER_TYPE.IDP);
+
+        handler = new CustomSAML2Authenticationhandler();
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        PicketLinkCoreSTS.instance().installDefaultConfiguration();
+
+        servletContext.setAttribute(GeneralConstants.IDENTITY_SERVER, new IdentityServer());
+
+        handler.handleRequestType(request, response);
+
+        Document resultingDocument = response.getResultingDocument();
+
+        assertNotNull(resultingDocument);
+
+        ResponseType responseType = (ResponseType) parser.parse(DocumentUtil.getNodeAsStream(resultingDocument));
+        AssertionType assertion = responseType.getAssertions().get(0).getAssertion();
+
+        assertNotNull(assertion);
+
+        SubjectType subject = assertion.getSubject();
+        STSubType subType = subject.getSubType();
+        NameIDType nameIDType = (NameIDType) subType.getBaseID();
+
+        assertEquals("changedNamedId", nameIDType.getValue());
+    }
+
+    private class CustomSAML2Authenticationhandler extends SAML2AuthenticationHandler {
+
+        @Override
+        protected void onAssertionCreated(SAML2HandlerRequest request, AssertionType assertion) {
+            SubjectType subject = assertion.getSubject();
+            STSubType subType = subject.getSubType();
+            NameIDType nameIDType = (NameIDType) subType.getBaseID();
+
+            nameIDType.setValue("changedNamedId");
+        }
+
+        @Override
+        public HANDLER_TYPE getType() {
+            return HANDLER_TYPE.IDP;
+        }
+    }
 }
