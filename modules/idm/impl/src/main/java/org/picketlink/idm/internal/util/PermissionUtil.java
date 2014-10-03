@@ -88,7 +88,7 @@ public class PermissionUtil {
 
         if (!isNullOrEmpty(operationsCSV)) {
             for (String operation : operationsCSV.split(",")) {
-                operations.add(operation);
+                operations.add(operation.trim());
             }
         }
 
