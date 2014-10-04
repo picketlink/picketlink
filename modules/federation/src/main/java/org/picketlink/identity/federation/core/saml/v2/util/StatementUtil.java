@@ -32,12 +32,15 @@ import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRef
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -117,7 +120,19 @@ public class StatementUtil {
                     att.setNameFormat(JBossSAMLURIConstants.ATTRIBUTE_FORMAT_URI.get());
                 }
 
-                att.addAttributeValue(value);
+                if (Collection.class.isInstance(value)) {
+                    Collection collection = (Collection) value;
+                    Iterator iterator = collection.iterator();
+
+                    while (iterator.hasNext()) {
+                        att.addAttributeValue(iterator.next());
+                    }
+                } else if (String.class.isInstance(value)) {
+                    att.addAttributeValue(value);
+                } else {
+                    throw new RuntimeException("Unsupported attribute value [" + value + "]. Values must be a string, even if using a Collection.");
+                }
+
                 attrStatement.addAttribute(new ASTChoiceType(att));
             }
         }
@@ -180,6 +195,32 @@ public class StatementUtil {
         attrStatement.addAttribute(new ASTChoiceType(attr));
 
         return attrStatement;
+    }
+
+    public static Map<String, Object> asMap(Set<AttributeStatementType> attributeStatementTypes) {
+        Map<String, Object> attrMap = new HashMap<String, Object>();
+
+        if (attributeStatementTypes != null && !attributeStatementTypes.isEmpty()) {
+            attrMap = new HashMap<String, Object>();
+
+            for (StatementAbstractType statement : attributeStatementTypes) {
+                if (statement instanceof AttributeStatementType) {
+                    AttributeStatementType attrStat = (AttributeStatementType) statement;
+                    List<ASTChoiceType> attrs = attrStat.getAttributes();
+                    for (ASTChoiceType attrChoice : attrs) {
+                        AttributeType attr = attrChoice.getAttribute();
+                        String attributeName = attr.getName();
+                        List<Object> values = attr.getAttributeValue();
+
+                        if (values != null) {
+                            attrMap.put(attributeName, values);
+                        }
+                    }
+                }
+            }
+        }
+
+        return attrMap;
     }
 
     private static AttributeType getX500Attribute(String name) {

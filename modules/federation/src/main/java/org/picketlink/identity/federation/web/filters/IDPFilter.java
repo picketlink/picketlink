@@ -116,7 +116,6 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.security.PublicKey;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -160,9 +159,7 @@ public class IDPFilter implements Filter {
 
     private TrustKeyManager keyManager;
 
-    private transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
-
-    private final List<String> attributeKeys = new ArrayList<String>();
+    private transient DelegatedAttributeManager attribManager;
 
     private transient SAML2HandlerChain chain = null;
 
@@ -525,7 +522,7 @@ public class IDPFilter implements Filter {
                 List<String> roles = roleGenerator.generateRoles(userPrincipal);
                 session.setAttribute(GeneralConstants.ROLES_ID, roles);
 
-                Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
+                Map<String, Object> attribs = this.attribManager.getAttributesMap((AuthnRequestType) requestAbstractType, userPrincipal);
                 requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
             }
 
@@ -1095,7 +1092,11 @@ public class IDPFilter implements Filter {
                 if (clazz == null)
                     throw new RuntimeException(logger.classNotLoadedError(attributeManager));
                 AttributeManager delegate = (AttributeManager) clazz.newInstance();
-                this.attribManager.setDelegate(delegate);
+                // Add some keys to the attibutes
+                String[] ak = new String[] { "mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
+                    "facsimileTelephoneNumber" };
+
+                this.attribManager = new DelegatedAttributeManager(delegate, Arrays.asList(ak));
             }
 
             // Get the role generator
@@ -1195,12 +1196,6 @@ public class IDPFilter implements Filter {
         initKeyManager();
         initHandlersChain();
         initIdentityServer();
-
-        // Add some keys to the attibutes
-        String[] ak = new String[] { "mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
-                "facsimileTelephoneNumber" };
-
-        this.attributeKeys.addAll(Arrays.asList(ak));
 
         if (this.picketLinkConfiguration == null) {
             this.picketLinkConfiguration = new PicketLinkType();

@@ -23,6 +23,7 @@ import org.w3c.dom.Element;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -220,6 +221,21 @@ public class AssertionType extends CommonAssertionType {
      */
     public void setSignature(Element signature) {
         this.signature = signature;
+    }
+
+    public Set<AttributeStatementType> getAttributeStatements() {
+        Set<AttributeStatementType> attributeStatements = new HashSet<AttributeStatementType>();
+        Set<StatementAbstractType> statements = getStatements();
+
+        if (statements != null) {
+            for (StatementAbstractType statement : statements) {
+                if (AttributeStatementType.class.isInstance(statement)) {
+                    attributeStatements.add((AttributeStatementType) statement);
+                }
+            }
+        }
+
+        return attributeStatements;
     }
 
     /**
