@@ -36,6 +36,9 @@ public interface AttributeManager {
      * @param attributeKeys
      *
      * @return
+     *
+     * @deprecated Prefer using {@link org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2AttributeManager#getAttributes(org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType, java.security.Principal)}.
      */
+    @Deprecated()
     Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys);
 }

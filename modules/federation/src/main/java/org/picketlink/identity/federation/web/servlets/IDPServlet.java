@@ -110,7 +110,7 @@ public class IDPServlet extends HttpServlet {
 
     protected transient RoleGenerator roleGenerator = new DefaultRoleGenerator();
 
-    protected transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
+    protected transient DelegatedAttributeManager attribManager;
 
     protected List<String> attributeKeys = new ArrayList<String>();
 
@@ -206,12 +206,19 @@ public class IDPServlet extends HttpServlet {
             log.info("IDPServlet:: Setting the CanonicalizationMethod on XMLSignatureUtil::" + canonicalizationMethod);
             XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
 
+
+            // Get a list of attributes we are interested in
+            String attribList = config.getInitParameter(GeneralConstants.ATTRIBUTE_KEYS);
+            if (StringUtil.isNotNull(attribList)) {
+                this.attributeKeys.addAll(StringUtil.tokenize(attribList));
+            }
+
             // Get the attribute manager
             String attributeManager = idpConfiguration.getAttributeManager();
             if (attributeManager != null && !"".equals(attributeManager)) {
                 AttributeManager delegate = (AttributeManager) SecurityActions.loadClass(getClass(), attributeManager)
                         .newInstance();
-                this.attribManager.setDelegate(delegate);
+                this.attribManager = new DelegatedAttributeManager(delegate, this.attributeKeys);
             }
 
             // Get the handlers
@@ -272,12 +279,6 @@ public class IDPServlet extends HttpServlet {
         String rgString = config.getInitParameter(GeneralConstants.ROLE_GENERATOR);
         if (rgString != null && !"".equals(rgString))
             this.setRoleGenerator(rgString);
-
-        // Get a list of attributes we are interested in
-        String attribList = config.getInitParameter(GeneralConstants.ATTRIBUTE_KEYS);
-        if (StringUtil.isNotNull(attribList)) {
-            this.attributeKeys.addAll(StringUtil.tokenize(attribList));
-        }
 
         // The Identity Server on the servlet context gets set
         // in the implementation of IdentityServer
