@@ -300,4 +300,18 @@ public class AuthnRequestType extends RequestAbstractType {
     public void setProviderName(String value) {
         this.providerName = value;
     }
+
+    public URI getSenderURL() {
+        URI senderURL = getAssertionConsumerServiceURL();
+
+        if (senderURL == null) {
+            senderURL = URI.create(getIssuer().getValue());
+        }
+
+        if (senderURL == null) {
+            throw new RuntimeException("Could not resolve sender URL. AuthnRequest must have a value for AssertionConsumerServiceURL or Issuer.");
+        }
+
+        return senderURL;
+    }
 }
