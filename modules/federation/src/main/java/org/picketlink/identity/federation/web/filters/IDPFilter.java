@@ -582,7 +582,7 @@ public class IDPFilter implements Filter {
                     if (destination == null && samlObject instanceof AuthnRequestType) {
                         AuthnRequestType authRequest = (AuthnRequestType) samlObject;
 
-                        destination = authRequest.getAssertionConsumerServiceURL().toASCIIString();
+                        destination = authRequest.getSenderURL().toASCIIString();
                     }
 
                     // if destination is still empty redirect the user to the identity url. If the user is already authenticated he
