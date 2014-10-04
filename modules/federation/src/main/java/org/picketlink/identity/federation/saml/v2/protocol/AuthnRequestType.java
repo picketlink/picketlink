@@ -18,6 +18,7 @@
 package org.picketlink.identity.federation.saml.v2.protocol;
 
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -302,16 +303,22 @@ public class AuthnRequestType extends RequestAbstractType {
     }
 
     public URI getSenderURL() {
-        URI senderURL = getAssertionConsumerServiceURL();
+        URI assertionConsumerServiceURL = getAssertionConsumerServiceURL();
 
-        if (senderURL == null) {
-            senderURL = URI.create(getIssuer().getValue());
+        if (assertionConsumerServiceURL != null) {
+            return assertionConsumerServiceURL;
         }
 
-        if (senderURL == null) {
-            throw new RuntimeException("Could not resolve sender URL. AuthnRequest must have a value for AssertionConsumerServiceURL or Issuer.");
+        NameIDType issuer = getIssuer();
+
+        try {
+            if (issuer != null) {
+                return URI.create(issuer.getValue());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not resolve sender URL using the Issuer value [" + issuer.getValue() + "]." , e);
         }
 
-        return senderURL;
+        throw new RuntimeException("Could not resolve sender URL. AuthnRequest must have a value for AssertionConsumerServiceURL or Issuer.");
     }
 }
