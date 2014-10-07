@@ -93,6 +93,10 @@ public class STSClientConfig implements STSClientConfigKeyProvider {
 
     public static final String SOAP_BINDING = "soapBinding";
 
+    public static final String NO_MODULE = "NO_MODULE";
+
+    public static final String SUBSTITUTE_MODULE = "${module}";
+
     private final String serviceName;
 
     private final String portName;
@@ -377,11 +381,17 @@ public class STSClientConfig implements STSClientConfigKeyProvider {
 
     @Override
     public String getSTSClientConfigKey() {
-        return computeSTSClientConfigKey(this.serviceName, this.portName, this.endpointAddress, this.getUsername());
+        return computeSTSClientConfigKey(SUBSTITUTE_MODULE, this.serviceName, this.portName, this.endpointAddress, this.getUsername());
     }
 
-    public static String computeSTSClientConfigKey(String serviceName, String portName, String endPointAddress, String userName) {
-        return serviceName + "|" + portName + "|" + endPointAddress + "|" + userName;
+    public static String computeSTSClientConfigKey(String module, String serviceName, String portName, String endPointAddress, String userName) {
+        if (module != null) {
+            return module + "|" + serviceName + "|" + portName + "|" + endPointAddress + "|" + userName;
+        }
+        else {
+            return NO_MODULE + "|" + serviceName + "|" + portName + "|" + endPointAddress + "|" + userName;
+        }
+
     }
 
 }

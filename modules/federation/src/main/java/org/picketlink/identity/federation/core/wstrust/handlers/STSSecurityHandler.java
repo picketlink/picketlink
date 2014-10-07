@@ -24,6 +24,7 @@ import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.STSClientPool;
 import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
 import org.w3c.dom.Element;
 
@@ -40,6 +41,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -208,7 +210,10 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
             throwInvalidSecurity();
         } finally {
             if (stsClient != null) {
-                STSClientFactory.getInstance().returnClient(stsClient);
+                STSClientPool pool = STSClientFactory.getInstance();
+                if (pool != null) {
+                    pool.returnClient(stsClient);
+                }
             }
         }
 
@@ -323,11 +328,11 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
     }
 
     STSClient createSTSClient(final STSClientConfig config) throws ParsingException {
-        STSClientFactory factory = STSClientFactory.getInstance();
-        if (factory.configExists(config) == false) {
-            factory.createPool(config);
+        STSClientPool pool = STSClientFactory.getInstance();
+        if (pool.configExists(config) == false) {
+            pool.createPool(config);
         }
-        return factory.getClient(config);
+        return pool.getClient(config);
     }
 
     private boolean isOutBound(final SOAPMessageContext messageContext) {
