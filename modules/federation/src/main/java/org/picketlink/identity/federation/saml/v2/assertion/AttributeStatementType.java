@@ -75,6 +75,10 @@ public class AttributeStatementType extends StatementAbstractType {
         return Collections.unmodifiableList(this.attributes);
     }
 
+    public void addAttributes(List<ASTChoiceType> attributes) {
+        this.attributes.addAll(attributes);
+    }
+
     public static class ASTChoiceType implements Serializable {
 
         private static final long serialVersionUID = 1L;
