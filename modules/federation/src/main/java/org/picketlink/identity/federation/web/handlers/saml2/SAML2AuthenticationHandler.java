@@ -115,6 +115,8 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  */
 public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
+    public static final String SINGLE_ATTRIBUTE_STATEMENT = "SINGLE_ATTRIBUTE_STATEMENT";
+
     private final IDPAuthenticationHandler idp = new IDPAuthenticationHandler();
 
     private final SPAuthenticationHandler sp = new SPAuthenticationHandler();
@@ -348,8 +350,18 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             List<AttributeStatementType> attributeStatements = getAttributeStatements(request);
 
             if (attributeStatements != null) {
-                for (AttributeStatementType attributeStatementType : attributeStatements) {
-                    assertion.addStatement(attributeStatementType);
+                if (isSingleAttributeStatement()) {
+                    AttributeStatementType singleStatement = new AttributeStatementType();
+
+                    for (AttributeStatementType statement : attributeStatements) {
+                        singleStatement.addAttributes(statement.getAttributes());
+                    }
+
+                    assertion.addStatement(singleStatement);
+                } else {
+                    for (AttributeStatementType attributeStatementType : attributeStatements) {
+                        assertion.addStatement(attributeStatementType);
+                    }
                 }
             }
 
@@ -398,6 +410,10 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             // Use first endpoint for now (Maybe later we can find logoutType according to bindingType from SAMLRequest)
             EndpointType logoutEndpoint = logoutEndpoints.get(0);
             return logoutEndpoint.getLocation().toASCIIString();
+        }
+
+        private boolean isSingleAttributeStatement() {
+            return handlerConfig.getParameter(SINGLE_ATTRIBUTE_STATEMENT) != null ? Boolean.valueOf(handlerConfig.getParameter(SINGLE_ATTRIBUTE_STATEMENT).toString()) : false;
         }
     }
 

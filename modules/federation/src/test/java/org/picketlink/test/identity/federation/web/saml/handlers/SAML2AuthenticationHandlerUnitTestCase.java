@@ -83,6 +83,7 @@ import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -327,6 +328,123 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         }
 
         assertTrue(processedAttributeStatement);
+    }
+
+    @Test
+    public void testSingleAttributeStatement() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
+        handlerConfig.addParameter(SAML2AuthenticationHandler.SINGLE_ATTRIBUTE_STATEMENT, true);
+
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        ProviderType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = createServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+
+        SAML2Object saml2Object = new SAML2Object() {
+        };
+
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+            SAML2Handler.HANDLER_TYPE.SP);
+        request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
+
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        handler.generateSAMLRequest(request, response);
+
+        Document samlReq = response.getResultingDocument();
+        SAMLParser parser = new SAMLParser();
+        AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(DocumentUtil.getNodeAsStream(samlReq));
+        NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
+        assertEquals(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get(), nameIDPolicy.getFormat().toString());
+
+        ProviderType idpType = new IDPType();
+        chainOptions = new HashMap<String, Object>();
+        chainOptions.put(GeneralConstants.CONFIGURATION, idpType);
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        IdentityServer identityServer = new IdentityServer();
+        servletContext.setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer);
+
+        //Add roles to session to be picked up by the handler
+        List<String> roles = new ArrayList<String>();
+        roles.add("role1");
+        roles.add("role2");
+        session.setAttribute(GeneralConstants.ROLES_ID, roles);
+
+        httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+        docHolder = new SAMLDocumentHolder(authnRequest, null);
+        request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+            SAML2Handler.HANDLER_TYPE.IDP);
+
+        HashMap<String, Object> attributesMap = new HashMap<String, Object>();
+
+        attributesMap.put("attribute1", "attributeValue1");
+        attributesMap.put("attribute2", Arrays.asList(new String[] {"attributeValue2", "attributeValue22"}));
+
+        request.addOption(GeneralConstants.ATTRIBUTES, attributesMap);
+
+        PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+        sts.installDefaultConfiguration(null);
+
+        handler.handleRequestType(request, response);
+        samlReq = response.getResultingDocument();
+        parser = new SAMLParser();
+        ResponseType responseType = (ResponseType) parser.parse(DocumentUtil.getNodeAsStream(samlReq));
+        AssertionType assertion = responseType.getAssertions().get(0).getAssertion();
+        assertNotNull(assertion);
+
+        Set<StatementAbstractType> statements = assertion.getStatements();
+        Iterator<StatementAbstractType> iter = statements.iterator();
+        int countAttributeStatement = 0;
+        AttributeStatementType attributeStatementType = null;
+
+        while (iter.hasNext()) {
+            StatementAbstractType statement = iter.next();
+
+            if (statement instanceof AuthnStatementType) {
+                continue;
+            }
+
+            if (statement instanceof AttributeStatementType) {
+                countAttributeStatement++;
+                attributeStatementType = (AttributeStatementType) statement;
+            }
+        }
+
+        assertEquals(1, countAttributeStatement);
+        assertNotNull(attributeStatementType);
+
+        Map<String, Object> attributes = new HashMap<String, Object>();
+
+        for (AttributeStatementType.ASTChoiceType attribute : attributeStatementType.getAttributes()) {
+            attributes.put(attribute.getAttribute().getName(), attribute.getAttribute().getAttributeValue());
+        }
+
+        assertTrue(attributes.containsKey("Role"));
+        assertTrue(attributes.containsKey("attribute1"));
+        assertTrue(attributes.containsKey("attribute2"));
     }
 
     @Test
