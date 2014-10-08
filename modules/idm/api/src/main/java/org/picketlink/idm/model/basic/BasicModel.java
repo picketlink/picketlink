@@ -129,8 +129,8 @@ public class BasicModel {
     /**
      * <p> Returns a {@link Group} instance with the specified <code>groupPath</code>. Eg.: /groupA/groupB/groupC. </p>
      *
-     * @param groupPath The group's path or its name only without the group separator. In this last case, the group
-     * returned will be the root group. Eg.: Administrators == /Administrators.
+     * @param groupPath The group's path or its name without the group separator. In this last case, the returned group
+     * will be the root group. Eg.: Administrators == /Administrators.
      *
      * @return An {@link Group} instance or null if the <code>groupPath</code> is null or an empty string.
      *
@@ -161,7 +161,7 @@ public class BasicModel {
             List<Group> result = query.getResultList();
 
             for (Group group : result) {
-                if (group.getPath().equals(groupPath)) {
+                if (group.getPath().equals(groupPath) || group.getPath().endsWith(groupPath)) {
                     return group;
                 }
             }
