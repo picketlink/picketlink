@@ -30,7 +30,6 @@
     <module>api</module>
     <module>impl</module>
     <module>simple-schema</module>
-    <module>complex-schema</module>
     <module>tests</module>
     <module>drools</module>
   </modules>

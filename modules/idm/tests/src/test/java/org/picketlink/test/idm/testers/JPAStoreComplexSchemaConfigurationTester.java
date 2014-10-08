@@ -19,24 +19,24 @@ package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
-import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
-import org.picketlink.idm.jpa.model.sample.complex.entity.Application;
-import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAttribute;
-import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAuthorization;
-import org.picketlink.idm.jpa.model.sample.complex.entity.Company;
-import org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute;
-import org.picketlink.idm.jpa.model.sample.complex.entity.Email;
-import org.picketlink.idm.jpa.model.sample.complex.entity.Employee;
-import org.picketlink.idm.jpa.model.sample.complex.entity.IdentityObject;
-import org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit;
-import org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnitAttribute;
-import org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipAttribute;
-import org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipIdentityTypeEntity;
-import org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipTypeEntity;
-import org.picketlink.idm.jpa.model.sample.complex.entity.UserAccount;
-import org.picketlink.idm.jpa.model.sample.complex.entity.UserAccountControl;
-import org.picketlink.idm.jpa.model.sample.complex.entity.UserAttribute;
+import org.picketlink.test.idm.identitymodel.complex.model.CustomerUser;
+import org.picketlink.test.idm.identitymodel.complex.model.EmployeeUser;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.ApplicationAuthorizationEntity;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.ApplicationEntity;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.ApplicationAttribute;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.CompanyEntity;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.CompanyAttribute;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.Email;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.Employee;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.IdentityObject;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.OrganizationUnitEntity;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.OrganizationUnitAttribute;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.RelationshipAttribute;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.RelationshipIdentityTypeEntity;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.RelationshipTypeEntity;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.UserAccount;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.UserAccountControl;
+import org.picketlink.test.idm.identitymodel.complex.model.entity.UserAttribute;
 import org.picketlink.test.idm.util.JPAContextInitializer;
 
 import javax.persistence.EntityManager;
@@ -64,10 +64,10 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                 .jpa()
                 .mappedEntity(
                         Employee.class,
-                        Application.class,
+                        ApplicationEntity.class,
                         ApplicationAttribute.class,
                         IdentityObject.class,
-                        Company.class,
+                        CompanyEntity.class,
                         Email.class,
                         Employee.class,
                         UserAttribute.class,
@@ -75,11 +75,11 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                         UserAccount.class,
                         RelationshipAttribute.class,
                         UserAccountControl.class,
-                        OrganizationUnit.class,
+                        OrganizationUnitEntity.class,
                         OrganizationUnitAttribute.class,
                         RelationshipTypeEntity.class,
                         RelationshipIdentityTypeEntity.class,
-                        ApplicationAuthorization.class
+                        ApplicationAuthorizationEntity.class
                 )
                 .addContextInitializer(new JPAContextInitializer(null) {
                     @Override
@@ -88,13 +88,13 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                     }
                 })
                 .supportType(
-                    org.picketlink.idm.jpa.model.sample.complex.Application.class,
-                    org.picketlink.idm.jpa.model.sample.complex.Company.class,
+                    org.picketlink.test.idm.identitymodel.complex.model.Application.class,
+                    org.picketlink.test.idm.identitymodel.complex.model.Company.class,
                     CustomerUser.class,
                     EmployeeUser.class,
-                    org.picketlink.idm.jpa.model.sample.complex.OrganizationUnit.class)
+                    org.picketlink.test.idm.identitymodel.complex.model.OrganizationUnit.class)
                 .supportGlobalRelationship(
-                    org.picketlink.idm.jpa.model.sample.complex.ApplicationAuthorization.class
+                    org.picketlink.test.idm.identitymodel.complex.model.ApplicationAuthorization.class
                 )
                 .supportAttributes(true);
 
