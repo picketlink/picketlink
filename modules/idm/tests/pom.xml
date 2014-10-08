@@ -47,11 +47,6 @@
     </dependency>
     <dependency>
       <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-idm-complex-schema</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.picketlink</groupId>
       <artifactId>picketlink-config</artifactId>
       <scope>test</scope>
     </dependency>

@@ -155,27 +155,27 @@
   </persistence-unit>
 
   <persistence-unit name="complex-schema-tests-pu" transaction-type="RESOURCE_LOCAL">
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Address</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAccount</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAccountControl</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Employee</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Customer</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnitAttribute</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Country</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Application</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAttribute</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Company</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Email</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Person</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Phone</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAttribute</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipTypeEntity</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipIdentityTypeEntity</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipAttribute</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAuthorization</class>
-    <class>org.picketlink.idm.jpa.model.sample.complex.entity.IdentityObject</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.Address</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.UserAccount</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.UserAccountControl</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.Employee</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.Customer</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.OrganizationUnitEntity</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.OrganizationUnitAttribute</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.Country</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.ApplicationEntity</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.ApplicationAttribute</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.CompanyEntity</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.Email</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.Person</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.Phone</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.UserAttribute</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.CompanyAttribute</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.RelationshipTypeEntity</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.RelationshipIdentityTypeEntity</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.RelationshipAttribute</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.ApplicationAuthorizationEntity</class>
+    <class>org.picketlink.test.idm.identitymodel.complex.model.entity.IdentityObject</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -312,4 +312,47 @@
       <property name="eclipselink.logging.level" value="INFO" />
     </properties>
   </persistence-unit>
+
+  <persistence-unit name="picketlink-saas-identity-model-pu">
+
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.ApplicationAccessTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.ApplicationTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.ApplicationRealmTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.GrantTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.GroupMembershipTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.GroupTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.RealmTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.RoleTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.UserTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.PasswordCredentialTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.PartitionTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.AbstractIdentityTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.RelationshipTypeEntity</class>
+        <class>org.picketlink.test.idm.identitymodel.saas.model.entity.RelationshipIdentityTypeEntity</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:picketlink-saas-identity-model-pu"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+			<property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true"/>
+
+            <!-- EclipseLink Properties-->
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:picketlink-saas-identity-model-pu;MVCC=TRUE"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+            <property name="eclipselink.deploy-on-startup" value="true" />
+            <property name="eclipselink.logging.level" value="INFO" />
+        </properties>
+
+	</persistence-unit>
 </persistence>
