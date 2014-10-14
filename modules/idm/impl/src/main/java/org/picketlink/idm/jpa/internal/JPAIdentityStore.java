@@ -72,10 +72,18 @@ import org.picketlink.idm.permission.acl.spi.PermissionStore;
 import org.picketlink.idm.permission.annotations.AllowedOperation;
 import org.picketlink.idm.permission.annotations.AllowedOperations;
 import org.picketlink.idm.query.AttributeParameter;
+import org.picketlink.idm.query.Condition;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
+import org.picketlink.idm.query.Sort;
+import org.picketlink.idm.query.internal.BetweenCondition;
+import org.picketlink.idm.query.internal.EqualCondition;
+import org.picketlink.idm.query.internal.GreaterThanCondition;
+import org.picketlink.idm.query.internal.InCondition;
+import org.picketlink.idm.query.internal.LessThanCondition;
+import org.picketlink.idm.query.internal.LikeCondition;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
@@ -416,18 +424,25 @@ public class JPAIdentityStore
         List<V> result = new ArrayList<V>();
         Class<V> type = identityQuery.getIdentityType();
 
-        if (identityQuery.getParameter(IdentityType.ID) != null) {
-            Object[] parameter = identityQuery.getParameter(IdentityType.ID);
-
-            if (parameter.length > 0) {
-                V identityType = (V) lookupIdentityTypeById(context, type, parameter[0].toString());
-
-                if (identityType != null) {
-                    result.add(identityType);
+        for (Condition condition : identityQuery.getConditions()) {
+            if (IdentityType.ID.equals(condition.getParameter())) {
+                if (!EqualCondition.class.isInstance(condition)) {
+                    throw new IdentityManagementException("Only equality conditions are allowed when queryng based on the identifier.");
                 }
-            }
 
-            return result;
+                EqualCondition equalCondition = (EqualCondition) condition;
+                Object value = equalCondition.getValue();
+
+                if (value != null) {
+                    V identityType = (V) lookupIdentityTypeById(context, type, value.toString());
+
+                    if (identityType != null) {
+                        result.add(identityType);
+                    }
+                }
+
+                return result;
+            }
         }
 
         EntityMapper rootMapper = getRootMapper(type);
@@ -438,8 +453,19 @@ public class JPAIdentityStore
         Root<?> rootEntity = cq.from(rootMapper.getEntityType());
         Partition partition = context.getPartition();
 
-        if (identityQuery.getParameter(IdentityType.PARTITION) != null) {
-            partition = (Partition) identityQuery.getParameter(IdentityType.PARTITION)[0];
+        for (Condition condition : identityQuery.getConditions()) {
+            if (IdentityType.PARTITION.equals(condition.getParameter())) {
+                if (!EqualCondition.class.isInstance(condition)) {
+                    throw new IdentityManagementException("Only equality conditions are allowed when queryng based on a partition.");
+                }
+
+                EqualCondition equalCondition = (EqualCondition) condition;
+                Object value = equalCondition.getValue();
+
+                if (value != null) {
+                    partition = (Partition) value;
+                }
+            }
         }
 
         Entry<Property, Property> partitionProperty = rootMapper.getProperty(OwnerReference.class);
@@ -454,14 +480,15 @@ public class JPAIdentityStore
             predicates.add(cb.equal(rootEntity.get(typeProperty.getName()), type.getName()));
         }
 
-        for (QueryParameter queryParameter : identityQuery.getParameters().keySet()) {
+        for (Condition condition : identityQuery.getConditions()) {
+            QueryParameter queryParameter = condition.getParameter();
+
             if (IdentityType.PARTITION.equals(queryParameter)) {
                 continue;
             }
 
             if (AttributeParameter.class.isInstance(queryParameter)) {
                 AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
-                Object[] parameterValues = identityQuery.getParameter(attributeParameter);
                 EntityMapper parameterEntityMapper =
                         getEntityMapperForProperty(type, attributeParameter.getName());
 
@@ -483,26 +510,9 @@ public class JPAIdentityStore
                         }
                     }
 
-                    Object parameterValue = parameterValues[0];
-
-                    if (IdentityType.CREATED_AFTER.equals(queryParameter) || IdentityType.EXPIRY_AFTER.equals(queryParameter)) {
-                        predicates.add(cb
-                                       .greaterThanOrEqualTo(attributeOwnerEntity.<Date>get(attributeProperty.getName()), (Date) parameterValue));
-                    } else if (IdentityType.CREATED_BEFORE.equals(queryParameter) || IdentityType.EXPIRY_BEFORE.equals(queryParameter)) {
-                        predicates.add(cb.lessThanOrEqualTo(attributeOwnerEntity.<Date>get(attributeProperty.getName()), (Date) parameterValue));
-                    } else {
-                        if (isMappedType(attributeProperty.getJavaClass())) {
-                            AttributedType ownerType = (AttributedType) parameterValue;
-
-                            if (ownerType != null) {
-                                parameterValue = entityManager.find(attributeProperty.getJavaClass(), ownerType.getId());
-                            }
-                        }
-
-                        predicates.add(cb.equal(attributeOwnerEntity.get(attributeProperty.getName()), parameterValue));
-                    }
+                    addCondition(entityManager, cb, predicates, condition, attributeProperty, attributeOwnerEntity, false);
                 } else if (getConfig().supportsAttribute()) {
-                    addAttributeQueryPredicates(type, cb, cq, rootEntity, predicates, attributeParameter, parameterValues);
+                    addAttributeQueryPredicates(type, entityManager, cb, cq, rootEntity, predicates, attributeParameter, condition, null);
                 }
             }
         }
@@ -513,27 +523,23 @@ public class JPAIdentityStore
 
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
-        QueryParameter[] sortParameters = identityQuery.getSortParameters();
-
-        if (sortParameters != null) {
+        if (!identityQuery.getSorting().isEmpty()) {
             List<Order> orders = new ArrayList<Order>();
 
-            for (QueryParameter queryParameter : sortParameters) {
+            for (Sort sort : identityQuery.getSorting()) {
+                QueryParameter queryParameter = sort.getParameter();
+
                 if (!AttributeParameter.class.isInstance(queryParameter)) {
-                    throw new IdentityManagementException("Sorting query parameter is not a [" + AttributeParameter.class + "].");
+                    throw new IdentityManagementException("Sorting parameter is not a [" + AttributeParameter.class + "].");
                 }
 
                 AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
 
-                Order order;
-
-                if (identityQuery.isSortAscending()) {
-                    order = cb.asc(rootEntity.get(attributeParameter.getName()));
+                if (sort.isAscending()) {
+                    orders.add(cb.asc(rootEntity.get(attributeParameter.getName())));
                 } else {
-                    order = cb.desc(rootEntity.get(attributeParameter.getName()));
+                    orders.add(cb.desc(rootEntity.get(attributeParameter.getName())));
                 }
-
-                orders.add(order);
             }
 
             cq.orderBy(orders);
@@ -554,6 +560,95 @@ public class JPAIdentityStore
         }
 
         return result;
+    }
+
+    private void addCondition(EntityManager entityManager,
+        CriteriaBuilder cb,
+        List<Predicate> predicates,
+        Condition condition,
+        Property attributeProperty,
+        Root<?> attributeOwnerEntity,
+        boolean convertValueToBase64) {
+        if (EqualCondition.class.isInstance(condition)) {
+            EqualCondition equalCondition = (EqualCondition) condition;
+            Object parameterValue = equalCondition.getValue();
+
+            if (convertValueToBase64) {
+                parameterValue = Base64.encodeObject((Serializable) parameterValue);
+            }
+
+            if (isMappedType(attributeProperty.getJavaClass())) {
+                AttributedType ownerType = (AttributedType) parameterValue;
+
+                if (ownerType != null) {
+                    parameterValue = entityManager.find(attributeProperty.getJavaClass(), ownerType.getId());
+                }
+            }
+
+            predicates.add(cb.equal(attributeOwnerEntity.get(attributeProperty.getName()), parameterValue));
+        } else if (LikeCondition.class.isInstance(condition)) {
+            LikeCondition likeCondition = (LikeCondition) condition;
+            String parameterValue = (String) likeCondition.getValue();
+
+            if (convertValueToBase64) {
+                parameterValue = Base64.encodeObject((Serializable) parameterValue);
+            }
+
+            predicates.add(cb.like(attributeOwnerEntity.<String>get(attributeProperty.getName()), parameterValue));
+        } else if (GreaterThanCondition.class.isInstance(condition)) {
+            GreaterThanCondition greaterThanCondition = (GreaterThanCondition) condition;
+            Comparable parameterValue = (Comparable) greaterThanCondition.getValue();
+
+            if (convertValueToBase64) {
+                parameterValue = Base64.encodeObject((Serializable) parameterValue);
+            }
+
+            if (greaterThanCondition.isOrEqual()) {
+                predicates.add(cb
+                    .greaterThanOrEqualTo(attributeOwnerEntity.<Comparable>get(attributeProperty.getName()), parameterValue));
+            } else {
+                predicates.add(cb
+                    .greaterThan(attributeOwnerEntity.<Comparable>get(attributeProperty.getName()), parameterValue));
+            }
+        } else if (LessThanCondition.class.isInstance(condition)) {
+            LessThanCondition lessThanCondition = (LessThanCondition) condition;
+            Comparable parameterValue = (Comparable) lessThanCondition.getValue();
+
+            if (convertValueToBase64) {
+                parameterValue = Base64.encodeObject((Serializable) parameterValue);
+            }
+
+            if (lessThanCondition.isOrEqual()) {
+                predicates.add(cb
+                    .lessThanOrEqualTo(attributeOwnerEntity
+                        .<Comparable>get(attributeProperty.getName()), parameterValue));
+            } else {
+                predicates.add(cb
+                    .lessThan(attributeOwnerEntity.<Comparable>get(attributeProperty.getName()), parameterValue));
+            }
+        } else if (BetweenCondition.class.isInstance(condition)) {
+            BetweenCondition betweenCondition = (BetweenCondition) condition;
+            Comparable x = betweenCondition.getX();
+            Comparable y = betweenCondition.getY();
+
+            if (convertValueToBase64) {
+                x = Base64.encodeObject((Serializable) x);
+                y = Base64.encodeObject((Serializable) y);
+            }
+
+            predicates.add(cb.between(attributeOwnerEntity.<Comparable>get(attributeProperty.getName()), x, y));
+        } else if (InCondition.class.isInstance(condition)) {
+            InCondition inCondition = (InCondition) condition;
+            Object[] valuesToSearch = new String[inCondition.getValue().length];
+
+            for (int i = 0; i < inCondition.getValue().length; i++) {
+                valuesToSearch[i] = Base64.encodeObject((Serializable) inCondition.getValue()[i]);
+            }
+
+            predicates.add(attributeOwnerEntity.get(attributeProperty.getName()).in(valuesToSearch));
+        } else {
+            throw new IdentityManagementException("Unsupported query condition [" + condition + "].");
+        }
     }
 
     @Override
@@ -662,7 +757,7 @@ public class JPAIdentityStore
 
                             Object parameterValue = parameterValues[0];
 
-                            Property mappedProperty = (Property) parameterEntityMapper.getProperty(relationshipType, attributeParameter.getName()).getValue();
+                            Property mappedProperty = parameterEntityMapper.getProperty(relationshipType, attributeParameter.getName()).getValue();
 
                             if (isMappedType(mappedProperty.getJavaClass())) {
                                 AttributedType ownerType = (AttributedType) parameterValue;
@@ -674,9 +769,8 @@ public class JPAIdentityStore
 
                             predicates.add(cb.equal(propertyEntityJoin.get(mappedProperty.getName()), parameterValue));
                         } else {
-                            addAttributeQueryPredicates(relationshipType, cb, cq, root, predicates,
-                                    attributeParameter,
-                                    parameterValues);
+                            addAttributeQueryPredicates(relationshipType, entityManager, cb, cq, root, predicates,
+                                    attributeParameter, null, parameterValues);
                         }
                     }
                 }
@@ -1080,12 +1174,7 @@ public class JPAIdentityStore
         Property effectiveProperty = attributeMapper.getProperty(storageClass, EffectiveDate.class).getValue();
 
         predicates.add(builder.equal(root.get(typeProperty.getName()), storageClass.getName()));
-
-        Predicate conjunction = builder.conjunction();
-
-        conjunction.getExpressions().add(builder.lessThanOrEqualTo(root.<Date>get(effectiveProperty.getName()), new Date()));
-
-        predicates.add(conjunction);
+        predicates.add(builder.lessThanOrEqualTo(root.<Date>get(effectiveProperty.getName()), new Date()));
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
         criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
@@ -1237,16 +1326,23 @@ public class JPAIdentityStore
     }
 
     private void addAttributeQueryPredicates(Class<? extends AttributedType> attributedType,
-                                             final CriteriaBuilder cb,
-                                             final CriteriaQuery<?> cq,
-                                             final Root from,
-                                             final List<Predicate> predicates,
-                                             final AttributeParameter attributeParameter,
-                                             final Object[] parameterValues) {
-        String[] valuesToSearch = new String[parameterValues.length];
+        EntityManager entityManager,
+        final CriteriaBuilder cb,
+        final CriteriaQuery<?> cq,
+        final Root from,
+        final List<Predicate> predicates,
+        final AttributeParameter attributeParameter,
+        final Condition condition,
+        final Object[] parameterValues) {
+        int valuesLength = 1;
 
-        for (int i = 0; i < parameterValues.length; i++) {
-            valuesToSearch[i] = Base64.encodeObject((Serializable) parameterValues[i]);
+        if (condition != null) {
+            if (InCondition.class.isInstance(condition)) {
+                InCondition inCondition = (InCondition) condition;
+                valuesLength = inCondition.getValue().length;
+            }
+        } else {
+            valuesLength = parameterValues.length;
         }
 
         EntityMapper attributeMapper = getAttributeMapper(attributedType);
@@ -1272,10 +1368,20 @@ public class JPAIdentityStore
 
         Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
 
-        conjunction.add(fromAttributeType.get(attributeValueProperty.getName()).in((Object[]) valuesToSearch));
+        if (condition == null) {
+            Object[] valuesToSearch = new String[parameterValues.length];
+
+            for (int i = 0; i < parameterValues.length; i++) {
+                valuesToSearch[i] = Base64.encodeObject((Serializable) parameterValues[i]);
+            }
+
+            conjunction.add(fromAttributeType.get(attributeValueProperty.getName()).in((Object[]) valuesToSearch));
+        } else {
+            addCondition(entityManager, cb, conjunction, condition, attributeValueProperty, fromAttributeType, true);
+        }
 
         subQueryOwnerAttributesByValue.where(conjunction.toArray(new Predicate[conjunction.size()]));
-        subQueryOwnerAttributesByValue.groupBy(selection).having(cb.equal(cb.count(selection), valuesToSearch.length));
+        subQueryOwnerAttributesByValue.groupBy(selection).having(cb.equal(cb.count(selection), valuesLength));
 
         predicates.add(cb.in(from.get(ownerIdentifierPropertyName)).value(subQueryOwnerAttributesByValue));
     }

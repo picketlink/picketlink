@@ -57,6 +57,7 @@ import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
@@ -470,7 +471,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 Partition storedType = lookupById(partition.getClass(), partition.getId());
 
                 IdentityManager identityManager = createIdentityManager(storedType);
-                IdentityQuery<IdentityType> query = identityManager.createIdentityQuery(IdentityType.class);
+                IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
+                IdentityQuery<IdentityType> query = queryBuilder.createIdentityQuery(IdentityType.class);
 
                 for (IdentityType identityType : query.getResultList()) {
                     identityManager.remove(identityType);

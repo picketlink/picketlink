@@ -47,10 +47,17 @@ import org.picketlink.idm.permission.IdentityPermission;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
 import org.picketlink.idm.query.AttributeParameter;
+import org.picketlink.idm.query.Condition;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
+import org.picketlink.idm.query.internal.BetweenCondition;
+import org.picketlink.idm.query.internal.EqualCondition;
+import org.picketlink.idm.query.internal.GreaterThanCondition;
+import org.picketlink.idm.query.internal.InCondition;
+import org.picketlink.idm.query.internal.LessThanCondition;
+import org.picketlink.idm.query.internal.LikeCondition;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
@@ -61,7 +68,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -308,21 +314,27 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
     @Override
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        Object[] partitionParameters = identityQuery.getParameter(IdentityType.PARTITION);
         Partition partition = null;
 
-        if (partitionParameters == null) {
+        for (Condition condition : identityQuery.getConditions()) {
+            if (IdentityType.PARTITION.equals(condition.getParameter())) {
+                if (!EqualCondition.class.isInstance(condition)) {
+                    throw new IdentityManagementException("Only equality conditions are allowed when queryng based on a partition.");
+                }
+
+                EqualCondition equalCondition = (EqualCondition) condition;
+                partition = (Partition) equalCondition.getValue();
+
+            }
+        }
+
+        if (partition == null) {
             partition = context.getPartition();
-        } else {
-            partition = (Partition) partitionParameters[0];
         }
 
         FilePartition filePartition = resolve(partition.getClass(), partition.getName());
 
         List<V> result = new ArrayList<V>();
-
-        Object[] ids = identityQuery.getParameter(IdentityType.ID);
-
         Map<String, Map<String, FileIdentityType>> identityTypes = filePartition.getIdentityTypes();
         Map<String, FileIdentityType> typedIdentityTypes = null;
 
@@ -339,67 +351,60 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
             return result;
         }
 
-        if (ids != null && ids.length > 0) {
-            if (ids[0] != null) {
-                FileIdentityType fileAttributedType = typedIdentityTypes.get(ids[0]);
+        for (FileIdentityType storedIdentityType : typedIdentityTypes.values()) {
+            IdentityType storedEntry = storedIdentityType.getEntry();
 
-                if (fileAttributedType != null) {
-                    result.add(cloneAttributedType(context, (V) fileAttributedType.getEntry()));
-                }
-            }
-        } else {
-            for (FileIdentityType storedIdentityType : typedIdentityTypes.values()) {
-                IdentityType storedEntry = (IdentityType) storedIdentityType.getEntry();
+            boolean match = identityQuery.getConditions().isEmpty();
 
-                boolean match = identityQuery.getParameters().isEmpty();
+            for (Condition condition : identityQuery.getConditions()) {
+                QueryParameter queryParameter = condition.getParameter();
 
-                for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters().entrySet()) {
-                    QueryParameter queryParameter = entry.getKey();
+                if (IdentityType.ID.equals(queryParameter)) {
+                    if (!EqualCondition.class.isInstance(condition)) {
+                        throw new IdentityManagementException("Only equality conditions are allowed when queryng based on the identifier.");
+                    }
 
-                    if (AttributeParameter.class.isInstance(queryParameter)) {
-                        AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
-                        String attributeParameterName = attributeParameter.getName();
+                    EqualCondition equalCondition = (EqualCondition) condition;
+                    Object value = equalCondition.getValue();
 
-                        Property<Serializable> property = PropertyQueries.<Serializable>createQuery(identityQuery.getIdentityType())
-                            .addCriteria(new NamedPropertyCriteria(attributeParameterName))
-                            .getFirstResult();
+                    if (value != null) {
+                        FileIdentityType fileAttributedType = typedIdentityTypes.get(value);
 
-                        Object[] parameterValues = entry.getValue();
-
-                        if (property != null && property.getName().equals(attributeParameterName)) {
-                            Serializable storedValue = property.getValue(storedEntry);
-
-                            if (storedValue != null) {
-                                if (storedValue.getClass().isArray() || Collection.class.isInstance(storedValue)) {
-                                    // TODO: handle multi-valued properties
-                                } else {
-                                    if (queryParameter.equals(IdentityType.CREATED_BEFORE) || queryParameter
-                                        .equals(IdentityType.EXPIRY_BEFORE)) {
-                                        match = storedValue != null && ((Date) storedValue)
-                                            .compareTo((Date) parameterValues[0]) <= 0;
-                                    } else if (queryParameter.equals(IdentityType.CREATED_AFTER) || queryParameter
-                                        .equals(IdentityType.EXPIRY_AFTER)) {
-                                        match = storedValue != null && ((Date) storedValue)
-                                            .compareTo((Date) parameterValues[0]) >= 0;
-                                    } else {
-                                        match = storedValue != null && storedValue.equals(parameterValues[0]);
-                                    }
-                                }
-                            }
-                        } else {
-                            loadAttributes(context, storedEntry);
-                            match = matchAttribute(storedEntry, attributeParameterName, parameterValues);
-                        }
-
-                        if (!match) {
-                            break;
+                        if (fileAttributedType != null) {
+                            result.add(cloneAttributedType(context, (V) fileAttributedType.getEntry()));
                         }
                     }
+
+                    return result;
                 }
 
-                if (match) {
-                    result.add((V) cloneAttributedType(context, storedEntry));
+                if (AttributeParameter.class.isInstance(queryParameter)) {
+                    AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
+                    String attributeParameterName = attributeParameter.getName();
+
+                    Property<Serializable> property = PropertyQueries.<Serializable>createQuery(identityQuery.getIdentityType())
+                        .addCriteria(new NamedPropertyCriteria(attributeParameterName))
+                        .getFirstResult();
+
+                    if (property != null && property.getName().equals(attributeParameterName)) {
+                        Serializable storedValue = property.getValue(storedEntry);
+
+                        match = matches(condition, storedValue);
+                    } else {
+                        loadAttributes(context, storedEntry);
+                        Attribute<Serializable> attribute = storedEntry.getAttribute(attributeParameterName);
+
+                        match = attribute != null ? matches(condition, attribute.getValue()) : false;
+                    }
+
+                    if (!match) {
+                        break;
+                    }
                 }
+            }
+
+            if (match) {
+                result.add((V) cloneAttributedType(context, storedEntry));
             }
         }
 
@@ -413,6 +418,80 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         }
 
         return result;
+    }
+
+    private <V extends IdentityType> boolean matches(Condition condition, Serializable storedValue) {
+        boolean match = false;
+
+        if (storedValue != null) {
+            if (EqualCondition.class.isInstance(condition)) {
+                EqualCondition equalCondition = (EqualCondition) condition;
+                match = storedValue != null && storedValue.equals(equalCondition.getValue());
+            } else if (LikeCondition.class.isInstance(condition)) {
+                LikeCondition likeCondition = (LikeCondition) condition;
+                String parameterValue = (String) likeCondition.getValue();
+
+                if (parameterValue.startsWith("%") && parameterValue.endsWith("%")) {
+                    String pattern = parameterValue.toLowerCase();
+
+                    pattern = pattern.replace(".", "\\.");
+                    pattern = pattern.replace("%", ".*");
+                    pattern = pattern.replace("?", ".");
+
+                    match = storedValue.toString().toLowerCase().matches(pattern);
+                }
+
+            } else if (GreaterThanCondition.class.isInstance(condition)) {
+                GreaterThanCondition greaterThanCondition = (GreaterThanCondition) condition;
+                Comparable parameterValue = (Comparable) greaterThanCondition.getValue();
+
+                if (greaterThanCondition.isOrEqual()) {
+                    match = parameterValue.compareTo(storedValue) <= 0;
+                } else {
+                    match = parameterValue.compareTo(storedValue) < 0;
+                }
+            } else if (LessThanCondition.class.isInstance(condition)) {
+                LessThanCondition lessThanCondition = (LessThanCondition) condition;
+                Comparable parameterValue = (Comparable) lessThanCondition.getValue();
+
+                if (lessThanCondition.isOrEqual()) {
+                    match = parameterValue.compareTo(storedValue) >= 0;
+                } else {
+                    match = parameterValue.compareTo(storedValue) > 0;
+                }
+            } else if (BetweenCondition.class.isInstance(condition)) {
+                BetweenCondition betweenCondition = (BetweenCondition) condition;
+                Comparable x = betweenCondition.getX();
+                Comparable y = betweenCondition.getY();
+
+                match = x.compareTo(storedValue) <= 0 && y.compareTo(storedValue) >= 0;
+            } else if (InCondition.class.isInstance(condition)) {
+                InCondition inCondition = (InCondition) condition;
+                Object[] valuesToCompare = inCondition.getValue();
+                int count = valuesToCompare.length;
+
+                for (Object value : valuesToCompare) {
+                    if (storedValue.getClass().isArray()) {
+                        Object[] userValues = (Object[]) storedValue;
+
+                        for (Object object : userValues) {
+                            if (object.equals(value)) {
+                                count--;
+                            }
+                        }
+                    } else {
+                        if (value.equals(storedValue)) {
+                            count--;
+                        }
+                    }
+                }
+
+                match = count <= 0;
+            } else {
+                throw new IdentityManagementException("Unsupported query condition [" + condition + "].");
+            }
+        }
+        return match;
     }
 
     @Override

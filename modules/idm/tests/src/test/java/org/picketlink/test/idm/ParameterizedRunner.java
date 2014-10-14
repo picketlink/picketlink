@@ -8,6 +8,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
@@ -16,7 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.runners.Parameterized.*;
+import static org.junit.runners.Parameterized.Parameters;
 
 /**
  * <p> The custom runner <code>Parameterized</code> implements parameterized tests. When running a parameterized test
@@ -67,46 +68,39 @@ public class ParameterizedRunner extends Suite {
 
         @Override
         protected void runChild(final FrameworkMethod method, final RunNotifier notifier) {
-            List<Class<?>> ignoredList = new ArrayList<Class<?>>();
-
-            Configuration typeConfiguration = getTestClass().getJavaClass().getAnnotation(Configuration.class);
-
-            if (typeConfiguration != null) {
-                ignoredList.addAll(Arrays.asList(typeConfiguration.exclude()));
-            }
-
             Object currentConfig = fParameterList.get(fParameterSetNumber)[0];
+            List<Class<?>> includes = getSupportedParameterTypes(method);
 
-            if (typeConfiguration != null && typeConfiguration.include().length > 0) {
-                boolean includeConfig = false;
-
-                for (Class<?> config : typeConfiguration.include()) {
-                    if (config.equals(currentConfig.getClass())) {
-                        includeConfig = true;
-                        break;
-                    }
-                }
-
-                if (!includeConfig) {
-                    notifier.fireTestIgnored(describeChild(method));
-                    return;
-                }
-            }
-
-            Configuration methodConfiguration = method.getAnnotation(Configuration.class);
-
-            if (methodConfiguration != null) {
-                ignoredList.addAll(Arrays.asList(methodConfiguration.exclude()));
-            }
-
-            for (Class<?> testerType : ignoredList) {
-                if (testerType.equals(currentConfig.getClass())) {
-                    notifier.fireTestIgnored(describeChild(method));
-                    return;
-                }
+            if (!includes.contains(currentConfig.getClass())) {
+                notifier.fireTestIgnored(describeChild(method));
+                return;
             }
 
             super.runChild(method, notifier);
+        }
+
+        private List<Class<?>> getSupportedParameterTypes(FrameworkMethod method) {
+            Configuration typeConfiguration = getTestClass().getJavaClass().getAnnotation(Configuration.class);
+            Configuration methodConfiguration = method.getAnnotation(Configuration.class);
+            List<Class<?>> includes = new ArrayList<Class<?>>();
+
+            if (typeConfiguration != null) {
+                includes.addAll(Arrays.asList(typeConfiguration.include()));
+                includes.removeAll(Arrays.asList(typeConfiguration.exclude()));
+            }
+
+            if (methodConfiguration != null) {
+                List<Class<? extends IdentityConfigurationTester>> methodIncludes = Arrays.asList(methodConfiguration.include());
+
+                if (!methodIncludes.isEmpty()) {
+                    includes.retainAll(methodIncludes);
+                    includes.addAll(methodIncludes);
+                }
+
+                includes.removeAll(Arrays.asList(methodConfiguration.exclude()));
+            }
+
+            return includes;
         }
 
         @Override

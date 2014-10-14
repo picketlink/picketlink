@@ -25,6 +25,7 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 
 import javax.enterprise.inject.Typed;
 import java.util.Date;
@@ -99,5 +100,10 @@ public class SecuredIdentityManager implements IdentityManager {
     @Override
     public void removeCredential(Account account, Class<? extends CredentialStorage> storageClass) {
         decorated.removeCredential(account, storageClass);
+    }
+
+    @Override
+    public IdentityQueryBuilder getQueryBuilder() {
+        return decorated.getQueryBuilder();
     }
 }

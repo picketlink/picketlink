@@ -55,8 +55,7 @@ import static org.junit.Assert.assertNotNull;
  *
  */
 @Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class,
-        JDBCStoreConfigurationTester.class})
+        SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class})
 public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group> {
 
     public GroupManagementTestCase(IdentityConfigurationTester builder) {

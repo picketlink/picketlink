@@ -158,7 +158,7 @@ public class ShanesBigSanityCheckTestCase {
         assert "123-456-7890".equals(u.<String>getAttribute("SSN").getValue());
 
 //        // Lookup the attribute record in the database
-//        IdentityTextAttribute attr = em.createQuery(
+//        IdentityTextAttribute attr = em.createIdentityQuery(
 //                "select a from IdentityTextAttribute a where a.identity.id = :id and a.attributeName = :attributeName",
 //                IdentityTextAttribute.class)
 //            .setParameter("id", u.getId())
@@ -186,7 +186,7 @@ public class ShanesBigSanityCheckTestCase {
         assert Arrays.equals(binaryData,  u.<byte[]>getAttribute("profilePhoto").getValue());
 
         // Confirm that the binary exclude was persisted in the correct table
-//        assert !em.createQuery(
+//        assert !em.createIdentityQuery(
 //                "select a from IdentityObjectAttribute a where a.identity.id = :id and a.attributeName = :attributeName",
 //                IdentityObjectAttribute.class)
 //            .setParameter("id", u.getId())

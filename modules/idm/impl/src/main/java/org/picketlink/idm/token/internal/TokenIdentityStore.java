@@ -44,10 +44,12 @@ import org.picketlink.idm.model.annotation.RelationshipStereotype;
 import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.query.AttributeParameter;
+import org.picketlink.idm.query.Condition;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
+import org.picketlink.idm.query.internal.EqualCondition;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
@@ -100,7 +102,7 @@ public class TokenIdentityStore extends AbstractIdentityStore<TokenStoreConfigur
 
     @Override
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> query) {
-        ArrayList<V> identityTypes = new ArrayList<V>();
+        List<V> identityTypes = new ArrayList<V>();
         Class<V> identityTypeType = query.getIdentityType();
         IdentityStereotype stereotype = identityTypeType.getAnnotation(IdentityStereotype.class);
 
@@ -111,50 +113,48 @@ public class TokenIdentityStore extends AbstractIdentityStore<TokenStoreConfigur
         Token currentToken = getCurrentToken(context);
         IdentityType identityType = null;
 
-        for (QueryParameter queryParameter : query.getParameters().keySet()) {
+        for (Condition condition : query.getConditions()) {
+            QueryParameter queryParameter = condition.getParameter();
             String queryParameterName = ((AttributeParameter) queryParameter).getName();
 
             if (IdentityType.PARTITION.equals(queryParameter)) {
                 continue;
             }
 
-            Object[] queryParameterValues = query.getParameter(queryParameter);
-
-            if (queryParameterValues == null || queryParameterValues.length == 0) {
-                throw new IdentityManagementException("Query parameter [" + queryParameterName + "] does not have any value.");
-            } else if (queryParameterValues.length > 1) {
-                throw new IdentityManagementException("Query parameter [" + queryParameterName + "] value must be single-valued.");
-            }
-
-            if (IdentityType.ID.equals(queryParameter)) {
-                identityType = getTokenConsumer(currentToken)
-                    .extractIdentity(currentToken, identityTypeType, StereotypeProperty.Property.IDENTITY_ID, queryParameterValues[0]);
-            } else {
-                Property<Object> mappedProperty = PropertyQueries
-                    .createQuery(identityTypeType)
-                    .addCriteria(new NamedPropertyCriteria(queryParameterName))
-                    .getFirstResult();
-
-                if (mappedProperty == null) {
-                    throw new IdentityManagementException("IdentityType [" + identityTypeType + "] does not have a property with name [" + queryParameterName + "].");
-                }
-
-                StereotypeProperty stereotypeProperty = mappedProperty.getAnnotatedElement()
-                    .getAnnotation(StereotypeProperty.class);
-
-                if (stereotypeProperty == null) {
-                    throw new IdentityManagementException("Query parameter [" + queryParameterName + "] does not maps to a " + StereotypeProperty.Property.class + ".");
-                }
-
-                Object queryParameterValue = queryParameterValues[0];
+            if (EqualCondition.class.isInstance(condition)) {
+                EqualCondition equalCondition = (EqualCondition) condition;
+                Object queryParameterValue = equalCondition.getValue();
 
                 if (queryParameterValue == null) {
-                    throw new IdentityManagementException("Query parameter [" + queryParameterName + "] value can not be null.");
+                    throw new IdentityManagementException("Query parameter [" + queryParameterName + "] does not have any value.");
                 }
 
-                identityType = getTokenConsumer(currentToken)
-                    .extractIdentity(currentToken, identityTypeType, stereotypeProperty
-                        .value(), queryParameterValue);
+                if (IdentityType.ID.equals(queryParameter)) {
+                    identityType = getTokenConsumer(currentToken)
+                        .extractIdentity(currentToken, identityTypeType, StereotypeProperty.Property.IDENTITY_ID, queryParameterValue);
+                } else {
+                    Property<Object> mappedProperty = PropertyQueries
+                        .createQuery(identityTypeType)
+                        .addCriteria(new NamedPropertyCriteria(queryParameterName))
+                        .getFirstResult();
+
+                    if (mappedProperty == null) {
+                        throw new IdentityManagementException("IdentityType [" + identityTypeType + "] does not have a property with name [" + queryParameterName + "].");
+                    }
+
+                    StereotypeProperty stereotypeProperty = mappedProperty.getAnnotatedElement()
+                        .getAnnotation(StereotypeProperty.class);
+
+                    if (stereotypeProperty == null) {
+                        throw new IdentityManagementException("Query parameter [" + queryParameterName + "] does not maps to a " + StereotypeProperty.Property.class + ".");
+                    }
+
+                    identityType = getTokenConsumer(currentToken)
+                        .extractIdentity(currentToken, identityTypeType, stereotypeProperty
+                            .value(), queryParameterValue);
+                }
+            } else {
+                throw new IdentityManagementException("Unsupported query condition. Token store only understands equality condition.");
             }
         }
 

@@ -43,7 +43,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

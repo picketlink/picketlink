@@ -18,10 +18,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.io.Serializable;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -29,6 +25,13 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.Sort;
+
+import java.io.Serializable;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Comparator for sorting identity objects according to given query parameters
@@ -45,18 +48,21 @@ public class FileSortingComparator<T extends IdentityType> implements Comparator
 
     @Override
     public int compare(T o1, T o2) {
-        QueryParameter[] params = identityQuery.getSortParameters();
-
+        Set<Sort> params = identityQuery.getSorting();
         int sortResult = 0;
 
-        if (params != null && params.length != 0) {
-            for (QueryParameter queryParameter : params) {
+        if (params != null) {
+            for (Sort sort : params) {
+                QueryParameter queryParameter = sort.getParameter();
+
                 sortResult = sortByQueryParameter(queryParameter, o1, o2);
+
                 if (sortResult != 0) {
                     // Negate result if descending order is required
-                    if (!identityQuery.isSortAscending()) {
+                    if (!sort.isAscending()) {
                         return -sortResult;
                     }
+
                     return sortResult;
                 }
             }

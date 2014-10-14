@@ -32,6 +32,7 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 
@@ -72,11 +73,12 @@ public abstract class AbstractCredentialHandler<S extends CredentialStore<?>, V 
         }
 
         IdentityManager identityManager = getIdentityManager(context);
+        IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
 
         for (Class<? extends Account> accountType : getDefaultAccountTypes()) {
-            IdentityQuery<Account> query = (IdentityQuery<Account>) identityManager.createIdentityQuery(accountType);
+            IdentityQuery<Account> query = (IdentityQuery<Account>) queryBuilder.createIdentityQuery(accountType);
 
-            query.setParameter(Account.PARTITION, context.getPartition());
+            query.where(queryBuilder.equal(Account.PARTITION, context.getPartition()));
 
             String loginNameProperty = getDefaultLoginNameProperty(accountType).getName();
 
@@ -84,7 +86,7 @@ public abstract class AbstractCredentialHandler<S extends CredentialStore<?>, V 
                 CREDENTIAL_LOGGER.credentialRetrievingAccount(userName, accountType, loginNameProperty);
             }
 
-            query.setParameter(Account.QUERY_ATTRIBUTE.byName(loginNameProperty), userName);
+            query.where(queryBuilder.equal(Account.QUERY_ATTRIBUTE.byName(loginNameProperty), userName));
 
             List<? extends IdentityType> result = query.getResultList();
 
@@ -120,17 +122,18 @@ public abstract class AbstractCredentialHandler<S extends CredentialStore<?>, V 
         }
 
         IdentityManager identityManager = getIdentityManager(context);
+        IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
 
         for (Class<? extends Account> accountType : getDefaultAccountTypes()) {
-            IdentityQuery<Account> query = (IdentityQuery<Account>) identityManager.createIdentityQuery(accountType);
+            IdentityQuery<Account> query = (IdentityQuery<Account>) queryBuilder.createIdentityQuery(accountType);
 
-            query.setParameter(Account.PARTITION, context.getPartition());
+            query.where(queryBuilder.equal(Account.PARTITION, context.getPartition()));
 
             if (isDebugEnabled()) {
                 CREDENTIAL_LOGGER.credentialRetrievingAccount(identifier, accountType, "ID");
             }
 
-            query.setParameter(Account.ID, identifier);
+            query.where(queryBuilder.equal(Account.ID, identifier));
 
             List<? extends IdentityType> result = query.getResultList();
 

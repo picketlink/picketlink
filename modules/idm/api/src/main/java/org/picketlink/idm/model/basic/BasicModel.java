@@ -23,6 +23,7 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.idm.query.RelationshipQuery;
 
 import java.util.List;
@@ -57,8 +58,10 @@ public class BasicModel {
             return null;
         }
 
-        List<Agent> agents = identityManager.createIdentityQuery(Agent.class)
-                .setParameter(Agent.LOGIN_NAME, loginName).getResultList();
+        IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
+        List<Agent> agents = queryBuilder.createIdentityQuery(Agent.class)
+                .where(queryBuilder.equal(Agent.LOGIN_NAME, loginName)).getResultList();
+
         if (agents.isEmpty()) {
             return null;
         } else if (agents.size() == 1) {
@@ -86,8 +89,9 @@ public class BasicModel {
             return null;
         }
 
-        List<User> agents = identityManager.createIdentityQuery(User.class)
-                .setParameter(User.LOGIN_NAME, loginName).getResultList();
+        IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
+        List<User> agents = queryBuilder.createIdentityQuery(User.class)
+                .where(queryBuilder.equal(User.LOGIN_NAME, loginName)).getResultList();
 
         if (agents.isEmpty()) {
             return null;
@@ -116,7 +120,10 @@ public class BasicModel {
             return null;
         }
 
-        List<Role> roles = identityManager.createIdentityQuery(Role.class).setParameter(Role.NAME, name).getResultList();
+        IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
+        List<Role> roles = queryBuilder.createIdentityQuery(Role.class)
+            .where(queryBuilder.equal(Role.NAME, name)).getResultList();
+
         if (roles.isEmpty()) {
             return null;
         } else if (roles.size() == 1) {
@@ -149,25 +156,29 @@ public class BasicModel {
             groupPath = "/" + groupPath;
         }
 
+        Group group = null;
         String[] paths = groupPath.split("/");
 
         if (paths.length > 0) {
             String name = paths[paths.length - 1];
-
-            IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
-
-            query.setParameter(Group.NAME, name);
+            IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
+            IdentityQuery<Group> query = queryBuilder.createIdentityQuery(Group.class)
+                .where(queryBuilder.equal(Group.NAME, name));
 
             List<Group> result = query.getResultList();
 
-            for (Group group : result) {
-                if (group.getPath().equals(groupPath) || group.getPath().endsWith(groupPath)) {
-                    return group;
+            for (Group storedGroup : result) {
+                if (storedGroup.getPath().equals(groupPath)) {
+                    return storedGroup;
+                }
+
+                if (storedGroup.getPath().endsWith(groupPath)) {
+                    group = storedGroup;
                 }
             }
         }
 
-        return null;
+        return group;
     }
 
     /**
