@@ -20,21 +20,27 @@ package org.picketlink.idm.query.internal;
 
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.query.Condition;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.Sort;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import static java.util.Collections.unmodifiableSet;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
 
@@ -51,13 +57,17 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private final IdentityContext context;
     private final Class<T> identityType;
     private final StoreSelector storeSelector;
+    private final IdentityQueryBuilder queryBuilder;
     private int offset;
     private int limit;
     private Object paginationContext;
     private QueryParameter[] sortParameters;
     private boolean sortAscending = true;
+    private final Set<Condition> conditions = new LinkedHashSet<Condition>();
+    private final Set<Sort> ordering = new LinkedHashSet<Sort>();
 
-    public DefaultIdentityQuery(IdentityContext context, Class<T> identityType, StoreSelector storeSelector) {
+    public DefaultIdentityQuery(IdentityQueryBuilder queryBuilder, IdentityContext context, Class<T> identityType, StoreSelector storeSelector) {
+        this.queryBuilder = queryBuilder;
         this.context = context;
         this.storeSelector = storeSelector;
         this.identityType = identityType;
@@ -65,9 +75,39 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     }
 
     @Override
-    public IdentityQuery<T> setParameter(QueryParameter param, Object... value) {
-        parameters.put(param, value);
+    public IdentityQuery<T> setParameter(QueryParameter queryParameter, Object... value) {
+        if (value == null || value.length == 0) {
+            throw MESSAGES.nullArgument("Query Parameter values null or empty");
+        }
+
+        parameters.put(queryParameter, value);
+
+        if (IdentityType.CREATED_AFTER.equals(queryParameter) || IdentityType.EXPIRY_AFTER.equals(queryParameter)) {
+            this.conditions.add(queryBuilder.greaterThanOrEqualTo(queryParameter, value[0]));
+        } else if (IdentityType.CREATED_BEFORE.equals(queryParameter) || IdentityType.EXPIRY_BEFORE.equals(queryParameter)) {
+            this.conditions.add(queryBuilder.lessThanOrEqualTo(queryParameter, value[0]));
+        } else {
+            this.conditions.add(queryBuilder.equal(queryParameter, value[0]));
+        }
+
         return this;
+    }
+
+    @Override
+    public IdentityQuery<T> where(Condition... condition) {
+        this.conditions.addAll(Arrays.asList(condition));
+        return this;
+    }
+
+    @Override
+    public IdentityQuery<T> sortBy(Sort... sorts) {
+        this.ordering.addAll(Arrays.asList(sorts));
+        return this;
+    }
+
+    @Override
+    public Set<Sort> getSorting() {
+        return unmodifiableSet(this.ordering);
     }
 
     @Override
@@ -115,17 +155,11 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         return paginationContext;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public QueryParameter[] getSortParameters() {
         return sortParameters;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isSortAscending() {
         return sortAscending;
@@ -133,6 +167,18 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public List<T> getResultList() {
+
+        // remove this statement once deprecated methods on IdentityQuery are removed
+        if (this.sortParameters != null) {
+            for (QueryParameter parameter : this.sortParameters) {
+                if (isSortAscending()) {
+                    sortBy(this.queryBuilder.asc(parameter));
+                } else {
+                    sortBy(this.queryBuilder.desc(parameter));
+                }
+            }
+        }
+
         List<T> result = new ArrayList<T>();
 
         try {
@@ -182,9 +228,6 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public IdentityQuery<T> setSortParameters(QueryParameter... sortParameters) {
         this.sortParameters = sortParameters;
@@ -201,6 +244,11 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     public IdentityQuery<T> setPaginationContext(Object object) {
         this.paginationContext = object;
         return this;
+    }
+
+    @Override
+    public Set<Condition> getConditions() {
+        return unmodifiableSet(this.conditions);
     }
 
     private PartitionManager getPartitionManager() {

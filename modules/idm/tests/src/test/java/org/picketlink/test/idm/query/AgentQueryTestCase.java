@@ -34,6 +34,7 @@ import org.picketlink.idm.model.basic.GroupRole;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
@@ -45,7 +46,9 @@ import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTest
 
 import java.util.List;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * <p>
@@ -55,8 +58,8 @@ import static junit.framework.Assert.*;
  * 
  */
 @Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class,
-        LDAPUserGroupJPARoleConfigurationTester.class})
+    LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class,
+    LDAPUserGroupJPARoleConfigurationTester.class})
 public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTestCase<T> {
 
     public AgentQueryTestCase(IdentityConfigurationTester builder) {
@@ -109,6 +112,68 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertEquals(agentType.getId(), result.get(0).getId());
+    }
+
+    @Test
+    @Configuration(include= {JPAStoreConfigurationTester.class})
+    public void testFindByLoginNamePattern() throws Exception {
+        T john = createIdentityType("john", null);
+        T johnSmith = createIdentityType("john.smith", null);
+        T johns = createIdentityType("johns", null);
+        T jsmith = createIdentityType("jsmith", null);
+
+        IdentityManager identityManager = getIdentityManager();
+
+        IdentityQueryBuilder queryBuilder = identityManager.<T>getQueryBuilder();
+        IdentityQuery<T> query = queryBuilder.createIdentityQuery(john.getClass());
+
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, "john%"));
+
+        List<T> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(3, result.size());
+        contains(result, john.getId());
+        contains(result, johnSmith.getId());
+        contains(result, johns.getId());
+
+        query = queryBuilder.createIdentityQuery(john.getClass());
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, "j%"));
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(4, result.size());
+
+        query = queryBuilder.createIdentityQuery(john.getClass());
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, "%smith"));
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+        contains(result, johnSmith.getId());
+        contains(result, jsmith.getId());
+
+        query = queryBuilder.createIdentityQuery(john.getClass());
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, "%.smith"));
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        contains(result, johnSmith.getId());
+
+        query = queryBuilder.createIdentityQuery(john.getClass());
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, "%jo%"));
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(3, result.size());
+        contains(result, john.getId());
+        contains(result, johnSmith.getId());
+        contains(result, johns.getId());
     }
 
     @Test

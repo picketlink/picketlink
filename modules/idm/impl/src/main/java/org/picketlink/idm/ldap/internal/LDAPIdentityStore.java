@@ -34,10 +34,17 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.AttributeParameter;
+import org.picketlink.idm.query.Condition;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
+import org.picketlink.idm.query.internal.BetweenCondition;
+import org.picketlink.idm.query.internal.EqualCondition;
+import org.picketlink.idm.query.internal.GreaterThanCondition;
+import org.picketlink.idm.query.internal.InCondition;
+import org.picketlink.idm.query.internal.LessThanCondition;
+import org.picketlink.idm.query.internal.LikeCondition;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 
@@ -48,7 +55,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -177,27 +183,37 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         List<V> results = new ArrayList<V>();
 
         try {
-            if (identityQuery.getParameters().size() == 1 && identityQuery.getParameter(IdentityType.PARTITION) != null) {
-                // we don't query the ldap tree using only the partition as a parameter due to the cost of doing so.
-                return results;
+            if (identityQuery.getSorting() != null && !identityQuery.getSorting().isEmpty()) {
+                throw new IdentityManagementException("LDAP Identity Store does not support sorted queries.");
             }
 
-            if (identityQuery.getParameter(IdentityType.ID) != null) {
-                Object[] queryParameterValues = identityQuery.getParameter(IdentityType.ID);
-                SearchResult search = this.operationManager.lookupById(getConfig().getBaseDN(), queryParameterValues[0].toString(), null);
-
-                if (search != null) {
-                    results.add((V) populateAttributedType(search, null));
+            for (Condition condition : identityQuery.getConditions()) {
+                if (identityQuery.getConditions().size() == 1 && IdentityType.PARTITION.equals(condition.getParameter())) {
+                    // we don't query the ldap tree using only the partition as a parameter due to the cost of doing so.
+                    return results;
                 }
 
-                return results;
-            } else if (!IdentityType.class.equals(identityQuery.getIdentityType())) {
+                if (IdentityType.ID.equals(condition.getParameter())) {
+                    if (EqualCondition.class.isInstance(condition)) {
+                        EqualCondition equalCondition = (EqualCondition) condition;
+                        SearchResult search = this.operationManager
+                            .lookupById(getConfig().getBaseDN(), equalCondition.getValue().toString(), null);
+
+                        if (search != null) {
+                            results.add((V) populateAttributedType(search, null));
+                        }
+                    }
+
+                    return results;
+                }
+            }
+
+            if (!IdentityType.class.equals(identityQuery.getIdentityType())) {
                 // the ldap store does not support queries based on root types. Except if based on the identifier.
                 LDAPMappingConfiguration ldapEntryConfig = getMappingConfig(identityQuery.getIdentityType());
                 StringBuilder filter = createIdentityTypeSearchFilter(identityQuery, ldapEntryConfig);
-
-
                 List<SearchResult> search;
+
                 if (getConfig().isPagination() && identityQuery.getLimit() > 0) {
                     search = this.operationManager.searchPaginated(getBaseDN(ldapEntryConfig), filter.toString(), ldapEntryConfig, identityQuery);
                 } else {
@@ -444,32 +460,83 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     protected <V extends IdentityType> StringBuilder createIdentityTypeSearchFilter(final IdentityQuery<V> identityQuery, final LDAPMappingConfiguration ldapEntryConfig) {
         StringBuilder filter = new StringBuilder();
 
-        for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters().entrySet()) {
-            QueryParameter queryParameter = entry.getKey();
+        for (Condition condition : identityQuery.getConditions()) {
+            QueryParameter queryParameter = condition.getParameter();
 
             if (!IdentityType.ID.equals(queryParameter)) {
-                Object[] queryParameterValues = entry.getValue();
+                if (AttributeParameter.class.isInstance(queryParameter)) {
+                    AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
+                    String attributeName = ldapEntryConfig.getMappedProperties().get(attributeParameter.getName());
 
-                if (queryParameterValues.length > 0) {
+                    if (attributeName != null) {
+                        if (EqualCondition.class.isInstance(condition)) {
+                            EqualCondition equalCondition = (EqualCondition) condition;
+                            Object parameterValue = equalCondition.getValue();
 
-                    if (AttributeParameter.class.isInstance(queryParameter)) {
-                        AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
-                        String attributeName = ldapEntryConfig.getMappedProperties().get(attributeParameter.getName());
-
-                        if (attributeName != null) {
-                            Object attributeValue = queryParameterValues[0];
-
-                            if (Date.class.isInstance(attributeValue)) {
-                                attributeValue = formatDate((Date) attributeValue);
+                            if (Date.class.isInstance(parameterValue)) {
+                                parameterValue = formatDate((Date) parameterValue);
                             }
 
-                            if (queryParameter.equals(IdentityType.CREATED_AFTER) || queryParameter.equals(IdentityType.MODIFIED_AFTER)) {
-                                filter.append("(").append(attributeName).append(">=").append(attributeValue).append(")");
-                            } else if (queryParameter.equals(IdentityType.CREATED_BEFORE)) {
-                                filter.append("(").append(attributeName).append("<=").append(attributeValue).append(")");
+                            filter.append("(").append(attributeName).append(LDAPConstants.EQUAL).append(parameterValue).append(")");
+                        } else if (LikeCondition.class.isInstance(condition)) {
+                            LikeCondition likeCondition = (LikeCondition) condition;
+                            String parameterValue = (String) likeCondition.getValue();
+
+                        } else if (GreaterThanCondition.class.isInstance(condition)) {
+                            GreaterThanCondition greaterThanCondition = (GreaterThanCondition) condition;
+                            Comparable parameterValue = (Comparable) greaterThanCondition.getValue();
+
+                            if (Date.class.isInstance(parameterValue)) {
+                                parameterValue = formatDate((Date) parameterValue);
+                            }
+
+                            if (greaterThanCondition.isOrEqual()) {
+                                filter.append("(").append(attributeName).append(">=").append(parameterValue).append(")");
                             } else {
-                                filter.append("(").append(attributeName).append(LDAPConstants.EQUAL).append(attributeValue).append(")");
+                                filter.append("(").append(attributeName).append(">").append(parameterValue).append(")");
                             }
+                        } else if (LessThanCondition.class.isInstance(condition)) {
+                            LessThanCondition lessThanCondition = (LessThanCondition) condition;
+                            Comparable parameterValue = (Comparable) lessThanCondition.getValue();
+
+                            if (Date.class.isInstance(parameterValue)) {
+                                parameterValue = formatDate((Date) parameterValue);
+                            }
+
+                            if (lessThanCondition.isOrEqual()) {
+                                filter.append("(").append(attributeName).append("<=").append(parameterValue).append(")");
+                            } else {
+                                filter.append("(").append(attributeName).append("<").append(parameterValue).append(")");
+                            }
+                        } else if (BetweenCondition.class.isInstance(condition)) {
+                            BetweenCondition betweenCondition = (BetweenCondition) condition;
+                            Comparable x = betweenCondition.getX();
+                            Comparable y = betweenCondition.getY();
+
+                            if (Date.class.isInstance(x)) {
+                                x = formatDate((Date) x);
+                            }
+
+                            if (Date.class.isInstance(y)) {
+                                y = formatDate((Date) y);
+                            }
+
+                            filter.append("(").append(x).append("<=").append(attributeName).append("<=").append(y).append(")");
+                        } else if (InCondition.class.isInstance(condition)) {
+                            InCondition inCondition = (InCondition) condition;
+                            Object[] valuesToCompare = inCondition.getValue();
+
+                            filter.append("(&(");
+
+                            for (int i = 0; i< valuesToCompare.length; i++) {
+                                Object value = valuesToCompare[i];
+
+                                filter.append("(").append(attributeName).append(LDAPConstants.EQUAL).append(value).append(")");
+                            }
+
+                            filter.append("))");
+                        } else {
+                            throw new IdentityManagementException("Unsupported query condition [" + condition + "].");
                         }
                     }
                 }

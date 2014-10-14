@@ -33,10 +33,8 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.JDBCStoreConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.io.IOException;
@@ -46,7 +44,11 @@ import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>
@@ -57,7 +59,7 @@ import static org.junit.Assert.*;
  * 
  */
 @Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, JDBCStoreConfigurationTester.class})
+        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
 public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
     public UserManagementTestCase(IdentityConfigurationTester builder) {

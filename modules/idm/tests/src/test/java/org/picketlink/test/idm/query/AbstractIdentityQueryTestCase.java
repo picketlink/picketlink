@@ -33,6 +33,7 @@ import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.Tier;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
@@ -627,10 +628,10 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         identityManager.update(identityType);
 
-        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
+        IdentityQuery<T> query = queryBuilder.createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1",
-                "someAttributeValue2"});
+        query.where(queryBuilder.in(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1", "someAttributeValue2"}));
 
         List<T> result = query.getResultList();
 
@@ -638,27 +639,27 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertTrue(contains(result, identityType.getId()));
 
-        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
+        query = queryBuilder.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttributeValue1",
-                "someAttributeValue2"});
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-
-        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
-
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValueChanged",
-                "someAttributeValue2"});
+        query.where(queryBuilder.in(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttributeValue1",
+                "someAttributeValue2"}));
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
+        query = queryBuilder.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue"});
+        query.where(queryBuilder.in(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValueChanged",
+                "someAttributeValue2"}));
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+
+        query = queryBuilder.<T>createIdentityQuery((Class<T>) identityType.getClass());
+
+        query.where(queryBuilder.in(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue"}));
 
         result = query.getResultList();
 
@@ -671,12 +672,12 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         identityManager.update(identityType);
 
-        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
+        query = queryBuilder.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1",
-                "someAttributeValueChanged"});
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttribute2Value1",
-                "someAttribute2Value2"});
+        query.where(queryBuilder.in(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1",
+                "someAttributeValueChanged"}));
+        query.where(queryBuilder.in(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttribute2Value1",
+                "someAttribute2Value2"}));
 
         result = query.getResultList();
 
@@ -684,12 +685,12 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertTrue(contains(result, identityType.getId()));
 
-        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
+        query = queryBuilder.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1",
-                "someAttributeValueChanged"});
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttribute2ValueChanged",
-                "someAttribute2Value2"});
+        query.where(queryBuilder.in(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1",
+                "someAttributeValueChanged"}));
+        query.where(queryBuilder.in(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttribute2ValueChanged",
+                "someAttribute2Value2"}));
 
         result = query.getResultList();
 

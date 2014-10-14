@@ -22,6 +22,7 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 
 import java.util.Date;
 import java.util.List;
@@ -75,6 +76,13 @@ public interface IdentityManager {
     // Query API
 
     /**
+     * <p>Returns a {@link org.picketlink.idm.query.IdentityQueryBuilder}, responsible for building queries.</p>
+     *
+     * @return
+     */
+    IdentityQueryBuilder getQueryBuilder();
+
+    /**
      * <p>
      * Retrieves an {@link IdentityType} with the given identifier.
      * </p>
@@ -99,8 +107,12 @@ public interface IdentityManager {
      * </p>
      *
      * @param identityType
+     *
+     * @deprecated Use the {@link IdentityManager#getQueryBuilder()} to create queries.
+     *
      * @return
      */
+    @Deprecated
     <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType);
 
     // Credential management
@@ -168,5 +180,4 @@ public interface IdentityManager {
      * @param storageClass The credential storage type specifying which credential types should be removed.
      */
     void removeCredential(Account account, Class<? extends CredentialStorage> storageClass);
-
 }

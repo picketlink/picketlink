@@ -33,10 +33,8 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.JDBCStoreConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.Date;
@@ -56,8 +54,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 @Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class,
-        JDBCStoreConfigurationTester.class})
+        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
 public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent> {
 
     public AgentManagementTestCase(IdentityConfigurationTester builder) {

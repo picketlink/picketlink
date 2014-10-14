@@ -44,8 +44,10 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
+import org.picketlink.idm.query.internal.DefaultQueryBuilder;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
@@ -166,9 +168,10 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             throw MESSAGES.nullArgument("Identifier");
         }
 
-        IdentityQuery<T> query = createIdentityQuery(identityType);
+        IdentityQueryBuilder queryBuilder = getQueryBuilder();
+        IdentityQuery<T> query = queryBuilder.createIdentityQuery(identityType);
 
-        query.setParameter(IdentityType.ID, id);
+        query.where(queryBuilder.equal(IdentityType.ID, id));
 
         List<T> result = query.getResultList();
 
@@ -192,7 +195,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             throw MESSAGES.nullArgument("IdentityType class");
         }
 
-        return new DefaultIdentityQuery(this, identityType, this.storeSelector);
+        return new DefaultIdentityQuery(getQueryBuilder(), this, identityType, this.storeSelector);
     }
 
     @Override
@@ -291,6 +294,11 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         }
     }
 
+    @Override
+    public IdentityQueryBuilder getQueryBuilder() {
+        return new DefaultQueryBuilder(this, this.storeSelector);
+    }
+
     private void checkUniqueness(IdentityType identityType) {
         if (identityType == null) {
             throw MESSAGES.nullArgument("IdentityType");
@@ -300,10 +308,12 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
         propertyQuery.addCriteria(new AnnotatedPropertyCriteria(Unique.class));
 
-        IdentityQuery<? extends IdentityType> identityQuery = createIdentityQuery(identityType.getClass());
+        IdentityQueryBuilder queryBuilder = getQueryBuilder();
+        IdentityQuery<? extends IdentityType> identityQuery = queryBuilder.createIdentityQuery(identityType.getClass());
 
         for (Property<Serializable> property : propertyQuery.getResultList()) {
-            identityQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), property.getValue(identityType));
+            identityQuery.where(queryBuilder
+                .equal(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), property.getValue(identityType)));
         }
 
         List<? extends IdentityType> result = identityQuery.getResultList();

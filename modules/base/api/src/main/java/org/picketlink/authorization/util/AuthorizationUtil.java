@@ -38,6 +38,7 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityStereotype;
 import org.picketlink.idm.model.annotation.RelationshipStereotype;
 import org.picketlink.idm.model.annotation.StereotypeProperty;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -163,11 +164,12 @@ public class AuthorizationUtil {
 
                 if (IDENTITY_ROLE_NAME.equals(stereotypeProperty)) {
                     for (Partition partition : partitionManager.getPartitions(Partition.class)) {
-                        IdentityManager identityManager1 = partitionManager.createIdentityManager(partition);
+                        IdentityManager identityManager = partitionManager.createIdentityManager(partition);
+                        IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
 
-                        List<? extends IdentityType> result = identityManager1
-                            .createIdentityQuery((Class<? extends IdentityType>) attributedType)
-                            .setParameter(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), roleName)
+                        List<? extends IdentityType> result = queryBuilder
+                            .createIdentityQuery(attributedType)
+                            .where(queryBuilder.equal(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), roleName))
                             .getResultList();
 
                         if (!result.isEmpty()) {
@@ -275,10 +277,11 @@ public class AuthorizationUtil {
                 if (IDENTITY_GROUP_NAME.equals(stereotypeProperty)) {
                     for (Partition partition : partitionManager.getPartitions(Partition.class)) {
                         IdentityManager identityManager = partitionManager.createIdentityManager(partition);
+                        IdentityQueryBuilder queryBuilder = identityManager.getQueryBuilder();
 
-                        List<? extends IdentityType> result = identityManager
-                            .createIdentityQuery((Class<? extends IdentityType>) attributedType)
-                            .setParameter(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), groupName)
+                        List<? extends IdentityType> result = queryBuilder
+                            .createIdentityQuery(attributedType)
+                            .where(queryBuilder.equal(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), groupName))
                             .getResultList();
 
                         if (!result.isEmpty()) {
