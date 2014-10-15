@@ -105,6 +105,12 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
         assertFalse(hasPermission(bob, permissionManager.listPermissions("fileD.txt", "execute")));
 
         assertTrue(hasPermission(bob, permissionManager.listPermissions("fileC.txt", "execute")));
+
+        permissionManager.revokePermission(bob, "fileC.txt", "update,create,execute");
+
+        List permissions = permissionManager.listPermissions(bob);
+
+        assertTrue(permissions.isEmpty());
     }
 
     @Test
@@ -154,6 +160,12 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
         assertFalse(hasPermission(bob, permissionManager.listPermissions(Realm.class, "execute")));
 
         assertTrue(hasPermission(bob, permissionManager.listPermissions(Group.class, "execute")));
+
+        permissionManager.revokePermission(bob, Realm.class, "write,execute");
+
+        List permissions = permissionManager.listPermissions(Realm.class);
+
+        assertTrue(permissions.isEmpty());
     }
 
     @Test
@@ -201,6 +213,12 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
         assertTrue(operations.contains("read"));
         assertTrue(operations.contains("write"));
         assertTrue(operations.contains("execute"));
+
+        permissionManager.revokePermission(bob, "fileA.txt", "read,write,execute");
+
+        permissions = permissionManager.listPermissions("fileA.txt");
+
+        assertTrue(permissions.isEmpty());
     }
 
     @Test
@@ -475,6 +493,85 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
         assertEquals(2, permissions.size());
         assertTrue(operations.contains("create"));
         assertTrue(operations.contains("update"));
+
+        permissionManager.revokePermission(bob, entity, "update,create");
+
+        permissions = permissionManager.listPermissions(entity);
+
+        assertTrue(permissions.isEmpty());
+    }
+
+    @Test
+    @Configuration(exclude = FileStoreConfigurationTester.class)
+    public void testRevokeAllowedOperation() {
+        User bob = createUser("bob");
+        EntityManager entityManager = getEntityManager();
+        AllowedOperationTypeEntity entity = new AllowedOperationTypeEntity();
+
+        entityManager.persist(entity);
+
+        PermissionManager permissionManager = getPermissionManager();
+
+        permissionManager.grantPermission(bob, entity, "create");
+
+        assertEquals(1, permissionManager.listPermissions(entity, "create").size());
+
+        permissionManager.grantPermission(bob, entity, "delete");
+
+        List<Permission> permissions = permissionManager.listPermissions(entity, "delete");
+
+        List<String> operations = new ArrayList<String>();
+
+        for (Permission permission : permissions) {
+            operations.add(permission.getOperation());
+        }
+
+        assertEquals(1, permissions.size());
+        assertTrue(operations.contains("delete"));
+
+        permissions = permissionManager.listPermissions(entity, "delete, create");
+        operations = new ArrayList<String>();
+
+        for (Permission permission : permissions) {
+            operations.add(permission.getOperation());
+        }
+
+        assertEquals(2, permissions.size());
+        assertTrue(operations.contains("delete"));
+        assertTrue(operations.contains("create"));
+
+        permissionManager.grantPermission(bob, entity, "update, delete, create");
+
+        permissions = permissionManager.listPermissions(entity);
+        operations = new ArrayList<String>();
+
+        for (Permission permission : permissions) {
+            operations.add(permission.getOperation());
+        }
+
+        assertEquals(3, permissions.size());
+        assertTrue(operations.contains("delete"));
+        assertTrue(operations.contains("create"));
+        assertTrue(operations.contains("update"));
+
+        permissionManager.revokePermission(bob, entity, "delete");
+
+        permissions = permissionManager.listPermissions(entity);
+        operations = new ArrayList<String>();
+
+        for (Permission permission : permissions) {
+            operations.add(permission.getOperation());
+        }
+
+        assertEquals(2, permissions.size());
+        assertTrue(operations.contains("create"));
+        assertTrue(operations.contains("update"));
+
+        permissionManager.revokePermission(bob, entity, "create,update");
+
+        permissions = permissionManager.listPermissions(entity);
+
+        assertTrue(permissions.isEmpty());
     }
 
     @Test (expected = IdentityManagementException.class)

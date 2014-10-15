@@ -1979,9 +1979,7 @@ public class JPAIdentityStore
                         }
                     }
 
-                    if (ops > 0) {
-                        newOperations = ops;
-                    }
+                    newOperations = ops;
                 }
             } else {
                 newOperations = adjustCSVOperation(operations.toString(), newOperations.toString(), mode);
