@@ -24,7 +24,6 @@ package org.picketlink.http.internal;
 import org.picketlink.config.SecurityConfiguration;
 import org.picketlink.extension.PicketLinkExtension;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -40,7 +39,6 @@ import java.util.EnumSet;
  *
  * @author Pedro Igor
  */
-@ApplicationScoped
 @WebListener
 public class PicketLinkServletContextListener implements ServletContextListener {
 
