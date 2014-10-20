@@ -99,7 +99,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
             try {
                 String issuerDomain = getDomain(issuer);
                 TrustType idpTrust = idpConfiguration.getTrust();
-                if (idpTrust != null) {
+                if (idpTrust != null && idpTrust.getDomains() != null) {
                     String domainsTrusted = idpTrust.getDomains();
 
                     logger.trace("Domains that IDP trusts = " + domainsTrusted + " and issuer domain = " + issuerDomain);
