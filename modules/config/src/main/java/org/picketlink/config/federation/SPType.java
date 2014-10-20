@@ -173,4 +173,15 @@ public class SPType extends ProviderType {
     public void setLogoutResponseLocation(String logoutResponseLocation) {
         this.logoutResponseLocation = logoutResponseLocation;
     }
+
+    @Override
+    public void importFrom(ProviderType other) {
+        super.importFrom(other);
+
+        if (SPType.class.isInstance(other)) {
+            SPType otherType = (SPType) other;
+
+            setIdpMetadataFile(otherType.getIdpMetadataFile());
+        }
+    }
 }

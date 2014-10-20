@@ -22,6 +22,8 @@ import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
+import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -77,5 +79,23 @@ public class SAMLMetadataUtil {
             }
         }
         return cert;
+    }
+
+    public static X509Certificate getCertificate(KeyTypes use, SSODescriptorType ssoDescriptorType) {
+        if (ssoDescriptorType != null) {
+            for (KeyDescriptorType keyDescriptorType : ssoDescriptorType.getKeyDescriptor()) {
+                KeyTypes keyUse = keyDescriptorType.getUse();
+
+                if (keyUse == null || (use != null && keyUse.value().equals(use.value()))) {
+                    try {
+                        return getCertificate(keyDescriptorType);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Could not parse KeyDescriptor X509 certificate from metadata [" + ssoDescriptorType.getID() + "].");
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

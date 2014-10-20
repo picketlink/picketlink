@@ -83,6 +83,8 @@ public interface ErrorCodes {
 
     String KEYSTOREKEYMGR_NULL_SIGNING_KEYPASS = "PL00057: KeyStoreKeyManager :: Signing Key Pass is null";
 
+    String KEYSTOREKEYMGR_NULL_ENCRYPTION_KEYPASS = "PL00189: KeyStoreKeyManager :: Encryption Key Pass is null";
+
     String KEYSTOREKEYMGR_KEYSTORE_NOT_LOCATED = "PL00056: KeyStoreKeyManager: Keystore not located:";
 
     String NOT_EQUAL = "PL00094: Not equal:";

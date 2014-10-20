@@ -28,6 +28,7 @@ import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerR
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
@@ -59,6 +60,10 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      */
     public ServiceProviderSAMLResponseProcessor(boolean postBinding, String serviceURL, PicketLinkType picketLinkType) {
         super(postBinding, serviceURL, picketLinkType);
+    }
+
+    public ServiceProviderSAMLResponseProcessor(boolean postBinding, String serviceURL, PicketLinkType picketLinkType, IDPSSODescriptorType idpMetadata) {
+        super(postBinding, serviceURL, picketLinkType, idpMetadata);
     }
 
     /**

@@ -77,6 +77,23 @@ public interface TrustKeyManager {
     KeyPair getSigningKeyPair() throws TrustKeyConfigurationException, TrustKeyProcessingException;
 
     /**
+     * Get the Encryption Key
+     *
+     * @return
+     */
+    PrivateKey getEncryptionKey() throws TrustKeyConfigurationException, TrustKeyProcessingException;
+
+    /**
+     * <p>
+     * Constructs a {@code KeyPair} instance containing the encryption key ({@code PrivateKey}) and associated {@code
+     * PublicKey}.
+     * </p>
+     *
+     * @return
+     */
+    KeyPair getEncryptionKeyPair() throws TrustKeyConfigurationException, TrustKeyProcessingException;
+
+    /**
      * Get the certificate given an alias
      *
      * @param alias

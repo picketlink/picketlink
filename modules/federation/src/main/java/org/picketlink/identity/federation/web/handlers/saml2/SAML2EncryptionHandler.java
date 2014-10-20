@@ -25,8 +25,11 @@ import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
+import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -35,6 +38,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.namespace.QName;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 
 /**
  * <p>Handles the encryption and signing of SAML Assertions.</p>
@@ -72,10 +76,11 @@ public class SAML2EncryptionHandler extends SAML2SignatureGenerationHandler {
 
                 byte[] secret = WSTrustUtil.createRandomSecret(128 / 8);
                 SecretKey secretKey = new SecretKeySpec(secret, getAlgorithm());
+                PublicKey publicKey = getSenderPublicKey(request);
 
                 // encrypt the Assertion element and replace it with a EncryptedAssertion element.
                 XMLEncryptionUtil.encryptElement(new QName(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
-                        JBossSAMLConstants.ASSERTION.get(), samlNSPrefix), samlResponseDocument, getSenderPublicKey(request),
+                        JBossSAMLConstants.ASSERTION.get(), samlNSPrefix), samlResponseDocument, publicKey,
                         secretKey, getKeySize(), encryptedAssertionElementQName, true);
             } catch (Exception e) {
                 throw logger.processingError(e);
@@ -150,13 +155,33 @@ public class SAML2EncryptionHandler extends SAML2SignatureGenerationHandler {
     }
 
     private PublicKey getSenderPublicKey(SAML2HandlerRequest request) {
-        PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
+        PublicKey publicKey = getPublicKeyFromMetadata(request);
+
+        if (publicKey != null) {
+            return publicKey;
+        }
+
+        publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
 
         if (publicKey == null) {
             throw logger.nullArgumentError("Sender Public Key");
         }
 
         return publicKey;
+    }
+
+    private PublicKey getPublicKeyFromMetadata(SAML2HandlerRequest request) {
+        SSODescriptorType spMetadata = (SSODescriptorType) request.getOptions().get(GeneralConstants.SSO_METADATA_DESCRIPTOR);
+
+        if (spMetadata != null) {
+            X509Certificate certificate = SAMLMetadataUtil.getCertificate(KeyTypes.ENCRYPTION, spMetadata);
+
+            if (certificate != null) {
+                return certificate.getPublicKey();
+            }
+        }
+
+        return null;
     }
 
     private void throwResponseDocumentOrAssertionNotFound() {
