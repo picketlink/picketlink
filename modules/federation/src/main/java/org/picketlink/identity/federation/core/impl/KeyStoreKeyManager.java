@@ -47,6 +47,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+
 /**
  * KeyStore based Trust Key Manager
  *
@@ -79,6 +81,10 @@ public class KeyStoreKeyManager implements TrustKeyManager {
 
     private String signingAlias;
 
+    private String encryptionAlias;
+
+    private char[] encryptionKeyPass;
+
     private String keyStorePass;
 
     public static final String KEYSTORE_URL = "KeyStoreURL";
@@ -88,6 +94,10 @@ public class KeyStoreKeyManager implements TrustKeyManager {
     public static final String SIGNING_KEY_PASS = "SigningKeyPass";
 
     public static final String SIGNING_KEY_ALIAS = "SigningKeyAlias";
+
+    public static final String ENCRYPTION_KEY_PASS = "EncryptionKeyPass";
+
+    public static final String ENCRYPTION_KEY_ALIAS = "EncryptionKeyAlias";
 
     /**
      * @see TrustKeyManager#getSigningKey()
@@ -132,6 +142,55 @@ public class KeyStoreKeyManager implements TrustKeyManager {
             throw logger.keyStoreProcessingError(e);
         } catch (IOException e) {
             throw logger.keyStoreProcessingError(e);
+        }
+    }
+
+    @Override
+    public PrivateKey getEncryptionKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (isNullOrEmpty(this.encryptionAlias)) {
+            return getSigningKey();
+        } else {
+            if (this.encryptionKeyPass == null || this.encryptionKeyPass.length == 0)
+                throw logger.keyStoreNullEncryptionKeyPass();
+
+            try {
+                initKeyStore();
+                return (PrivateKey) ks.getKey(this.encryptionAlias, this.encryptionKeyPass);
+            } catch (KeyStoreException e) {
+                throw logger.keyStoreConfigurationError(e);
+            } catch (NoSuchAlgorithmException e) {
+                throw logger.keyStoreProcessingError(e);
+            } catch (UnrecoverableKeyException e) {
+                throw logger.keyStoreProcessingError(e);
+            } catch (GeneralSecurityException e) {
+                throw logger.keyStoreProcessingError(e);
+            } catch (IOException e) {
+                throw logger.keyStoreProcessingError(e);
+            }
+        }
+    }
+
+    @Override
+    public KeyPair getEncryptionKeyPair() throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (isNullOrEmpty(this.encryptionAlias)) {
+            return getSigningKeyPair();
+        } else {
+            if (this.encryptionKeyPass == null || this.encryptionKeyPass.length == 0) {
+                throw logger.keyStoreNullEncryptionKeyPass();
+            }
+
+            try {
+                initKeyStore();
+                PrivateKey privateKey = this.getSigningKey();
+                PublicKey publicKey = KeyStoreUtil.getPublicKey(this.ks, this.encryptionAlias, this.encryptionKeyPass);
+                return new KeyPair(publicKey, privateKey);
+            } catch (KeyStoreException e) {
+                throw logger.keyStoreConfigurationError(e);
+            } catch (GeneralSecurityException e) {
+                throw logger.keyStoreProcessingError(e);
+            } catch (IOException e) {
+                throw logger.keyStoreProcessingError(e);
+            }
         }
     }
 
@@ -245,11 +304,17 @@ public class KeyStoreKeyManager implements TrustKeyManager {
         this.keyStorePass = this.authPropsMap.get(KEYSTORE_PASS);
 
         this.signingAlias = this.authPropsMap.get(SIGNING_KEY_ALIAS);
+        String signKeypass = this.authPropsMap.get(SIGNING_KEY_PASS);
 
-        String keypass = this.authPropsMap.get(SIGNING_KEY_PASS);
+        if (signKeypass != null) {
+            this.signingKeyPass = signKeypass.toCharArray();
+        }
 
-        if (keypass != null) {
-            this.signingKeyPass = keypass.toCharArray();
+        this.encryptionAlias = this.authPropsMap.get(ENCRYPTION_KEY_ALIAS);
+        String encKeypass = this.authPropsMap.get(ENCRYPTION_KEY_PASS);
+
+        if (encKeypass != null) {
+            this.encryptionKeyPass = encKeypass.toCharArray();
         }
     }
 
@@ -263,10 +328,6 @@ public class KeyStoreKeyManager implements TrustKeyManager {
         }
     }
 
-    /**
-     * @throws GeneralSecurityException
-     * @see TrustKeyManager#getEncryptionKey(String)
-     */
     public SecretKey getEncryptionKey(String domain, String encryptionAlgorithm, int keyLength)
             throws TrustKeyConfigurationException, TrustKeyProcessingException {
         SecretKey key = keys.get(domain);

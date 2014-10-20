@@ -325,6 +325,11 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         return new RuntimeException(ErrorCodes.KEYSTOREKEYMGR_NULL_SIGNING_KEYPASS);
     }
 
+    @Override
+    public RuntimeException keyStoreNullEncryptionKeyPass() {
+        return new RuntimeException(ErrorCodes.KEYSTOREKEYMGR_NULL_ENCRYPTION_KEYPASS);
+    }
+
     /*
      *(non-Javadoc)
      *

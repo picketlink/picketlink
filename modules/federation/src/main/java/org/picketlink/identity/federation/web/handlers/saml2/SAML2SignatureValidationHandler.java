@@ -28,12 +28,16 @@ import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
+import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.w3c.dom.Document;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 
 /**
@@ -73,7 +77,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
             logger.trace("Going to validate signature for: " + DocumentUtil.asString(signedDocument));
         }
 
-        PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
+        PublicKey publicKey = getSenderPublicKey(request);
 
         try {
             boolean isValid;
@@ -174,4 +178,35 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
     private ProcessingException constructSignatureException() {
         return new ProcessingException(logger.samlHandlerSignatureValidationFailed());
     }
+
+    private PublicKey getSenderPublicKey(SAML2HandlerRequest request) {
+        PublicKey publicKey = getPublicKeyFromMetadata(request);
+
+        if (publicKey != null) {
+            return publicKey;
+        }
+
+        publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
+
+        if (publicKey == null) {
+            throw logger.nullArgumentError("Sender Public Key");
+        }
+
+        return publicKey;
+    }
+
+    private PublicKey getPublicKeyFromMetadata(SAML2HandlerRequest request) {
+        SSODescriptorType spMetadata = (SSODescriptorType) request.getOptions().get(GeneralConstants.SSO_METADATA_DESCRIPTOR);
+
+        if (spMetadata != null) {
+            X509Certificate certificate = SAMLMetadataUtil.getCertificate(KeyTypes.SIGNING, spMetadata);
+
+            if (certificate != null) {
+                return certificate.getPublicKey();
+            }
+        }
+
+        return null;
+    }
+
 }

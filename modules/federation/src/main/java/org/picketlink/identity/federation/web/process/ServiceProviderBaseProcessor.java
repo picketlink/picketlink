@@ -39,12 +39,15 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.H
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URL;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -64,6 +67,7 @@ public class ServiceProviderBaseProcessor {
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected final PicketLinkType configuration;
+    private final IDPSSODescriptorType idpMetadata;
 
     protected boolean postBinding;
 
@@ -86,9 +90,14 @@ public class ServiceProviderBaseProcessor {
      * @param serviceURL Service URL of the SP
      */
     public ServiceProviderBaseProcessor(boolean postBinding, String serviceURL, PicketLinkType configuration) {
+        this(postBinding, serviceURL, configuration, null);
+    }
+
+    public ServiceProviderBaseProcessor(boolean postBinding, String serviceURL, PicketLinkType configuration, IDPSSODescriptorType idpMetadata) {
         this.postBinding = postBinding;
         this.serviceURL = serviceURL;
         this.configuration = configuration;
+        this.idpMetadata = idpMetadata;
     }
 
     /**
@@ -226,13 +235,22 @@ public class ServiceProviderBaseProcessor {
      *
      * @return
      *
-     * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException
-     * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException
+     * @throws org.picketlink.common.exceptions.TrustKeyConfigurationException
+     * @throws org.picketlink.common.exceptions.TrustKeyProcessingException
      */
     protected PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (this.idpMetadata != null) {
+            X509Certificate certificate = SAMLMetadataUtil.getCertificate(null, this.idpMetadata);
+
+            if (certificate != null) {
+                return certificate.getPublicKey();
+            }
+        }
+
         if (this.keyManager == null) {
             throw logger.trustKeyManagerMissing();
         }
+
         String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
 
         if (isNullOrEmpty(idpValidatingAlias)) {
@@ -246,6 +264,8 @@ public class ServiceProviderBaseProcessor {
         Map<String, Object> requestOptions = new HashMap<String, Object>();
 
         requestOptions.put(GeneralConstants.CONFIGURATION, getSpConfiguration());
+        requestOptions.put(GeneralConstants.IDP_SSO_METADATA_DESCRIPTOR, this.idpMetadata);
+        requestOptions.put(GeneralConstants.SSO_METADATA_DESCRIPTOR, this.idpMetadata);
 
         if (auditHelper != null) {
             requestOptions.put(GeneralConstants.AUDIT_HELPER, auditHelper);
@@ -255,7 +275,7 @@ public class ServiceProviderBaseProcessor {
             PublicKey validatingKey = getIDPPublicKey();
 
             requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
-            requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+            requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getEncryptionKey());
         }
 
         requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, getSpConfiguration().isSupportsSignature());

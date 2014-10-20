@@ -201,6 +201,8 @@ public interface PicketLinkLogger {
      */
     RuntimeException keyStoreNullSigningKeyPass();
 
+    RuntimeException keyStoreNullEncryptionKeyPass();
+
     /**
      * <p>Creates a {@link RuntimeException} for the case where key store are not located.</p>
      *

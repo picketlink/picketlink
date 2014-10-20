@@ -503,6 +503,7 @@ public class IDPFilter implements Filter {
 
             requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, willIgnoreSignatureOfCurrentRequest(issuer));
             requestOptions.put(GeneralConstants.SP_SSO_METADATA_DESCRIPTOR, spSSOMetadataMap.get(issuer));
+            requestOptions.put(GeneralConstants.SSO_METADATA_DESCRIPTOR, spSSOMetadataMap.get(issuer));
             requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
             requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
             requestOptions.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
@@ -514,7 +515,7 @@ public class IDPFilter implements Filter {
             if (this.keyManager != null) {
                 PublicKey validatingKey = getIssuerPublicKey(request, issuer);
                 requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
-                requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+                requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getEncryptionKey());
             }
 
             // if this is a SAML AuthnRequest load the roles using the generator.

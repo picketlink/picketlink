@@ -279,7 +279,7 @@ public class SPFilter implements Filter {
                     SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
                             holder.getIssuer(), documentHolder, HANDLER_TYPE.SP);
                     if (keyManager != null)
-                        saml2HandlerRequest.addOption(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+                        saml2HandlerRequest.addOption(GeneralConstants.DECRYPTING_KEY, keyManager.getEncryptionKey());
 
                     SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
@@ -354,7 +354,7 @@ public class SPFilter implements Filter {
                     SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
                             holder.getIssuer(), documentHolder, HANDLER_TYPE.SP);
                     if (keyManager != null)
-                        saml2HandlerRequest.addOption(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+                        saml2HandlerRequest.addOption(GeneralConstants.DECRYPTING_KEY, keyManager.getEncryptionKey());
 
                     SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 

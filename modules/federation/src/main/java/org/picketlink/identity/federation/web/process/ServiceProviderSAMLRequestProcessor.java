@@ -30,6 +30,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
@@ -59,6 +60,10 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
      */
     public ServiceProviderSAMLRequestProcessor(boolean postBinding, String serviceURL, PicketLinkType configuration) {
         super(postBinding, serviceURL, configuration);
+    }
+
+    public ServiceProviderSAMLRequestProcessor(boolean postBinding, String serviceURL, PicketLinkType configuration, IDPSSODescriptorType idpMetadata) {
+        super(postBinding, serviceURL, configuration, idpMetadata);
     }
 
     /**
