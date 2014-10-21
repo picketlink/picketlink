@@ -22,17 +22,22 @@ import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.config.federation.IDPType;
+import org.picketlink.identity.federation.core.impl.DelegatedAttributeManager;
 import org.picketlink.identity.federation.core.impl.EmptyAttributeManager;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2AttributeManager;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
@@ -69,7 +74,7 @@ import static org.picketlink.common.constants.GeneralConstants.SESSION_ATTRIBUTE
  */
 public class SAML2AttributeHandler extends BaseSAML2Handler {
 
-    protected AttributeManager attribManager = new EmptyAttributeManager();
+    protected SAML2AttributeManager attribManager = new DelegatedAttributeManager(new EmptyAttributeManager(), null);
 
     protected List<String> attributeKeys = new ArrayList<String>();
 
@@ -118,7 +123,9 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
     @SuppressWarnings("unchecked")
     public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         // Do not handle log out request interaction
-        if (request.getSAML2Object() instanceof LogoutRequestType)
+        SAML2Object saml2Object = request.getSAML2Object();
+
+        if (saml2Object instanceof LogoutRequestType)
             return;
 
         // only handle IDP side
@@ -129,15 +136,20 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         HttpSession session = httpContext.getRequest().getSession(false);
 
         Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
+        AuthnRequestType authnRequestType = (AuthnRequestType) saml2Object;
 
-        if (userPrincipal == null)
+        if (userPrincipal == null) {
             userPrincipal = httpContext.getRequest().getUserPrincipal();
+        }
 
-        Map<String, Object> attribs = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
-        if (attribs == null) {
-            attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
-            request.addOption(GeneralConstants.ATTRIBUTES, attribs);
-            session.setAttribute(GeneralConstants.ATTRIBUTES, attribs);
+        Map<String, Object> sessionAttributes = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
+
+        if (sessionAttributes == null) {
+            Set<AttributeStatementType> attributes = this.attribManager.getAttributes(authnRequestType, userPrincipal);
+
+            request.addOption(GeneralConstants.ATTRIBUTES, attributes);
+
+            session.setAttribute(GeneralConstants.ATTRIBUTES, StatementUtil.asMap(attributes));
         }
     }
 
@@ -152,7 +164,7 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
     private void insantiateAttributeManager(String attribStr) throws ConfigurationException {
         if (attribStr != null && !"".equals(attribStr)) {
             try {
-                attribManager = (AttributeManager) SecurityActions.loadClass(getClass(), attribStr).newInstance();
+                attribManager = new DelegatedAttributeManager((AttributeManager) SecurityActions.loadClass(getClass(), attribStr).newInstance(), null);
                 logger.trace("AttributeManager set to " + attribStr);
             } catch (Exception e) {
                 logger.attributeProviderInstationError(e);

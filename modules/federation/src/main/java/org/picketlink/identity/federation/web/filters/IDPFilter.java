@@ -74,6 +74,7 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
@@ -523,7 +524,7 @@ public class IDPFilter implements Filter {
                 List<String> roles = roleGenerator.generateRoles(userPrincipal);
                 session.setAttribute(GeneralConstants.ROLES_ID, roles);
 
-                Map<String, Object> attribs = this.attribManager.getAttributesMap((AuthnRequestType) requestAbstractType, userPrincipal);
+                Set<AttributeStatementType> attribs = this.attribManager.getAttributes((AuthnRequestType) requestAbstractType, userPrincipal);
                 requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
             }
 

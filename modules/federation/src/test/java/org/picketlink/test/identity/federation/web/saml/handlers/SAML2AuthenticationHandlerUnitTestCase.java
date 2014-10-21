@@ -83,8 +83,8 @@ import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +95,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.picketlink.identity.federation.core.saml.v2.util.StatementUtil.createAttributeStatement;
 
 /**
  * Unit test the {@link SAML2AuthenticationHandler}
@@ -398,12 +399,12 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
             SAML2Handler.HANDLER_TYPE.IDP);
 
-        HashMap<String, Object> attributesMap = new HashMap<String, Object>();
+        Set<AttributeStatementType> attributeStatementTypes = new HashSet<AttributeStatementType>();
 
-        attributesMap.put("attribute1", "attributeValue1");
-        attributesMap.put("attribute2", Arrays.asList(new String[] {"attributeValue2", "attributeValue22"}));
+        attributeStatementTypes.add(createAttributeStatement("attribute1", "attributeValue1"));
+        attributeStatementTypes.add(createAttributeStatement("attribute2", "attributeValue2"));
 
-        request.addOption(GeneralConstants.ATTRIBUTES, attributesMap);
+        request.addOption(GeneralConstants.ATTRIBUTES, attributeStatementTypes);
 
         PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
         sts.installDefaultConfiguration(null);
