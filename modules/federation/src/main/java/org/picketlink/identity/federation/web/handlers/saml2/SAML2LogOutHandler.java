@@ -452,10 +452,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             statusType.setStatusCode(statusCodeType);
 
             statusResponse.setStatus(statusType);
-
             statusResponse.setInResponseTo(logOutRequestID);
-
             statusResponse.setIssuer(request.getIssuer());
+            statusResponse.setDestination(originalIssuer);
 
             try {
                 SAML2Response saml2Response = new SAML2Response();
