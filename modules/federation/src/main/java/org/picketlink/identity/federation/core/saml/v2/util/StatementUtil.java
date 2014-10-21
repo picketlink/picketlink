@@ -209,11 +209,20 @@ public class StatementUtil {
                     List<ASTChoiceType> attrs = attrStat.getAttributes();
                     for (ASTChoiceType attrChoice : attrs) {
                         AttributeType attr = attrChoice.getAttribute();
-                        String attributeName = attr.getName();
+                        String attributeName = attr.getFriendlyName();
+
+                        if (attributeName == null) {
+                            attributeName = attr.getName();
+                        }
+
                         List<Object> values = attr.getAttributeValue();
 
                         if (values != null) {
-                            attrMap.put(attributeName, values);
+                            if (values.size() == 1) {
+                                attrMap.put(attributeName, values.get(0));
+                            } else {
+                                attrMap.put(attributeName, values);
+                            }
                         }
                     }
                 }

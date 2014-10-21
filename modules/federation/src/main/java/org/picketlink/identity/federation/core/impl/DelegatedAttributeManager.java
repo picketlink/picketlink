@@ -100,7 +100,11 @@ public class DelegatedAttributeManager implements SAML2AttributeManager {
             Map<String, Object> attributes = getAttributes(userPrincipal, this.attributeKeys);
 
             if (attributes != null) {
-                attributeStatementTypes.add(StatementUtil.createAttributeStatement(attributes));
+                AttributeStatementType attributeStatement = StatementUtil.createAttributeStatement(attributes);
+
+                if (attributeStatement != null) {
+                    attributeStatementTypes.add(attributeStatement);
+                }
             }
         }
 

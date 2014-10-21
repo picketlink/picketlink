@@ -55,6 +55,8 @@ import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
@@ -431,11 +433,17 @@ public class IDPServlet extends HttpServlet {
 
                         // Set the options on the handler request
                         Map<String, Object> requestOptions = new HashMap<String, Object>();
-                        requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-                        requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
 
-                        Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
-                        requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+                        // if this is a SAML AuthnRequest load the roles using the generator.
+                        if (requestAbstractType instanceof AuthnRequestType) {
+                            List<String> roles = roleGenerator.generateRoles(userPrincipal);
+                            session.setAttribute(GeneralConstants.ROLES_ID, roles);
+
+                            Set<AttributeStatementType> attribs = this.attribManager.getAttributes((AuthnRequestType) requestAbstractType, userPrincipal);
+                            requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+                        }
+
+                        requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
 
                         saml2HandlerRequest.setOptions(requestOptions);
 

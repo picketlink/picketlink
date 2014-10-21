@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AttributeHandler;
@@ -169,7 +170,7 @@ public class SAML2AttributeHandlerUnitTestCase {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
-        SAML2Object saml2Object = new SAML2Object() {
+        SAML2Object saml2Object = new AuthnRequestType("1", null) {
         };
 
         SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);

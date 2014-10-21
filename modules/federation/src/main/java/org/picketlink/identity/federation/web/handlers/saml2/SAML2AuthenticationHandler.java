@@ -199,12 +199,11 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
         }
 
-        Map<String, Object> attribs = (Map<String, Object>) request.getOptions().get(GeneralConstants.ATTRIBUTES);
+        Set<AttributeStatementType> attribs = (Set<AttributeStatementType>) request.getOptions().get(GeneralConstants.ATTRIBUTES);
 
         // Add in the attributes information
         if (attribs != null && attribs.size() > 0) {
-            AttributeStatementType attStatement = StatementUtil.createAttributeStatement(attribs);
-            attributeStatementTypes.add(attStatement);
+            attributeStatementTypes.addAll(attribs);
         }
 
         return attributeStatementTypes;
