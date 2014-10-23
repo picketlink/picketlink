@@ -60,7 +60,7 @@ public class IDPMetadataConfigurationProviderUnitTestCase {
     public void testIDPTypeWithConfig() throws Exception {
         IDPMetadataConfigurationProvider provider = new IDPMetadataConfigurationProvider();
         InputStream is = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("saml2/logout/idp/WEB-INF/picketlink-idfed.xml");
+                .getResourceAsStream("saml2/logout/idp/WEB-INF/picketlink-idfed-without-identity-url.xml");
         assertNotNull(is);
         provider.setConfigFile(is);
 
