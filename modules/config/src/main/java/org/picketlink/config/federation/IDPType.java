@@ -21,7 +21,8 @@
  */
 package org.picketlink.config.federation;
 
-import org.picketlink.common.util.StringUtil;
+import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * IDP Type defines the configuration for an Identity Provider.
@@ -191,14 +192,20 @@ public class IDPType extends ProviderType {
         super.importFrom(other);
 
         String attributeManager = other.getAttributeManager();
-        if (StringUtil.isNotNull(attributeManager)) {
+        if (isNotNull(attributeManager)) {
             setAttributeManager(attributeManager);
         }
 
         encrypt = other.isEncrypt();
 
-        if (StringUtil.isNotNull(other.getRoleGenerator())) {
+        if (isNotNull(other.getRoleGenerator())) {
             this.roleGenerator = other.getRoleGenerator();
+        }
+
+        String hostedURI = other.getHostedURI();
+
+        if (!isNullOrEmpty(hostedURI)) {
+            setHostedURI(hostedURI);
         }
     }
 

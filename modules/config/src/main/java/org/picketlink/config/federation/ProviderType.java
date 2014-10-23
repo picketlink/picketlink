@@ -23,6 +23,7 @@ import javax.xml.crypto.dsig.CanonicalizationMethod;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * Base Type for IDP and SP
@@ -227,6 +228,12 @@ public class ProviderType {
      * @param other
      */
     public void importFrom(ProviderType other) {
+        String identityUrl = other.getIdentityURL();
+
+        if (!isNullOrEmpty(identityUrl)) {
+            setIdentityURL(identityUrl);
+        }
+
         KeyProviderType keyProvider = other.getKeyProvider();
 
         if (keyProvider != null) {

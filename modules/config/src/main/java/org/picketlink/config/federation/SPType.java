@@ -19,7 +19,6 @@ package org.picketlink.config.federation;
 
 import org.picketlink.common.constants.GeneralConstants;
 
-
 /**
  * Service Provider Type
  * <p/>
