@@ -78,7 +78,7 @@ public class MockServletContext implements ServletContext {
     }
 
     public String getContextPath() {
-        throw new RuntimeException("NYI");
+        return "";
     }
 
     public String getInitParameter(String arg0) {

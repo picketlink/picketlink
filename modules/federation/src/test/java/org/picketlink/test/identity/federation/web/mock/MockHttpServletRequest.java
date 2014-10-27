@@ -217,7 +217,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     public Object getAttribute(String arg0) {
 
-        throw new RuntimeException("NYI");
+        return null;
     }
 
     public Enumeration getAttributeNames() {

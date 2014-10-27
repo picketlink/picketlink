@@ -110,7 +110,14 @@ public class SAML2LogoutWorkflowUnitTestCase {
         spEmpl.init(filterConfig);
 
         MockHttpSession filterSession = new MockHttpSession();
-        MockHttpServletRequest filterRequest = new MockHttpServletRequest(filterSession, "POST");
+
+        session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal() {
+            public String getName() {
+                return "anil";
+            }
+        });
+
+        MockHttpServletRequest filterRequest = new MockHttpServletRequest(session, "POST");
         filterRequest.addParameter(GeneralConstants.GLOBAL_LOGOUT, "true");
 
         MockHttpServletResponse filterResponse = new MockHttpServletResponse();
