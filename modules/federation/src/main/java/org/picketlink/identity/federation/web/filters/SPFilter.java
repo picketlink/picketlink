@@ -17,67 +17,66 @@
  */
 package org.picketlink.identity.federation.web.filters;
 
-import org.jboss.logging.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.exceptions.TrustKeyConfigurationException;
-import org.picketlink.common.exceptions.TrustKeyProcessingException;
 import org.picketlink.common.exceptions.fed.AssertionExpiredException;
-import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.config.federation.AuthPropertyType;
 import org.picketlink.config.federation.KeyProviderType;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.federation.SPType;
-import org.picketlink.config.federation.TrustType;
 import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
-import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAML2HandlerChainFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
-import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
-import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.saml.v2.SAML2Object;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AuthenticationStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstractType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
+import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.web.config.AbstractSAMLConfigurationProvider;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
+import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
+import org.picketlink.identity.federation.web.process.ServiceProviderSAMLRequestProcessor;
+import org.picketlink.identity.federation.web.process.ServiceProviderSAMLResponseProcessor;
 import org.picketlink.identity.federation.web.roles.DefaultRoleValidator;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
+import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -90,28 +89,29 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.Principal;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import static org.picketlink.common.constants.GeneralConstants.CONFIG_FILE_LOCATION;
 import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * A service provider filter for web container agnostic providers
@@ -121,23 +121,32 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  */
 public class SPFilter implements Filter {
 
-    private static Logger log = Logger.getLogger(SPFilter.class);
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
-    private final boolean trace = log.isTraceEnabled();
+    public static final String ISSUER_ID = "ISSUER_ID";
+
+    public static final String DESIRED_IDP = "picketlink.desired.idp";
+    public static final String CHARACTER_ENCODING = "CHARACTER_ENCODING";
+    public static final String CONFIGURATION_PROVIDER = "CONFIGURATION_PROVIDER";
+    public static final String SAML_HANDLER_CHAIN_CLASS = "SAML_HANDLER_CHAIN_CLASS";
+
+    private final boolean trace = logger.isTraceEnabled();
 
     protected SPType spConfiguration = null;
 
     protected PicketLinkType picketLinkConfiguration = null;
 
-    protected String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
+    protected String configFile;
 
     protected String serviceURL = null;
 
     protected String identityURL = null;
 
+    protected transient String samlHandlerChainClass = null;
+
     private TrustKeyManager keyManager;
 
-    private ServletContext context = null;
+    private ServletContext servletContext = null;
 
     private transient SAML2HandlerChain chain = null;
 
@@ -149,370 +158,122 @@ public class SPFilter implements Filter {
 
     protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
+    protected volatile PicketLinkAuditHelper auditHelper = null;
+
+    protected volatile String issuerID = null;
+
+    protected IDPSSODescriptorType idpMetadata;
+
+    protected Lock chainLock = new ReentrantLock();
+    private String characterEncoding;
+
+    protected SAMLConfigurationProvider configProvider = null;
+    private Map<String, Object> chainConfigOptions;
+
     public void destroy() {
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletRequest request = createHttpServletRequestWrapper((HttpServletRequest) servletRequest);
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        boolean postMethod = "POST".equalsIgnoreCase(request.getMethod());
+        try {
+            // needs to be done first, *before* accessing any parameters. super.authenticate(..) gets called to late
+            String characterEncoding = getCharacterEncoding();
 
-        HttpSession session = request.getSession();
+            if (characterEncoding != null) {
+                request.setCharacterEncoding(characterEncoding);
+            }
 
-        Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
+            HttpSession session = request.getSession(true);
 
-        String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
-        String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+            // Eagerly look for Local LogOut
+            boolean localLogout = isLocalLogout(request);
 
-        // Eagerly look for Global LogOut
-        String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
-        boolean logOutRequest = isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
-
-        if (!postMethod && !logOutRequest) {
-            // Check if we are already authenticated
-            if (userPrincipal != null) {
-                filterChain.doFilter(servletRequest, servletResponse);
+            if (localLogout) {
+                try {
+                    sendToLogoutPage(request, response, session);
+                } catch (ServletException e) {
+                    logger.samlLogoutError(e);
+                    throw new IOException(e);
+                }
                 return;
             }
 
-            // We need to send request to IDP
-            if (userPrincipal == null) {
-                String relayState = null;
-                try {
-                    // TODO: use the handlers to generate the request
-                    AuthnRequestType authnRequest = createSAMLRequest(serviceURL, identityURL);
-                    sendRequestToIDP(authnRequest, relayState, response);
-                } catch (Exception e) {
-                    throw new ServletException(e);
+            String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
+            String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+
+            Principal principal = request.getUserPrincipal();
+
+            // If we have already authenticated the user and there is no request from IDP or logout from user
+            if (principal != null && !(isGlobalLogout(request) || isNotNull(samlRequest) || isNotNull(samlResponse))) {
+                filterChain.doFilter(request, response);
+            } else {
+
+                // General User Request
+                if (!isNotNull(samlRequest) && !isNotNull(samlResponse)) {
+                    generalUserRequest(request, response);
                 }
-                return;
-            }
-        } else {
-            if (!isNotNull(samlRequest) && !isNotNull(samlResponse)) {
-                // Neither saml request nor response from IDP
-                // So this is a user request
 
-                // Ask the handler chain to generate the saml request
-                Set<SAML2Handler> handlers = chain.handlers();
-
-                IssuerInfoHolder holder = new IssuerInfoHolder(this.serviceURL);
-                ProtocolContext protocolContext = new HTTPContext(request, response, context);
-                // Create the request/response
-                SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, holder.getIssuer(),
-                        null, HANDLER_TYPE.SP);
-
-                SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
-
-                saml2HandlerResponse.setDestination(identityURL);
-
-                // Reset the state
-                try {
-                    for (SAML2Handler handler : handlers) {
-                        handler.reset();
-                        if (saml2HandlerResponse.isInError()) {
-                            response.sendError(saml2HandlerResponse.getErrorCode());
-                            break;
-                        }
-
-                        if (logOutRequest)
-                            saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.LOGOUT);
-                        else
-                            saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
-                        handler.generateSAMLRequest(saml2HandlerRequest, saml2HandlerResponse);
-                    }
-                } catch (ProcessingException pe) {
-                    throw new RuntimeException(pe);
+                // Handle a SAML Response from IDP
+                if (isNotNull(samlResponse)) {
+                    handleSAMLResponse(request, response);
                 }
-                Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
-                String relayState = saml2HandlerResponse.getRelayState();
 
-                String destination = saml2HandlerResponse.getDestination();
+                // Handle SAML Requests from IDP
+                if (isNotNull(samlRequest)) {
+                    handleSAMLRequest(request, response);
+                }// end if
 
-                if (destination != null && samlResponseDocument != null) {
-                    try {
-                        this.sendToDestination(samlResponseDocument, relayState, destination, response,
-                                saml2HandlerResponse.getSendRequest());
-                    } catch (Exception e) {
-                        if (trace)
-                            log.trace("Exception:", e);
-                        throw new ServletException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + "Server Error");
-                    }
-                    return;
+                request = createHttpServletRequestWrapper((HttpServletRequest) servletRequest);
+
+                principal = request.getUserPrincipal();
+
+                if (principal != null && !response.isCommitted()) {
+                    filterChain.doFilter(request, response);
+                } else {
+                    localAuthentication(request, response);
                 }
             }
+        } catch (IOException e) {
+            SPType configuration = getConfiguration();
 
-            // See if we got a response from IDP
-            if (isNotNull(samlResponse)) {
-                boolean isValid = false;
+            if (StringUtil.isNotNull(configuration.getErrorPage())) {
                 try {
-                    isValid = this.validate(request);
-                } catch (Exception e) {
-                    throw new ServletException(e);
+                    request.getRequestDispatcher(configuration.getErrorPage()).forward(request, response);
+                } catch (ServletException e1) {
+                    logger.samlErrorPageForwardError(configuration.getErrorPage(), e1);
                 }
-                if (!isValid)
-                    throw new ServletException(ErrorCodes.VALIDATION_CHECK_FAILED + "Validity check failed");
-
-                // deal with SAML response from IDP
-                byte[] base64DecodedResponse = PostBindingUtil.base64Decode(samlResponse);
-                InputStream is = new ByteArrayInputStream(base64DecodedResponse);
-
-                // Are we going to send Request to IDP?
-                boolean willSendRequest = true;
-
-                try {
-                    SAML2Response saml2Response = new SAML2Response();
-
-                    SAML2Object samlObject = saml2Response.getSAML2ObjectFromStream(is);
-                    SAMLDocumentHolder documentHolder = saml2Response.getSamlDocumentHolder();
-
-                    if (!ignoreSignatures) {
-                        if (!verifySignature(documentHolder))
-                            throw new ServletException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Cannot verify sender");
-                    }
-
-                    Set<SAML2Handler> handlers = chain.handlers();
-                    IssuerInfoHolder holder = new IssuerInfoHolder(this.serviceURL);
-                    ProtocolContext protocolContext = new HTTPContext(request, response, context);
-                    // Create the request/response
-                    SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
-                            holder.getIssuer(), documentHolder, HANDLER_TYPE.SP);
-                    if (keyManager != null)
-                        saml2HandlerRequest.addOption(GeneralConstants.DECRYPTING_KEY, keyManager.getEncryptionKey());
-
-                    SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
-
-                    // Deal with handler chains
-                    for (SAML2Handler handler : handlers) {
-                        if (saml2HandlerResponse.isInError()) {
-                            response.sendError(saml2HandlerResponse.getErrorCode());
-                            break;
-                        }
-                        if (samlObject instanceof RequestAbstractType) {
-                            handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
-                            willSendRequest = false;
-                        } else {
-                            handler.handleStatusResponseType(saml2HandlerRequest, saml2HandlerResponse);
-                        }
-                    }
-
-                    Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
-                    String relayState = saml2HandlerResponse.getRelayState();
-
-                    String destination = saml2HandlerResponse.getDestination();
-
-                    if (destination != null && samlResponseDocument != null) {
-                        this.sendToDestination(samlResponseDocument, relayState, destination, response, willSendRequest);
-                        return;
-                    }
-
-                    // See if the session has been invalidated
-                    try {
-                        session.isNew();
-                    } catch (IllegalStateException ise) {
-                        // we are invalidated.
-                        RequestDispatcher dispatch = context.getRequestDispatcher(this.logOutPage);
-                        if (dispatch == null)
-                            log.error("Cannot dispatch to the logout page: no request dispatcher:" + this.logOutPage);
-                        else
-                            dispatch.forward(request, response);
-                        return;
-                    }
-                    filterChain.doFilter(request, servletResponse);
-                } catch (Exception e) {
-                    log.error("Server Exception:", e);
-                    throw new ServletException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
-                }
-
-            }
-
-            if (isNotNull(samlRequest)) {
-                // we got a logout request
-
-                // deal with SAML response from IDP
-                byte[] base64DecodedRequest = PostBindingUtil.base64Decode(samlRequest);
-                InputStream is = new ByteArrayInputStream(base64DecodedRequest);
-
-                // Are we going to send Request to IDP?
-                boolean willSendRequest = false;
-
-                try {
-                    SAML2Request saml2Request = new SAML2Request();
-                    SAML2Object samlObject = saml2Request.getSAML2ObjectFromStream(is);
-                    SAMLDocumentHolder documentHolder = saml2Request.getSamlDocumentHolder();
-
-                    if (!ignoreSignatures) {
-                        if (!verifySignature(documentHolder))
-                            throw new ServletException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Cannot verify sender");
-                    }
-
-                    Set<SAML2Handler> handlers = chain.handlers();
-                    IssuerInfoHolder holder = new IssuerInfoHolder(this.serviceURL);
-                    ProtocolContext protocolContext = new HTTPContext(request, response, context);
-                    // Create the request/response
-                    SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
-                            holder.getIssuer(), documentHolder, HANDLER_TYPE.SP);
-                    if (keyManager != null)
-                        saml2HandlerRequest.addOption(GeneralConstants.DECRYPTING_KEY, keyManager.getEncryptionKey());
-
-                    SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
-
-                    // Deal with handler chains
-                    for (SAML2Handler handler : handlers) {
-                        if (saml2HandlerResponse.isInError()) {
-                            response.sendError(saml2HandlerResponse.getErrorCode());
-                            break;
-                        }
-                        if (samlObject instanceof RequestAbstractType) {
-                            handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
-                            willSendRequest = false;
-                        } else {
-                            handler.handleStatusResponseType(saml2HandlerRequest, saml2HandlerResponse);
-                        }
-                    }
-
-                    Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
-                    String relayState = saml2HandlerResponse.getRelayState();
-
-                    String destination = saml2HandlerResponse.getDestination();
-
-                    if (destination != null && samlResponseDocument != null) {
-                        this.sendToDestination(samlResponseDocument, relayState, destination, response, willSendRequest);
-                        return;
-                    }
-                } catch (Exception e) {
-                    if (trace)
-                        log.trace("Server Exception:", e);
-                    throw new ServletException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + "Server Exception");
-                }
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            } else {
+                throw e;
             }
         }
     }
 
+    private HttpServletRequest createHttpServletRequestWrapper(final HttpServletRequest request) {
+        return new HttpServletRequestWrapper(request) {
+            @Override
+            public Principal getUserPrincipal() {
+                HttpSession session = getSession(false);
+
+                if (session != null) {
+                    return (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
+                }
+
+                return super.getUserPrincipal();
+            }
+        };
+    }
+
+    private String getCharacterEncoding() {
+        return this.characterEncoding;
+    }
+
     public void init(FilterConfig filterConfig) throws ServletException {
-        this.context = filterConfig.getServletContext();
-        InputStream is = context.getResourceAsStream(configFile);
-
-        if (is != null) {
-            try {
-                picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
-                spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
-            } catch (ParsingException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            is = context.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
-            if (is == null)
-                throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile + " missing");
-            try {
-                spConfiguration = ConfigurationUtil.getSPConfiguration(is);
-            } catch (ParsingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        try {
-            this.identityURL = spConfiguration.getIdentityURL();
-            this.serviceURL = spConfiguration.getServiceURL();
-            this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
-
-            log.info("SPFilter:: Setting the CanonicalizationMethod on XMLSignatureUtil::" + canonicalizationMethod);
-            XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
-
-            log.trace("Identity Provider URL=" + this.identityURL);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        // Get the Role Validator if configured
-        String roleValidatorName = filterConfig.getInitParameter(GeneralConstants.ROLE_VALIDATOR);
-        if (roleValidatorName != null && !"".equals(roleValidatorName)) {
-            try {
-                Class<?> clazz = SecurityActions.loadClass(getClass(), roleValidatorName);
-                this.roleValidator = (IRoleValidator) clazz.newInstance();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        Map<String, String> options = new HashMap<String, String>();
-        String roles = filterConfig.getInitParameter(GeneralConstants.ROLES);
-        if (trace)
-            log.trace("Found Roles in SPFilter config=" + roles);
-        if (roles != null) {
-            options.put("ROLES", roles);
-        }
-        this.roleValidator.intialize(options);
-
-        String samlHandlerChainClass = filterConfig.getInitParameter("SAML_HANDLER_CHAIN_CLASS");
-
-        // Get the chain from config
-        if (StringUtil.isNullOrEmpty(samlHandlerChainClass))
-            chain = SAML2HandlerChainFactory.createChain();
-        else
-            try {
-                chain = SAML2HandlerChainFactory.createChain(samlHandlerChainClass);
-            } catch (ProcessingException e1) {
-                throw new ServletException(e1);
-            }
-        try {
-            // Get the handlers
-            String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-            Handlers handlers = null;
-            if (picketLinkConfiguration != null) {
-                handlers = picketLinkConfiguration.getHandlers();
-            } else {
-                handlers = ConfigurationUtil.getHandlers(context.getResourceAsStream(handlerConfigFileName));
-            }
-            chain.addAll(HandlerUtil.getHandlers(handlers));
-
-            Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
-            chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
-            chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR, roleValidator);
-
-            SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
-            Set<SAML2Handler> samlHandlers = chain.handlers();
-
-            for (SAML2Handler handler : samlHandlers) {
-                handler.initChainConfig(handlerChainConfig);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        String ignoreSigString = filterConfig.getInitParameter(GeneralConstants.IGNORE_SIGNATURES);
-        if (ignoreSigString != null && !"".equals(ignoreSigString)) {
-            this.ignoreSignatures = Boolean.parseBoolean(ignoreSigString);
-        }
-
-        if (ignoreSignatures == false) {
-            KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();
-            if (keyProvider == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyProvider");
-            try {
-                String keyManagerClassName = keyProvider.getClassName();
-                if (keyManagerClassName == null)
-                    throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
-
-                Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
-                this.keyManager = (TrustKeyManager) clazz.newInstance();
-
-                List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
-                keyManager.setAuthProperties(authProperties);
-
-                keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
-            } catch (Exception e) {
-                log.error("Exception reading configuration:", e);
-                throw new RuntimeException(e.getLocalizedMessage());
-            }
-            log.trace("Key Provider=" + keyProvider.getClassName());
-        }
-
-        // see if a global logout page has been configured
-        String gloPage = filterConfig.getInitParameter(GeneralConstants.LOGOUT_PAGE);
-        if (gloPage != null && !"".equals(gloPage))
-            this.logOutPage = gloPage;
+        this.servletContext = filterConfig.getServletContext();
+        processConfiguration(filterConfig);
     }
 
     /**
@@ -536,16 +297,7 @@ public class SPFilter implements Filter {
         return saml2Request.createAuthnRequestType(id, serviceURL, identityURL, serviceURL);
     }
 
-    protected void sendRequestToIDP(AuthnRequestType authnRequest, String relayState, HttpServletResponse response)
-            throws IOException, SAXException, GeneralSecurityException {
-        SAML2Request saml2Request = new SAML2Request();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        saml2Request.marshall(authnRequest, baos);
 
-        String samlMessage = PostBindingUtil.base64Encode(baos.toString());
-        String destination = authnRequest.getDestination().toASCIIString();
-        PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState), response, true);
-    }
 
     protected void sendToDestination(Document samlDocument, String relayState, String destination,
                                      HttpServletResponse response, boolean request) throws IOException, SAXException, GeneralSecurityException {
@@ -563,137 +315,780 @@ public class SPFilter implements Filter {
         PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState), response, request);
     }
 
-    protected boolean validate(HttpServletRequest request) throws IOException, GeneralSecurityException {
+    private boolean handleSAMLResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (!validate(request)) {
+            throw new IOException(ErrorCodes.VALIDATION_CHECK_FAILED);
+        }
+
+        String samlVersion = getSAMLVersion(request);
+
+        if (!JBossSAMLConstants.VERSION_2_0.get().equals(samlVersion)) {
+            return handleSAML11UnsolicitedResponse(request, response);
+        }
+
+        return handleSAML2Response(request, response);
+    }
+
+    private boolean isLocalLogout(HttpServletRequest request) {
+        String lloStr = request.getParameter(GeneralConstants.LOCAL_LOGOUT);
+        return isNotNull(lloStr) && "true".equalsIgnoreCase(lloStr);
+    }
+
+    protected void sendToLogoutPage(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, ServletException {
+        // we are invalidated.
+        RequestDispatcher dispatch = this.servletContext.getRequestDispatcher(this.getConfiguration().getLogOutPage());
+        if (dispatch == null) {
+            logger.samlSPCouldNotDispatchToLogoutPage(this.getConfiguration().getLogOutPage());
+        } else {
+            logger.trace("Forwarding request to logOutPage: " + this.getConfiguration().getLogOutPage());
+
+            try {
+                session.invalidate();
+            } catch (IllegalStateException e) {
+                // if session was already invalidated we just ignore the exception.
+            }
+
+            try {
+                dispatch.forward(request, response);
+            } catch (Exception e) {
+                // JBAS5.1 and 6 quirkiness
+                dispatch.forward(request, response);
+            }
+        }
+    }
+
+    private SPType getConfiguration() {
+        return (SPType) this.picketLinkConfiguration.getIdpOrSP();
+    }
+
+    private boolean isGlobalLogout(HttpServletRequest request) {
+        String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
+        return isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
+    }
+
+    private boolean generalUserRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(true);
+        boolean willSendRequest = false;
+        HTTPContext httpContext = new HTTPContext(request, response, this.servletContext);
+        Set<SAML2Handler> handlers = chain.handlers();
+
+        boolean postBinding = getConfiguration().getBindingType().equals("POST");
+
+        // Neither saml request nor response from IDP
+        // So this is a user request
+        SAML2HandlerResponse saml2HandlerResponse = null;
+        try {
+            ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(postBinding, serviceURL, this.picketLinkConfiguration, this.idpMetadata);
+            if (issuerID != null) {
+                baseProcessor.setIssuer(issuerID);
+            }
+
+            // If the user has a different desired idp
+            String idp = (String) request.getAttribute(DESIRED_IDP);
+            if (StringUtil.isNotNull(idp)) {
+                baseProcessor.setIdentityURL(idp);
+            } else {
+                baseProcessor.setIdentityURL(getIdentityURL());
+            }
+            baseProcessor.setAuditHelper(auditHelper);
+
+            saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
+        } catch (ProcessingException pe) {
+            logger.samlSPHandleRequestError(pe);
+            throw new RuntimeException(pe);
+        } catch (ParsingException pe) {
+            logger.samlSPHandleRequestError(pe);
+            throw new RuntimeException(pe);
+        } catch (ConfigurationException pe) {
+            logger.samlSPHandleRequestError(pe);
+            throw new RuntimeException(pe);
+        }
+
+        willSendRequest = saml2HandlerResponse.getSendRequest();
+
+        Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
+        String relayState = saml2HandlerResponse.getRelayState();
+
+        String destination = saml2HandlerResponse.getDestination();
+        String destinationQueryStringWithSignature = saml2HandlerResponse.getDestinationQueryStringWithSignature();
+
+        if (destination != null && samlResponseDocument != null) {
+            try {
+                if (isEnableAudit()) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.REQUEST_TO_IDP);
+                    auditEvent.setWhoIsAuditing(getContextPath());
+                    auditHelper.audit(auditEvent);
+                }
+                sendRequestToIDP(destination, samlResponseDocument, relayState, request, response, willSendRequest, destinationQueryStringWithSignature);
+                return false;
+            } catch (Exception e) {
+                logger.samlSPHandleRequestError(e);
+                throw logger.samlSPProcessingExceptionError(e);
+            }
+        }
+
+        return localAuthentication(request, response);
+    }
+
+    private String getContextPath() {
+        return this.servletContext.getContextPath();
+    }
+
+    public String getIdentityURL() {
+        return getConfiguration().getIdentityURL();
+    }
+
+    private boolean isEnableAudit() {
+        return this.picketLinkConfiguration.isEnableAudit();
+    }
+
+    protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, HttpServletRequest request, HttpServletResponse response,
+        boolean willSendRequest, String destinationQueryStringWithSignature) throws ProcessingException, ConfigurationException, IOException {
+
+        if (isAjaxRequest(request) && request.getUserPrincipal() == null) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } else {
+            if (isHttpPostBinding()) {
+                sendHttpPostBindingRequest(destination, samlDocument, relayState, response, willSendRequest);
+            } else {
+                sendHttpRedirectRequest(destination, samlDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
+            }
+        }
+    }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        String requestedWithHeader = request.getHeader(GeneralConstants.HTTP_HEADER_X_REQUESTED_WITH);
+        return requestedWithHeader != null && "XMLHttpRequest".equalsIgnoreCase(requestedWithHeader);
+    }
+
+    protected boolean isHttpPostBinding() {
+        return getBinding().equalsIgnoreCase("POST");
+    }
+
+    protected void sendHttpPostBindingRequest(String destination, Document samlDocument, String relayState, HttpServletResponse response,
+        boolean willSendRequest) throws ProcessingException, IOException,
+        ConfigurationException {
+        String samlMessage = PostBindingUtil.base64Encode(DocumentUtil.getDocumentAsString(samlDocument));
+
+        DestinationInfoHolder destinationHolder = new DestinationInfoHolder(destination, samlMessage, relayState);
+
+        PostBindingUtil.sendPost(destinationHolder, response, willSendRequest);
+    }
+
+    protected void sendHttpRedirectRequest(String destination, Document samlDocument, String relayState, HttpServletResponse response,
+        boolean willSendRequest, String destinationQueryStringWithSignature) throws IOException,
+        ProcessingException, ConfigurationException {
+        String destinationQueryString = null;
+
+        // We already have queryString with signature from SAML2SignatureGenerationHandler
+        if (destinationQueryStringWithSignature != null) {
+            destinationQueryString = destinationQueryStringWithSignature;
+        } else {
+            String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
+            String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMessage.getBytes("UTF-8"));
+            destinationQueryString = RedirectBindingUtil.getDestinationQueryString(base64Request, relayState, willSendRequest);
+        }
+
+        RedirectBindingUtil.RedirectBindingUtilDestHolder holder = new RedirectBindingUtil.RedirectBindingUtilDestHolder();
+
+        holder.setDestination(destination).setDestinationQueryString(destinationQueryString);
+
+        HTTPRedirectUtil.sendRedirectForRequestor(RedirectBindingUtil.getDestinationURL(holder), response);
+    }
+
+    protected String getBinding() {
+        return getConfiguration().getBindingType();
+    }
+
+    protected boolean localAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // check how to deal with local authentication
+        return true;
+    }
+
+    protected boolean validate(HttpServletRequest request) {
         return request.getParameter("SAMLResponse") != null;
     }
 
-    protected boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException {
-        Document samlResponse = samlDocumentHolder.getSamlDocument();
-        SAML2Object samlObject = samlDocumentHolder.getSamlObject();
+    private String getSAMLVersion(HttpServletRequest request) {
+        String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+        String version;
 
-        String issuerID = null;
-        if (samlObject instanceof StatusResponseType) {
-            issuerID = ((StatusResponseType) samlObject).getIssuer().getValue();
+        try {
+            Document samlDocument = toSAMLResponseDocument(samlResponse, "POST".equalsIgnoreCase(request.getMethod()));
+            Element element = samlDocument.getDocumentElement();
+
+            // let's try SAML 2.0 Version attribute first
+            version = element.getAttribute("Version");
+
+            if (isNullOrEmpty(version)) {
+                // fallback to SAML 1.1 Minor and Major attributes
+                String minorVersion = element.getAttribute("MinorVersion");
+                String majorVersion = element.getAttribute("MajorVersion");
+
+                version = minorVersion + "." + majorVersion;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not extract version from SAML Response.", e);
+        }
+
+        return version;
+    }
+
+    private Document toSAMLResponseDocument(String samlResponse, boolean isPostBinding) throws ParsingException {
+        InputStream dataStream = null;
+
+        if (isPostBinding) {
+            // deal with SAML response from IDP
+            dataStream = PostBindingUtil.base64DecodeAsStream(samlResponse);
         } else {
-            issuerID = ((RequestAbstractType) samlObject).getIssuer().getValue();
-        }
-
-        if (issuerID == null)
-            throw new IssuerNotTrustedException(ErrorCodes.NULL_VALUE + "IssuerID missing");
-
-        URL issuerURL;
-        try {
-            issuerURL = new URL(issuerID);
-        } catch (MalformedURLException e1) {
-            throw new IssuerNotTrustedException(e1);
+            // deal with SAML response from IDP
+            dataStream = RedirectBindingUtil.base64DeflateDecode(samlResponse);
         }
 
         try {
-            PublicKey publicKey = keyManager.getValidatingKey(issuerURL.getHost());
-            log.trace("Going to verify signature in the saml response from IDP");
-            boolean sigResult = XMLSignatureUtil.validate(samlResponse, publicKey);
-            log.trace("Signature verification=" + sigResult);
-            return sigResult;
-        } catch (TrustKeyConfigurationException e) {
-            log.error("Unable to verify signature", e);
-        } catch (TrustKeyProcessingException e) {
-            log.error("Unable to verify signature", e);
-        } catch (MarshalException e) {
-            log.error("Unable to verify signature", e);
-        } catch (XMLSignatureException e) {
-            log.error("Unable to verify signature", e);
+            return DocumentUtil.getDocument(dataStream);
+        } catch (Exception e) {
+            logger.samlResponseFromIDPParsingFailed();
+            throw new ParsingException("", e);
         }
+    }
+
+    public boolean handleSAML11UnsolicitedResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+
+        Principal principal = request.getUserPrincipal();
+
+        // If we have already authenticated the user and there is no request from IDP or logout from user
+        if (principal != null) {
+            return true;
+        }
+
+        HttpSession session = request.getSession(true);
+
+        // See if we got a response from IDP
+        if (isNotNull(samlResponse)) {
+            boolean isValid = false;
+            try {
+                isValid = validate(request);
+            } catch (Exception e) {
+                logger.samlSPHandleRequestError(e);
+                throw new IOException();
+            }
+            if (!isValid) {
+                throw new IOException(ErrorCodes.VALIDATION_CHECK_FAILED);
+            }
+
+            try {
+                InputStream base64DecodedResponse = null;
+
+                if ("GET".equalsIgnoreCase(request.getMethod())) {
+                    base64DecodedResponse = RedirectBindingUtil.base64DeflateDecode(samlResponse);
+                } else {
+                    base64DecodedResponse = PostBindingUtil.base64DecodeAsStream(samlResponse);
+                }
+
+                SAMLParser parser = new SAMLParser();
+                SAML11ResponseType saml11Response = (SAML11ResponseType) parser.parse(base64DecodedResponse);
+
+                List<SAML11AssertionType> assertions = saml11Response.get();
+                if (assertions.size() > 1) {
+                    logger.trace("More than one assertion from IDP. Considering the first one.");
+                }
+                String username = null;
+                List<String> roles = new ArrayList<String>();
+                SAML11AssertionType assertion = assertions.get(0);
+                if (assertion != null) {
+                    // Get the subject
+                    List<SAML11StatementAbstractType> statements = assertion.getStatements();
+                    for (SAML11StatementAbstractType statement : statements) {
+                        if (statement instanceof SAML11AuthenticationStatementType) {
+                            SAML11AuthenticationStatementType subStat = (SAML11AuthenticationStatementType) statement;
+                            SAML11SubjectType subject = subStat.getSubject();
+                            username = subject.getChoice().getNameID().getValue();
+                        }
+                    }
+                    roles = AssertionUtil.getRoles(assertion, null);
+                }
+
+                return true;
+            } catch (Exception e) {
+                logger.samlSPHandleRequestError(e);
+            }
+        }
+
         return false;
     }
 
-    protected void isTrusted(String issuer) throws IssuerNotTrustedException {
+    private boolean handleSAML2Response(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession(true);
+        String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+        HTTPContext httpContext = new HTTPContext(request, response, this.servletContext);
+        Set<SAML2Handler> handlers = chain.handlers();
+
+        Principal principal = request.getUserPrincipal();
+
+        boolean willSendRequest;// deal with SAML response from IDP
+
         try {
-            URL url = new URL(issuer);
-            String issuerDomain = url.getHost();
-            TrustType idpTrust = spConfiguration.getTrust();
-            if (idpTrust != null) {
-                String domainsTrusted = idpTrust.getDomains();
-                if (domainsTrusted.indexOf(issuerDomain) < 0)
-                    throw new IssuerNotTrustedException(issuer);
+            ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(request.getMethod()
+                .equals("POST"), serviceURL, this.picketLinkConfiguration, this.idpMetadata);
+            if (auditHelper != null) {
+                responseProcessor.setAuditHelper(auditHelper);
+            }
+
+            responseProcessor.setTrustKeyManager(keyManager);
+
+            SAML2HandlerResponse saml2HandlerResponse = responseProcessor.process(samlResponse, httpContext, handlers,
+                chainLock);
+
+            Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
+            String relayState = saml2HandlerResponse.getRelayState();
+
+            String destination = saml2HandlerResponse.getDestination();
+
+            willSendRequest = saml2HandlerResponse.getSendRequest();
+
+            String destinationQueryStringWithSignature = saml2HandlerResponse.getDestinationQueryStringWithSignature();
+
+            if (destination != null && samlResponseDocument != null) {
+                sendRequestToIDP(destination, samlResponseDocument, relayState, request, response, willSendRequest, destinationQueryStringWithSignature);
+            } else {
+                // See if the session has been invalidated
+                boolean sessionValidity = request.getUserPrincipal() != null;
+
+                if (!sessionValidity) {
+                    sendToLogoutPage(request, response, session);
+                    return false;
+                }
+
+                // We got a response with the principal
+                List<String> roles = saml2HandlerResponse.getRoles();
+                if (principal == null) {
+                    principal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
+                }
+
+                if(principal == null) {
+                    throw new RuntimeException(ErrorCodes.NULL_VALUE + " principal");
+                }
+
+                if (isEnableAudit()) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.RESPONSE_FROM_IDP);
+                    auditEvent.setSubjectName(principal.getName());
+                    auditEvent.setWhoIsAuditing(getContextPath());
+                    auditHelper.audit(auditEvent);
+                }
+
+                return true;
+            }
+        } catch (ProcessingException pe) {
+            Throwable t = pe.getCause();
+            if (t != null && t instanceof AssertionExpiredException) {
+                logger.error("Assertion has expired. Asking IDP for reissue");
+                if (isEnableAudit()) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.EXPIRED_ASSERTION);
+                    auditEvent.setAssertionID(((AssertionExpiredException) t).getId());
+                    auditHelper.audit(auditEvent);
+                }
+                // Just issue a fresh request back to IDP
+                return generalUserRequest(request, response);
+            }
+            logger.samlSPHandleRequestError(pe);
+            throw logger.samlSPProcessingExceptionError(pe);
+        } catch (Exception e) {
+            logger.samlSPHandleRequestError(e);
+            throw logger.samlSPProcessingExceptionError(e);
+        }
+
+        return localAuthentication(request, response);
+    }
+
+    private void processIdPMetadata(SPType spConfiguration) {
+        IDPSSODescriptorType idpssoDescriptorType = null;
+
+        if (isNotNull(spConfiguration.getIdpMetadataFile())) {
+            idpssoDescriptorType = getIdpMetadataFromFile(spConfiguration);
+        } else {
+            idpssoDescriptorType = getIdpMetadataFromProvider(spConfiguration);
+        }
+
+        if (idpssoDescriptorType != null) {
+            List<EndpointType> endpoints = idpssoDescriptorType.getSingleSignOnService();
+            for (EndpointType endpoint : endpoints) {
+                String endpointBinding = endpoint.getBinding().toString();
+                if (endpointBinding.contains("HTTP-POST")) {
+                    endpointBinding = "POST";
+                } else if (endpointBinding.contains("HTTP-Redirect")) {
+                    endpointBinding = "REDIRECT";
+                }
+                if (spConfiguration.getBindingType().equals(endpointBinding)) {
+                    spConfiguration.setIdentityURL(endpoint.getLocation().toString());
+                    break;
+                }
+            }
+
+            this.idpMetadata = idpssoDescriptorType;
+        }
+    }
+
+    private IDPSSODescriptorType getIdpMetadataFromProvider(SPType spConfiguration) {
+        List<EntityDescriptorType> entityDescriptors = CoreConfigUtil.getMetadataConfiguration(spConfiguration,
+            this.servletContext);
+
+        if (entityDescriptors != null) {
+            for (EntityDescriptorType entityDescriptorType : entityDescriptors) {
+                IDPSSODescriptorType idpssoDescriptorType = handleMetadata(entityDescriptorType);
+
+                if (idpssoDescriptorType != null) {
+                    return idpssoDescriptorType;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected IDPSSODescriptorType handleMetadata(EntitiesDescriptorType entities) {
+        IDPSSODescriptorType idpSSO = null;
+
+        List<Object> entityDescs = entities.getEntityDescriptor();
+        for (Object entityDescriptor : entityDescs) {
+            if (entityDescriptor instanceof EntitiesDescriptorType) {
+                idpSSO = getIDPSSODescriptor(entities);
+            } else {
+                idpSSO = handleMetadata((EntityDescriptorType) entityDescriptor);
+            }
+            if (idpSSO != null) {
+                break;
+            }
+        }
+        return idpSSO;
+    }
+
+    protected IDPSSODescriptorType handleMetadata(EntityDescriptorType entityDescriptor) {
+        return CoreConfigUtil.getIDPDescriptor(entityDescriptor);
+    }
+
+    protected IDPSSODescriptorType getIDPSSODescriptor(EntitiesDescriptorType entities) {
+        List<Object> entityDescs = entities.getEntityDescriptor();
+        for (Object entityDescriptor : entityDescs) {
+
+            if (entityDescriptor instanceof EntitiesDescriptorType) {
+                return getIDPSSODescriptor((EntitiesDescriptorType) entityDescriptor);
+            }
+            return CoreConfigUtil.getIDPDescriptor((EntityDescriptorType) entityDescriptor);
+        }
+        return null;
+    }
+
+    protected IDPSSODescriptorType getIdpMetadataFromFile(SPType configuration) {
+        InputStream is = this.servletContext.getResourceAsStream(configuration.getIdpMetadataFile());
+        if (is == null) {
+            return null;
+        }
+
+        Object metadata = null;
+        try {
+            Document samlDocument = DocumentUtil.getDocument(is);
+            SAMLParser parser = new SAMLParser();
+            metadata = parser.parse(DocumentUtil.getNodeAsStream(samlDocument));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        IDPSSODescriptorType idpSSO = null;
+        if (metadata instanceof EntitiesDescriptorType) {
+            EntitiesDescriptorType entities = (EntitiesDescriptorType) metadata;
+            idpSSO = handleMetadata(entities);
+        } else {
+            idpSSO = handleMetadata((EntityDescriptorType) metadata);
+        }
+        if (idpSSO == null) {
+            logger.samlSPUnableToGetIDPDescriptorFromMetadata();
+            return idpSSO;
+        }
+
+        return idpSSO;
+    }
+
+    private boolean handleSAMLRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
+        HTTPContext httpContext = new HTTPContext(request, response, this.servletContext);
+        Set<SAML2Handler> handlers = chain.handlers();
+
+        try {
+            ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(
+                request.getMethod().equals("POST"), this.serviceURL, this.picketLinkConfiguration, this.idpMetadata);
+            requestProcessor.setTrustKeyManager(keyManager);
+            boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
+
+            if (isEnableAudit()) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setType(PicketLinkAuditEventType.REQUEST_FROM_IDP);
+                auditEvent.setWhoIsAuditing(getContextPath());
+                auditHelper.audit(auditEvent);
+            }
+
+            // If response is already commited, we need to stop with processing of HTTP request
+            if (response.isCommitted()) {
+                return false;
+            }
+
+            if (result) {
+                return result;
             }
         } catch (Exception e) {
-            throw new IssuerNotTrustedException(e.getLocalizedMessage(), e);
-        }
-    }
-
-    protected ResponseType decryptAssertion(ResponseType responseType) {
-        throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "This filter does not handle encryption");
-    }
-
-    /**
-     * Handle the SAMLResponse from the IDP
-     *
-     * @param request entire request from IDP
-     * @param responseType ResponseType that has been generated
-     * @param serverEnvironment tomcat,jboss etc
-     *
-     * @return
-     *
-     * @throws AssertionExpiredException
-     */
-    public Principal handleSAMLResponse(HttpServletRequest request, ResponseType responseType) throws ConfigurationException,
-            AssertionExpiredException {
-        if (request == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "request");
-        if (responseType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "response type");
-
-        StatusType statusType = responseType.getStatus();
-        if (statusType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Status Type from the IDP");
-
-        String statusValue = statusType.getStatusCode().getValue().toASCIIString();
-        if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusValue) == false)
-            throw new SecurityException(ErrorCodes.IDP_AUTH_FAILED + "IDP forbid the user");
-
-        List<org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType> assertions = responseType
-                .getAssertions();
-        if (assertions.size() == 0)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
-
-        AssertionType assertion = assertions.get(0).getAssertion();
-        // Check for validity of assertion
-        boolean expiredAssertion = AssertionUtil.hasExpired(assertion);
-        if (expiredAssertion)
-            throw new AssertionExpiredException(ErrorCodes.EXPIRED_ASSERTION);
-
-        SubjectType subject = assertion.getSubject();
-        /*
-         * JAXBElement<NameIDType> jnameID = (JAXBElement<NameIDType>) subject.getContent().get(0); NameIDType nameID =
-         * jnameID.getValue();
-         */
-        NameIDType nameID = (NameIDType) subject.getSubType().getBaseID();
-
-        final String userName = nameID.getValue();
-        List<String> roles = new ArrayList<String>();
-
-        // Let us get the roles
-        AttributeStatementType attributeStatement = (AttributeStatementType) assertion.getStatements().iterator().next();
-        List<ASTChoiceType> attList = attributeStatement.getAttributes();
-        for (ASTChoiceType obj : attList) {
-            AttributeType attr = obj.getAttribute();
-            String roleName = (String) attr.getAttributeValue().get(0);
-            roles.add(roleName);
+            logger.samlSPHandleRequestError(e);
+            throw logger.samlSPProcessingExceptionError(e);
         }
 
-        Principal principal = new Principal() {
-            public String getName() {
-                return userName;
+        return localAuthentication(request, response);
+    }
+
+    protected void processConfiguration(FilterConfig filterConfig) {
+        InputStream is;
+
+        if (isNullOrEmpty(this.configFile)) {
+            is = servletContext.getResourceAsStream(CONFIG_FILE_LOCATION);
+        } else {
+            try {
+                is = new FileInputStream(this.configFile);
+            } catch (FileNotFoundException e) {
+                throw logger.samlIDPConfigurationError(e);
             }
-        };
-
-        // Validate the roles
-        boolean validRole = roleValidator.userInRole(principal, roles);
-        if (!validRole) {
-            if (trace)
-                log.trace("Invalid role:" + roles);
-            principal = null;
         }
-        return principal;
+
+        PicketLinkType picketLinkType;
+
+        String configurationProviderName = filterConfig.getInitParameter(CONFIGURATION_PROVIDER);
+
+        if (configurationProviderName != null) {
+            try {
+                Class<?> clazz = SecurityActions.loadClass(getClass(), configurationProviderName);
+
+                if (clazz == null) {
+                    throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + configurationProviderName);
+                }
+
+                this.configProvider = (SAMLConfigurationProvider) clazz.newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException("Could not create configuration provider [" + configurationProviderName + "].", e);
+            }
+        }
+
+        try {
+            // Work on the IDP Configuration
+            if (configProvider != null) {
+                try {
+                    if (is == null) {
+                        // Try the older version
+                        is = servletContext.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+
+                        // Additionally parse the deprecated config file
+                        if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
+                            ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+                        }
+                    } else {
+                        // Additionally parse the consolidated config file
+                        if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
+                            ((AbstractSAMLConfigurationProvider) configProvider).setConsolidatedConfigFile(is);
+                        }
+                    }
+
+                    picketLinkType = configProvider.getPicketLinkConfiguration();
+                    picketLinkType.setIdpOrSP(configProvider.getSPConfiguration());
+                } catch (ProcessingException e) {
+                    throw logger.samlSPConfigurationError(e);
+                } catch (ParsingException e) {
+                    throw logger.samlSPConfigurationError(e);
+                }
+            } else {
+                if (is != null) {
+                    try {
+                        picketLinkType = ConfigurationUtil.getConfiguration(is);
+                    } catch (ParsingException e) {
+                        logger.trace(e);
+                        throw logger.samlSPConfigurationError(e);
+                    }
+                } else {
+                    is = servletContext.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+                    if (is == null) {
+                        throw logger.configurationFileMissing(configFile);
+                    }
+
+                    picketLinkType = new PicketLinkType();
+
+                    picketLinkType.setIdpOrSP(ConfigurationUtil.getSPConfiguration(is));
+                }
+            }
+
+            //Close the InputStream as we no longer need it
+            if(is != null){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
+
+            Boolean enableAudit = picketLinkType.isEnableAudit();
+
+            //See if we have the system property enabled
+            if (!enableAudit) {
+                String sysProp = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_ENABLE, "NULL");
+                if (!"NULL".equals(sysProp)) {
+                    enableAudit = Boolean.parseBoolean(sysProp);
+                }
+            }
+
+            if (enableAudit) {
+                if (auditHelper == null) {
+                    String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(servletContext);
+
+                    auditHelper = new PicketLinkAuditHelper(securityDomainName);
+                }
+            }
+
+            SPType spConfiguration = (SPType) picketLinkType.getIdpOrSP();
+            processIdPMetadata(spConfiguration);
+
+            this.serviceURL = spConfiguration.getServiceURL();
+            this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
+            this.picketLinkConfiguration = picketLinkType;
+
+            this.issuerID = filterConfig.getInitParameter(ISSUER_ID);
+            this.characterEncoding = filterConfig.getInitParameter(CHARACTER_ENCODING);
+            this.samlHandlerChainClass = filterConfig.getInitParameter(SAML_HANDLER_CHAIN_CLASS);
+
+            logger.samlSPSettingCanonicalizationMethod(canonicalizationMethod);
+            XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
+
+            try {
+                this.initKeyProvider();
+                this.initializeHandlerChain(picketLinkType);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            logger.trace("Identity Provider URL=" + getConfiguration().getIdentityURL());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    protected void initKeyProvider() {
+        if (!doSupportSignature()) {
+            return;
+        }
+
+        SPType configuration = getConfiguration();
+        KeyProviderType keyProvider = configuration.getKeyProvider();
+
+        if (keyProvider == null && doSupportSignature()) {
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyProvider is null for context=" + getContextPath());
+        }
+
+        try {
+            String keyManagerClassName = keyProvider.getClassName();
+            if (keyManagerClassName == null) {
+                throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
+            }
+
+            Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
+
+            if (clazz == null) {
+                throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + keyManagerClassName);
+            }
+
+            TrustKeyManager keyManager = (TrustKeyManager) clazz.newInstance();
+
+            List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
+
+            keyManager.setAuthProperties(authProperties);
+            keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
+
+            String identityURL = configuration.getIdentityURL();
+
+            //Special case when you need X509Data in SignedInfo
+            if (authProperties != null) {
+                for (AuthPropertyType authPropertyType : authProperties) {
+                    String key = authPropertyType.getKey();
+                    if (GeneralConstants.X509CERTIFICATE.equals(key)) {
+                        //we need X509Certificate in SignedInfo. The value is the alias name
+                        keyManager.addAdditionalOption(GeneralConstants.X509CERTIFICATE, authPropertyType.getValue());
+                        break;
+                    }
+                }
+            }
+            keyManager.addAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY, new URL(identityURL).getHost());
+            this.keyManager = keyManager;
+        } catch (Exception e) {
+            logger.trustKeyManagerCreationError(e);
+            throw new RuntimeException(e.getLocalizedMessage());
+        }
+
+        logger.trace("Key Provider=" + keyProvider.getClassName());
+    }
+
+    protected boolean doSupportSignature() {
+        return getConfiguration().isSupportsSignature();
+    }
+
+    protected void initializeHandlerChain(PicketLinkType picketLinkType) throws Exception {
+        SAML2HandlerChain handlerChain;
+
+        // Get the chain from config
+        if (isNullOrEmpty(samlHandlerChainClass)) {
+            handlerChain = SAML2HandlerChainFactory.createChain();
+        } else {
+            try {
+                handlerChain = SAML2HandlerChainFactory.createChain(this.samlHandlerChainClass);
+            } catch (ProcessingException e1) {
+                throw new RuntimeException(e1);
+            }
+        }
+
+        Handlers handlers = picketLinkType.getHandlers();
+
+        if (handlers == null) {
+            // Get the handlers
+            String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
+            handlers = ConfigurationUtil.getHandlers(servletContext.getResourceAsStream(handlerConfigFileName));
+        }
+
+        picketLinkType.setHandlers(handlers);
+
+        handlerChain.addAll(HandlerUtil.getHandlers(handlers));
+
+        populateChainConfig(picketLinkType);
+        SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
+
+        Set<SAML2Handler> samlHandlers = handlerChain.handlers();
+
+        for (SAML2Handler handler : samlHandlers) {
+            handler.initChainConfig(handlerChainConfig);
+        }
+
+        chain = handlerChain;
+    }
+
+    protected void populateChainConfig(PicketLinkType picketLinkType) throws ConfigurationException, ProcessingException {
+        Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
+
+        chainConfigOptions.put(GeneralConstants.CONFIGURATION, picketLinkType.getIdpOrSP());
+        chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); // No validator as tomcat realm does validn
+
+        if (doSupportSignature()) {
+            chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
+            //If there is a need for X509Data in signedinfo
+            String certificateAlias = (String) keyManager.getAdditionalOption(GeneralConstants.X509CERTIFICATE);
+            if (certificateAlias != null) {
+                chainConfigOptions.put(GeneralConstants.X509CERTIFICATE, keyManager.getCertificate(certificateAlias));
+            }
+        }
+
+        this.chainConfigOptions = chainConfigOptions;
+    }
+
 }
