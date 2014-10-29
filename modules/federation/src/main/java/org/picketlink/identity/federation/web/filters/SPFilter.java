@@ -170,25 +170,23 @@ public class SPFilter implements Filter {
         String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
         boolean logOutRequest = isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
 
-        if (!postMethod && !logOutRequest) {
+        if (!logOutRequest && userPrincipal != null && StringUtil.isNullOrEmpty(samlResponse)) {
             // Check if we are already authenticated
-            if (userPrincipal != null) {
-                filterChain.doFilter(servletRequest, servletResponse);
-                return;
-            }
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
 
+        if (!postMethod && !logOutRequest && userPrincipal == null) {
             // We need to send request to IDP
-            if (userPrincipal == null) {
-                String relayState = null;
-                try {
-                    // TODO: use the handlers to generate the request
-                    AuthnRequestType authnRequest = createSAMLRequest(serviceURL, identityURL);
-                    sendRequestToIDP(authnRequest, relayState, response);
-                } catch (Exception e) {
-                    throw new ServletException(e);
-                }
-                return;
+            String relayState = null;
+            try {
+                // TODO: use the handlers to generate the request
+                AuthnRequestType authnRequest = createSAMLRequest(serviceURL, identityURL);
+                sendRequestToIDP(authnRequest, relayState, response);
+            } catch (Exception e) {
+                throw new ServletException(e);
             }
+            return;
         } else {
             if (!isNotNull(samlRequest) && !isNotNull(samlResponse)) {
                 // Neither saml request nor response from IDP
