@@ -105,6 +105,8 @@ public class PostBindingUtil {
             throw logger.nullValueError("Destination is null");
         }
 
+        destination = escapeHTML(destination);
+
         response.setContentType("text/html");
         common(holder.getDestination(), response);
         StringBuilder builder = new StringBuilder();
@@ -124,6 +126,7 @@ public class PostBindingUtil {
         builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"" + key + "\"" + " VALUE=\"" + samlMessage + "\"/>");
 
         if (isNotNull(relayState)) {
+            relayState = escapeHTML(relayState);
             builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"RelayState\" " + "VALUE=\"" + relayState + "\"/>");
         }
 
@@ -153,5 +156,19 @@ public class PostBindingUtil {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache, no-store");
+    }
+
+    public static String escapeHTML(String toEscape) {
+        StringBuilder escaped = new StringBuilder();
+
+        for (int i = 0; i < toEscape.length(); i++) {
+            char chr = toEscape.charAt(i);
+
+            if (chr != '"' && chr != '<' && chr != '>') {
+                escaped.append(chr);
+            }
+        }
+
+        return escaped.toString();
     }
 }
