@@ -26,8 +26,6 @@ package org.picketlink.scim.model.v11;
 public abstract class AbstractResource {
     private String id;
 
-    private String externalId;
-
     private Meta meta;
 
     private String[] schemas;
@@ -38,15 +36,6 @@ public abstract class AbstractResource {
 
     public AbstractResource setId(String id) {
         this.id = id;
-        return this;
-    }
-
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public AbstractResource setExternalId(String externalId) {
-        this.externalId = externalId;
         return this;
     }
 

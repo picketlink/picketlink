@@ -47,7 +47,7 @@ public class SCIMGroups extends AbstractResource {
     }
 
     public static class Members {
-        private String value, display;
+        private String value, $ref, display;
 
         public String getValue() {
             return value;
@@ -55,6 +55,15 @@ public class SCIMGroups extends AbstractResource {
 
         public Members setValue(String value) {
             this.value = value;
+            return this;
+        }
+
+        public String get$ref() {
+            return $ref;
+        }
+
+        public Members set$ref(String $ref) {
+            this.$ref = $ref;
             return this;
         }
 
