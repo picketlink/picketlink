@@ -79,6 +79,7 @@
     <module>modules/json</module>
     <module>modules/social</module>
     <module>modules/oauth</module>
+    <module>modules/scim</module>
     <module>modules/rest</module>
     <module>modules/deltaspike</module>
     <module>dist</module>
