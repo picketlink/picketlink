@@ -28,12 +28,17 @@ import org.picketlink.scim.model.v11.SCIMMetaData;
 public abstract class AbstractSCIMResource implements SCIMResource {
 
     private String id;
+    private String[] externalId;
     private SCIMMetaData meta;
     private String[] schemas;
 
     @Override
     public String getId() {
         return id;
+    }
+
+    public String[] getExternalId() {
+        return this.externalId;
     }
 
     @Override
@@ -48,6 +53,10 @@ public abstract class AbstractSCIMResource implements SCIMResource {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setExternalId(String[] externalId) {
+        this.externalId = externalId;
     }
 
     public void setMeta(SCIMMetaData meta) {

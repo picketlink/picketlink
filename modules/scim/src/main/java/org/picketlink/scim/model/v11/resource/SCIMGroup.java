@@ -17,6 +17,8 @@
  */
 package org.picketlink.scim.model.v11.resource;
 
+import org.picketlink.scim.annotations.ResourceAttributeDefinition;
+
 /**
  * SCIM Group Type
  *
@@ -24,8 +26,11 @@ package org.picketlink.scim.model.v11.resource;
  * @since Apr 8, 2013
  */
 public class SCIMGroup extends AbstractSCIMResource {
+
+    @ResourceAttributeDefinition
     private String displayName;
 
+    @ResourceAttributeDefinition
     private Members[] members;
 
     public String getDisplayName() {
@@ -47,7 +52,15 @@ public class SCIMGroup extends AbstractSCIMResource {
     }
 
     public static class Members {
-        private String value, $ref, display;
+
+        @ResourceAttributeDefinition
+        private String value;
+
+        @ResourceAttributeDefinition
+        private String $ref;
+
+        @ResourceAttributeDefinition
+        private String display;
 
         public String getValue() {
             return value;

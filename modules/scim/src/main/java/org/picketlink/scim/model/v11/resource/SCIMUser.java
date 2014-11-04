@@ -17,6 +17,8 @@
  */
 package org.picketlink.scim.model.v11.resource;
 
+import org.picketlink.scim.annotations.ResourceAttributeDefinition;
+import org.picketlink.scim.annotations.ResourceDefinition;
 import org.picketlink.scim.model.v11.Name;
 import org.picketlink.scim.model.v11.ValueTypeAttribute;
 
@@ -26,28 +28,78 @@ import org.picketlink.scim.model.v11.ValueTypeAttribute;
  * @author anil saldhana
  * @since Apr 8, 2013
  */
+@ResourceDefinition(
+    id = "urn:ietf:params:scim:schemas:core:2.0:User",
+    schema = "urn:ietf:params:scim:schemas:core:2.0:User",
+    name = "User",
+    endpointName = "/User",
+    description = "User Account"
+)
 public class SCIMUser extends AbstractSCIMResource {
 
+    @ResourceAttributeDefinition(
+        name = "name",
+        description = "The components of the user's real name.\n" +
+            "Providers MAY return just the full name as a single string in the\n" +
+            "formatted sub-attribute, or they MAY return just the individual\n" +
+            "component attributes using the other sub-attributes, or they MAY return\n" +
+            "both. If both variants are returned, they SHOULD be describing the same\n" +
+            "name, with the formatted name indicating how the component attributes\n" +
+            "should be combined.")
     private Name name;
-    private String[] externalId;
+
+    @ResourceAttributeDefinition
     private String userName;
+
+    @ResourceAttributeDefinition
     private String displayName;
+
+    @ResourceAttributeDefinition
     private String nickName;
+
+    @ResourceAttributeDefinition
     private String profileUrl;
+
+    @ResourceAttributeDefinition
     private String title;
+
+    @ResourceAttributeDefinition
     private String userType;
+
+    @ResourceAttributeDefinition
     private String preferredLanguage;
+
+    @ResourceAttributeDefinition
     private String locale;
+
+    @ResourceAttributeDefinition
     private String timezone;
+
+    @ResourceAttributeDefinition
     private boolean active;
+
+    @ResourceAttributeDefinition
     private String password;
 
+    @ResourceAttributeDefinition
     private Addresses[] addresses;
+
+    @ResourceAttributeDefinition
     private PhoneNumbers[] phoneNumbers;
+
+    @ResourceAttributeDefinition
     private Ims[] ims;
+
+    @ResourceAttributeDefinition
     private Emails[] emails;
+
+    @ResourceAttributeDefinition
     private Photos[] photos;
+
+    @ResourceAttributeDefinition
     private SCIMGroup[] groups;
+
+    @ResourceAttributeDefinition
     private X509Certificates[] x509Certificates;
 
     public Name getName() {
@@ -56,15 +108,6 @@ public class SCIMUser extends AbstractSCIMResource {
 
     public SCIMUser setName(Name name) {
         this.name = name;
-        return this;
-    }
-
-    public String[] getExternalId() {
-        return externalId;
-    }
-
-    public SCIMUser setExternalId(String[] externalId) {
-        this.externalId = externalId;
         return this;
     }
 
@@ -231,6 +274,8 @@ public class SCIMUser extends AbstractSCIMResource {
     }
 
     public static class Emails extends ValueTypeAttribute {
+
+        @ResourceAttributeDefinition
         private boolean primary;
 
         public Emails() {
@@ -247,15 +292,20 @@ public class SCIMUser extends AbstractSCIMResource {
     }
 
     public static class Ims extends ValueTypeAttribute {
+
     }
 
     public static class Photos extends ValueTypeAttribute {
+
     }
 
     public static class PhoneNumbers extends ValueTypeAttribute {
+
     }
 
     public static class X509Certificates {
+
+        @ResourceAttributeDefinition
         private String value;
 
         public String getValue() {
@@ -269,13 +319,29 @@ public class SCIMUser extends AbstractSCIMResource {
     }
 
     public static class Addresses {
+
+        @ResourceAttributeDefinition
         private String type;
+
+        @ResourceAttributeDefinition
         private String streetAddress;
+
+        @ResourceAttributeDefinition
         private String locality;
+
+        @ResourceAttributeDefinition
         private String region;
+
+        @ResourceAttributeDefinition
         private String postalCode;
+
+        @ResourceAttributeDefinition
         private String country;
+
+        @ResourceAttributeDefinition
         private String formatted;
+
+        @ResourceAttributeDefinition
         private boolean primary;
 
         public String getType() {

@@ -45,7 +45,7 @@ public class SCIMWriter {
         return jsonify(resource);
     }
 
-    public String toString(SCIMSchema schema) throws SCIMWriterException {
+    public String toString(SCIMSchema... schema) throws SCIMWriterException {
         return jsonify(schema);
     }
 

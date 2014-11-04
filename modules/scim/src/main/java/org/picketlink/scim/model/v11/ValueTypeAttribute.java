@@ -17,6 +17,8 @@
  */
 package org.picketlink.scim.model.v11;
 
+import org.picketlink.scim.annotations.ResourceAttributeDefinition;
+
 /**
  * Attribute that has value/type pair
  *
@@ -25,7 +27,10 @@ package org.picketlink.scim.model.v11;
  */
 public abstract class ValueTypeAttribute {
 
+    @ResourceAttributeDefinition
     private String value;
+
+    @ResourceAttributeDefinition
     private String type;
 
     public String getValue() {
