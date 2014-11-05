@@ -21,6 +21,7 @@
  */
 package org.picketlink.scim.annotations;
 
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -34,14 +35,15 @@ import static java.lang.annotation.ElementType.METHOD;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({FIELD, METHOD})
+@Inherited
 public @interface ResourceAttributeDefinition {
 
     String name() default "";
     String description() default "";
     String canonicalValues() default "";
-    boolean caseExact() default true;
-    boolean required() default false;
+    boolean caseExact() default false;
+    boolean required() default true;
     String mutability() default "readWrite";
-    String returned() default "always";
-    String uniqueness() default "none";
+    String returned() default "default";
+    String uniqueness() default "server";
 }

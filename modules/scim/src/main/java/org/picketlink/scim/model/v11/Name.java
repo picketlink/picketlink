@@ -17,6 +17,8 @@
  */
 package org.picketlink.scim.model.v11;
 
+import org.picketlink.scim.annotations.ResourceAttributeDefinition;
+
 /**
  * SCIM User Name type
  *
@@ -25,11 +27,30 @@ package org.picketlink.scim.model.v11;
  */
 public class Name {
 
+    @ResourceAttributeDefinition(
+        description = "The full name, including all middle names, titles, and suffixes as appropriate, formatted for display (e.g. Ms. Barbara J Jensen, III.).",
+        required = false,
+        uniqueness = "none"
+    )
     private String formatted;
+
+    @ResourceAttributeDefinition(
+        description = "The family name of the User, or Last Name in most Western languages (e.g. Jensen given the full name Ms. Barbara J Jensen, III.).",
+        required = false,
+        uniqueness = "none"
+    )
     private String familyName;
+
+    @ResourceAttributeDefinition
     private String givenName;
+
+    @ResourceAttributeDefinition
     private String middleName;
+
+    @ResourceAttributeDefinition
     private String honorificPrefix;
+
+    @ResourceAttributeDefinition
     private String honorificSuffix;
 
     public String getFormatted() {

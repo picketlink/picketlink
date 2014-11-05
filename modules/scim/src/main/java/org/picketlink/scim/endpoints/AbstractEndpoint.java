@@ -19,34 +19,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.test.scim.endpoints;
+package org.picketlink.scim.endpoints;
 
-import org.picketlink.scim.endpoints.ResourceEndpoint;
-import org.picketlink.scim.endpoints.ResourceTypeEndpoint;
-import org.picketlink.scim.endpoints.SchemaEndpoint;
-import org.picketlink.scim.endpoints.ServiceProviderConfigurationEndpoint;
+import org.picketlink.scim.SCIMResourceScannerExtension;
+import org.picketlink.scim.model.v11.resource.SCIMResource;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-import java.util.HashSet;
-import java.util.Set;
+import javax.inject.Inject;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Pedro Igor
  */
-@ApplicationPath("/rest")
-public class SCIMApplication extends Application {
+public class AbstractEndpoint {
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        final Set<Class<?>> clazzes = new HashSet<Class<?>>();
+    @Inject
+    private SCIMResourceScannerExtension extension;
 
-        clazzes.add(SchemaEndpoint.class);
-        clazzes.add(ResourceTypeEndpoint.class);
-        clazzes.add(ResourceEndpoint.class);
-        clazzes.add(ServiceProviderConfigurationEndpoint.class);
-
-        return clazzes;
+    protected Collection<Class<? extends SCIMResource>> getResourceTypes() {
+        return this.extension.getResources().values();
     }
 
+    protected Class<? extends SCIMResource> getResourceType(String resource) {
+        String resourceEndpoint = resource;
+
+        if (!resourceEndpoint.startsWith("/")) {
+            resourceEndpoint = "/" + resourceEndpoint;
+        }
+
+        Map<String, Class<? extends SCIMResource>> resources = this.extension.getResources();
+
+        return resources.get(resourceEndpoint);
+    }
 }

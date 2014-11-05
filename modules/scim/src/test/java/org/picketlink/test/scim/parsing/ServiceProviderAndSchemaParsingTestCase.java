@@ -22,8 +22,6 @@ import org.picketlink.scim.model.v11.SCIMMetaData;
 import org.picketlink.scim.model.v11.parser.SCIMParser;
 import org.picketlink.scim.model.v11.schema.SCIMSchema;
 import org.picketlink.scim.model.v11.schema.ServiceProviderConfiguration;
-import org.picketlink.scim.model.v11.schema.SCIMSchema.Attributes;
-import org.picketlink.scim.model.v11.schema.SCIMSchema.SubAttributes;
 import org.picketlink.scim.model.v11.schema.ServiceProviderConfiguration.Bulk;
 import org.picketlink.scim.model.v11.schema.ServiceProviderConfiguration.Filter;
 
@@ -79,7 +77,7 @@ public class ServiceProviderAndSchemaParsingTestCase {
         assertEquals(schemas[0].getName(), "User");
         assertEquals(schemas[0].getDescription(), "User Account");
 
-        Attributes attributes[] = schemas[0].getAttributes();
+        SCIMSchema.Attribute attributes[] = schemas[0].getAttributes();
         assertEquals(21, attributes.length);
         assertEquals(attributes[0].getName(), "userName");
         assertEquals(attributes[0].getType(), "string");
@@ -105,7 +103,7 @@ public class ServiceProviderAndSchemaParsingTestCase {
         assertEquals(attributes[1].getReturned(), "default");
         assertEquals(attributes[1].getUniqueness(), "none");
 
-        SubAttributes subAttributes[] = attributes[1].getSubAttributes();
+        SCIMSchema.BasicAttribute subAttributes[] = attributes[1].getSubAttributes();
         assertEquals(6, subAttributes.length);
         assertEquals(subAttributes[0].getName(), "formatted");
         assertEquals(subAttributes[0].getType(), "string");

@@ -17,7 +17,18 @@
  */
 package org.picketlink.scim.model.v11.schema;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.scim.annotations.ResourceAttributeDefinition;
+import org.picketlink.scim.annotations.ResourceDefinition;
 import org.picketlink.scim.model.v11.SCIMMetaData;
+import org.picketlink.scim.model.v11.resource.SCIMResource;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * SCIM SchemaElement Type
@@ -30,7 +41,7 @@ public class SCIMSchema {
     private String id;
     private String name;
     private String description;
-    private Attributes[] attributes;
+    private Attribute[] attributes;
     private SCIMMetaData meta;
 
     public String getId() {
@@ -60,11 +71,11 @@ public class SCIMSchema {
         return this;
     }
 
-    public Attributes[] getAttributes() {
+    public Attribute[] getAttributes() {
         return attributes;
     }
 
-    public SCIMSchema setAttributes(Attributes[] attributes) {
+    public SCIMSchema setAttributes(Attribute[] attributes) {
         this.attributes = attributes;
         return this;
     }
@@ -78,111 +89,152 @@ public class SCIMSchema {
         return this;
     }
 
-    public static class Attributes {
+    public static SCIMSchema fromResourceType(Class<? extends SCIMResource> resourceType) {
+        ResourceDefinition resourceDefinition = resourceType.getAnnotation(ResourceDefinition.class);
 
-        private String name;
-        private String type;
-        private boolean multiValued;
-        private String description;
-        private boolean required;
-        private boolean caseExact;
-        private SubAttributes[] subAttributes;
-        private String mutability;
-        private String returned;
-        private String uniqueness;
+        if (resourceDefinition != null) {
+            SCIMSchema scimSchema = new SCIMSchema();
 
-        public String getName() {
-            return name;
+            scimSchema.setId(resourceDefinition.schema());
+            scimSchema.setName(resourceDefinition.name());
+            scimSchema.setDescription(resourceDefinition.description());
+
+            List<BasicAttribute> attributes = new ArrayList<BasicAttribute>();
+            List<Property<Object>> result = PropertyQueries
+                .createQuery(resourceType)
+                .addCriteria(new AnnotatedPropertyCriteria(ResourceAttributeDefinition.class))
+                .getResultList();
+
+            for (Property property : result) {
+                attributes.add(Attribute.fromDefinition(property));
+            }
+
+            scimSchema.setAttributes(attributes.toArray(new Attribute[attributes.size()]));
+
+            return scimSchema;
         }
 
-        public Attributes setName(String name) {
-            this.name = name;
-            return this;
+        return null;
+    }
+
+    public static class Attribute extends BasicAttribute {
+
+        public static Attribute fromDefinition(Property property) {
+            ResourceAttributeDefinition annotation = property.getAnnotatedElement().getAnnotation(ResourceAttributeDefinition.class);
+            Attribute attribute = new Attribute();
+
+            String name = annotation.name();
+
+            if (isNullOrEmpty(name)) {
+                name = property.getName();
+            }
+
+            attribute.setName(name);
+
+            attribute.setDescription(annotation.description());
+            attribute.setCaseExact(annotation.caseExact());
+            attribute.setMutability(annotation.mutability());
+            attribute.setRequired(annotation.required());
+            attribute.setReturned(annotation.returned());
+            attribute.setUniqueness(annotation.uniqueness());
+
+            Class javaType = property.getJavaClass();
+
+            attribute.setType(Attribute.Type.fromJavaType(javaType));
+
+            if ("complex".equals(attribute.getType())) {
+                ArrayList<BasicAttribute> subAttributes = new ArrayList<BasicAttribute>();
+                List<Property<Object>> result = PropertyQueries
+                    .createQuery(javaType)
+                    .addCriteria(new AnnotatedPropertyCriteria(ResourceAttributeDefinition.class))
+                    .getResultList();
+
+
+                for (Property subAttributeProperty : result) {
+                    subAttributes.add(fromDefinition2(subAttributeProperty));
+                }
+
+                attribute.setSubAttributes(subAttributes.toArray(new BasicAttribute[subAttributes.size()]));
+            }
+
+            return attribute;
         }
 
-        public String getType() {
-            return type;
+        public static BasicAttribute fromDefinition2(Property property) {
+            ResourceAttributeDefinition annotation = property.getAnnotatedElement().getAnnotation(ResourceAttributeDefinition.class);
+            Attribute attribute = new Attribute();
+
+            String name = annotation.name();
+
+            if (isNullOrEmpty(name)) {
+                name = property.getName();
+            }
+
+            attribute.setName(name);
+
+            attribute.setDescription(annotation.description());
+            attribute.setCaseExact(annotation.caseExact());
+            attribute.setMutability(annotation.mutability());
+            attribute.setRequired(annotation.required());
+            attribute.setReturned(annotation.returned());
+            attribute.setUniqueness(annotation.uniqueness());
+
+            Class javaType = property.getJavaClass();
+
+            attribute.setType(Attribute.Type.fromJavaType(javaType));
+
+            return attribute;
         }
 
-        public Attributes setType(String type) {
-            this.type = type;
-            return this;
+        public static enum Type {
+
+            STRING(String.class, "string");
+
+            private Class javaType;
+            private String type;
+
+            Type(Class javaType, String type) {
+                this.javaType = javaType;
+                this.type = type;
+            }
+
+            public Class getJavaType() {
+                return javaType;
+            }
+
+            public String getType() {
+                return type;
+            }
+
+            public static String fromJavaType(Class javaType) {
+                for (Type type : values()) {
+                    if (javaType.equals(type.getJavaType())) {
+                        return type.getType();
+                    }
+                }
+
+                if (!javaType.isPrimitive()) {
+                    return "complex";
+                }
+
+                return "undefined";
+            }
         }
 
-        public boolean isMultiValued() {
-            return multiValued;
-        }
+        private BasicAttribute[] subAttributes;
 
-        public Attributes setMultiValued(boolean multiValued) {
-            this.multiValued = multiValued;
-            return this;
-        }
 
-        public String getDescription() {
-            return description;
-        }
-
-        public Attributes setDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public boolean isRequired() {
-            return required;
-        }
-
-        public Attributes setRequired(boolean required) {
-            this.required = required;
-            return this;
-        }
-
-        public boolean isCaseExact() {
-            return caseExact;
-        }
-
-        public Attributes setCaseExact(boolean caseExact) {
-            this.caseExact = caseExact;
-            return this;
-        }
-
-        public SubAttributes[] getSubAttributes() {
+        public BasicAttribute[] getSubAttributes() {
             return subAttributes;
         }
 
-        public Attributes setSubAttributes(SubAttributes[] subAttributes) {
+        public Attribute setSubAttributes(BasicAttribute[] subAttributes) {
             this.subAttributes = subAttributes;
-            return this;
-        }
-
-        public String getMutability() {
-            return mutability;
-        }
-
-        public Attributes setMutability(String mutability) {
-            this.mutability = mutability;
-            return this;
-        }
-
-        public String getReturned() {
-            return returned;
-        }
-
-        public Attributes setReturned(String returned) {
-            this.returned = returned;
-            return this;
-        }
-
-        public String getUniqueness() {
-            return uniqueness;
-        }
-
-        public Attributes setUniqueness(String uniqueness) {
-            this.uniqueness = uniqueness;
             return this;
         }
     }
 
-    public static class SubAttributes {
+    public static class BasicAttribute {
 
         private String name;
         private String type;
@@ -200,7 +252,7 @@ public class SCIMSchema {
             return name;
         }
 
-        public SubAttributes setName(String name) {
+        public BasicAttribute setName(String name) {
             this.name = name;
             return this;
         }
@@ -209,7 +261,7 @@ public class SCIMSchema {
             return type;
         }
 
-        public SubAttributes setType(String type) {
+        public BasicAttribute setType(String type) {
             this.type = type;
             return this;
         }
@@ -218,7 +270,7 @@ public class SCIMSchema {
             return description;
         }
 
-        public SubAttributes setDescription(String description) {
+        public BasicAttribute setDescription(String description) {
             this.description = description;
             return this;
         }
@@ -227,7 +279,7 @@ public class SCIMSchema {
             return readOnly;
         }
 
-        public SubAttributes setReadOnly(boolean readOnly) {
+        public BasicAttribute setReadOnly(boolean readOnly) {
             this.readOnly = readOnly;
             return this;
         }
@@ -236,7 +288,7 @@ public class SCIMSchema {
             return required;
         }
 
-        public SubAttributes setRequired(boolean required) {
+        public BasicAttribute setRequired(boolean required) {
             this.required = required;
             return this;
         }
@@ -245,7 +297,7 @@ public class SCIMSchema {
             return caseExact;
         }
 
-        public SubAttributes setCaseExact(boolean caseExact) {
+        public BasicAttribute setCaseExact(boolean caseExact) {
             this.caseExact = caseExact;
             return this;
         }
@@ -254,7 +306,7 @@ public class SCIMSchema {
             return canonicalValues;
         }
 
-        public SubAttributes setCanonicalValues(String[] canonicalValues) {
+        public BasicAttribute setCanonicalValues(String[] canonicalValues) {
             this.canonicalValues = canonicalValues;
             return this;
         }
@@ -263,7 +315,7 @@ public class SCIMSchema {
             return multiValued;
         }
 
-        public SubAttributes setMultiValued(boolean multiValued) {
+        public BasicAttribute setMultiValued(boolean multiValued) {
             this.multiValued = multiValued;
             return this;
         }
@@ -272,7 +324,7 @@ public class SCIMSchema {
             return mutability;
         }
 
-        public SubAttributes setMutability(String mutability) {
+        public BasicAttribute setMutability(String mutability) {
             this.mutability = mutability;
             return this;
         }
@@ -281,7 +333,7 @@ public class SCIMSchema {
             return returned;
         }
 
-        public SubAttributes setReturned(String returned) {
+        public BasicAttribute setReturned(String returned) {
             this.returned = returned;
             return this;
         }
@@ -290,7 +342,7 @@ public class SCIMSchema {
             return uniqueness;
         }
 
-        public SubAttributes setUniqueness(String uniqueness) {
+        public BasicAttribute setUniqueness(String uniqueness) {
             this.uniqueness = uniqueness;
             return this;
         }

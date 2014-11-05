@@ -22,6 +22,8 @@ import org.picketlink.scim.annotations.ResourceDefinition;
 import org.picketlink.scim.model.v11.Name;
 import org.picketlink.scim.model.v11.ValueTypeAttribute;
 
+import java.net.URI;
+
 /**
  * SCIM User Type
  *
@@ -37,19 +39,17 @@ import org.picketlink.scim.model.v11.ValueTypeAttribute;
 )
 public class SCIMUser extends AbstractSCIMResource {
 
-    @ResourceAttributeDefinition(
-        name = "name",
-        description = "The components of the user's real name.\n" +
-            "Providers MAY return just the full name as a single string in the\n" +
-            "formatted sub-attribute, or they MAY return just the individual\n" +
-            "component attributes using the other sub-attributes, or they MAY return\n" +
-            "both. If both variants are returned, they SHOULD be describing the same\n" +
-            "name, with the formatted name indicating how the component attributes\n" +
-            "should be combined.")
-    private Name name;
+    public static URI ID = URI.create("urn:ietf:params:scim:schemas:core:2.0:User");
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+        description = "Unique identifier for the User typically used by the user to directly authenticate to the service provider. Each User MUST include a non-empty userName value.  This identifier MUST be unique across the Service Consumer's entire set of Users.  REQUIRED")
     private String userName;
+
+    @ResourceAttributeDefinition(
+        description = "The components of the user's real name. Providers MAY return just the full name as a single string in the formatted sub-attribute, or they MAY return just the individual component attributes using the other sub-attributes, or they MAY return both. If both variants are returned, they SHOULD be describing the same name, with the formatted name indicating how the component attributes should be combined.",
+        required = false
+        )
+    private Name name;
 
     @ResourceAttributeDefinition
     private String displayName;
@@ -101,6 +101,12 @@ public class SCIMUser extends AbstractSCIMResource {
 
     @ResourceAttributeDefinition
     private X509Certificates[] x509Certificates;
+
+    @ResourceAttributeDefinition
+    private Entitlement[] entitlements;
+
+    @ResourceAttributeDefinition
+    private Role[] roles;
 
     public Name getName() {
         return name;
@@ -315,6 +321,50 @@ public class SCIMUser extends AbstractSCIMResource {
         public X509Certificates setValue(String value) {
             this.value = value;
             return this;
+        }
+    }
+
+    public static class Entitlement extends ValueTypeAttribute {
+
+        private String display;
+        private boolean primary;
+
+        public String getDisplay() {
+            return display;
+        }
+
+        public void setDisplay(String display) {
+            this.display = display;
+        }
+
+        public boolean isPrimary() {
+            return primary;
+        }
+
+        public void setPrimary(boolean primary) {
+            this.primary = primary;
+        }
+    }
+
+    public static class Role extends ValueTypeAttribute {
+
+        private String display;
+        private boolean primary;
+
+        public String getDisplay() {
+            return display;
+        }
+
+        public void setDisplay(String display) {
+            this.display = display;
+        }
+
+        public boolean isPrimary() {
+            return primary;
+        }
+
+        public void setPrimary(boolean primary) {
+            this.primary = primary;
         }
     }
 
