@@ -19,20 +19,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.config.http;
+package org.picketlink.http.internal.cors;
 
 /**
- * @author Pedro Igor
+ * CORS filter configuration exception, intended to report invalid init parameters at startup.
+ *
+ * @author Giriraj Sharma
  */
-public interface PathConfigurationChildBuilder extends HttpSecurityConfigurationChildBuilder {
+public class CORSConfigurationException extends Exception {
 
-    AuthenticationConfigurationBuilder authenticateWith();
+    private static final long serialVersionUID = 1L;
 
-    AuthorizationConfigurationBuilder authorizeWith();
+    /**
+     * Creates a new CORS filter configuration exception with the specified message.
+     *
+     * @param message The exception message.
+     */
+    public CORSConfigurationException(final String message) {
 
-    CORSConfigurationBuilder cors();
+        super(message);
+    }
 
-    OutboundRedirectConfigurationBuilder redirectTo(String url);
+    /**
+     * Creates a new CORS filter configuration exception with the specified message and cause.
+     *
+     * @param message The exception message.
+     * @param cause The exception cause.
+     */
+    public CORSConfigurationException(final String message, final Throwable cause) {
 
-    PathConfigurationBuilder unprotected();
+        super(message, cause);
+    }
 }

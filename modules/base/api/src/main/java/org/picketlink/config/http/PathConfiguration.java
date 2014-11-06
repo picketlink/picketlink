@@ -23,6 +23,7 @@ package org.picketlink.config.http;
 
 import org.picketlink.http.HttpMethod;
 import org.picketlink.http.authorization.PathAuthorizer;
+import org.picketlink.http.cors.PathCORSAuthorizer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,14 +50,12 @@ public class PathConfiguration {
     private LogoutConfiguration logoutConfiguration;
     private AuthenticationConfiguration authenticationConfiguration;
     private AuthorizationConfiguration authorizationConfiguration;
+    private CORSConfiguration corsConfiguration;
     private InboundHeaderConfiguration inboundHeaderConfiguration;
     private Set<HttpMethod> methods;
 
-    public PathConfiguration(
-        String groupName,
-        String uri,
-        Boolean secured,
-        Set<HttpMethod> methods, List<OutboundRedirectConfiguration> redirects) {
+    public PathConfiguration(String groupName, String uri, Boolean secured, Set<HttpMethod> methods,
+            List<OutboundRedirectConfiguration> redirects) {
         if (groupName == null && uri == null) {
             throw new HttpSecurityConfigurationException("You must provide a group name or uri. Or even both.");
         }
@@ -191,7 +190,8 @@ public class PathConfiguration {
                     authorizers = groupAuthz.getAuthorizers();
                 }
 
-                return new AuthorizationConfiguration(this, allowedRoles, allowedGroups, allowedRealms, expressions, authorizers);
+                return new AuthorizationConfiguration(this, allowedRoles, allowedGroups, allowedRealms, expressions,
+                        authorizers);
             } else if (groupAuthz != null) {
                 return groupConfiguration.getAuthorizationConfiguration();
             }
@@ -202,6 +202,75 @@ public class PathConfiguration {
 
     protected void setAuthorizationConfiguration(AuthorizationConfiguration authorizationConfiguration) {
         this.authorizationConfiguration = authorizationConfiguration;
+    }
+
+    public CORSConfiguration getCORSConfiguration() {
+        PathConfiguration pathConfiguration = this;
+
+        if (pathConfiguration.isUri() && pathConfiguration.getGroupName() != null && !pathConfiguration.isDefaultGroup()) {
+            Map<String, PathConfiguration> groups = pathConfiguration.getSecurityConfiguration().getGroups();
+            PathConfiguration groupConfiguration = groups.get(pathConfiguration.getGroupName());
+            CORSConfiguration groupCORSAuthz = groupConfiguration.getCORSConfiguration();
+
+            if (this.corsConfiguration != null && groupCORSAuthz != null) {
+                boolean allowGenericHttpRequests = this.corsConfiguration.isGenericHttpRequestsAllowed();
+                String[] allowedOrigins = this.corsConfiguration.getAllowedOrigins();
+                boolean allowSubdomains = this.corsConfiguration.isSubdomainsAllowed();
+                String[] supportedMethods = this.corsConfiguration.getSupportedMethods();
+                String[] supportedHeaders = this.corsConfiguration.getSupportedHeaders();
+                String[] exposedHeaders = this.corsConfiguration.getExposedHeaders();
+                boolean supportsCredentials = this.corsConfiguration.isCredentialsSupported();
+                int maxAge = this.corsConfiguration.getMaxAge();
+                List<Class<? extends PathCORSAuthorizer>> corsAuthorizers = this.corsConfiguration.getAuthorizers();
+
+                if (Boolean.valueOf(allowGenericHttpRequests) == null) {
+                    allowGenericHttpRequests = groupCORSAuthz.isGenericHttpRequestsAllowed();
+                }
+
+                if (allowedOrigins == null) {
+                    allowedOrigins = groupCORSAuthz.getAllowedOrigins();
+                }
+
+                if (Boolean.valueOf(allowSubdomains) == null) {
+                    allowSubdomains = groupCORSAuthz.isSubdomainsAllowed();
+                }
+
+                if (supportedMethods == null) {
+                    supportedMethods = groupCORSAuthz.getSupportedMethods();
+                }
+
+                if (supportedHeaders == null) {
+                    supportedHeaders = groupCORSAuthz.getSupportedHeaders();
+                }
+
+                if (exposedHeaders == null) {
+                    exposedHeaders = groupCORSAuthz.getExposedHeaders();
+                }
+
+                if (Boolean.valueOf(supportsCredentials) == null) {
+                    supportsCredentials = groupCORSAuthz.isCredentialsSupported();
+                }
+
+                if (Integer.valueOf(maxAge) == null) {
+                    maxAge = groupCORSAuthz.getMaxAge();
+                }
+
+                if (corsAuthorizers == null) {
+                    corsAuthorizers = groupCORSAuthz.getAuthorizers();
+                }
+
+                return new CORSConfiguration(this, allowGenericHttpRequests, allowedOrigins, allowSubdomains,
+                        supportedMethods, supportedHeaders, exposedHeaders, supportsCredentials, maxAge, corsAuthorizers);
+            } else if (groupCORSAuthz != null) {
+                return groupConfiguration.getCORSConfiguration();
+            }
+        }
+
+        return this.corsConfiguration;
+    }
+
+    protected void setCORSConfiguration(CORSConfiguration corsConfiguration) {
+        this.corsConfiguration = corsConfiguration;
     }
 
     public InboundHeaderConfiguration getInboundHeaderConfiguration() {
@@ -270,10 +339,7 @@ public class PathConfiguration {
 
     @Override
     public String toString() {
-        return "UriConfiguration{" +
-            "groupName='" + groupName + '\'' +
-            ", uri='" + uri + '\'' +
-            '}';
+        return "UriConfiguration{" + "groupName='" + groupName + '\'' + ", uri='" + uri + '\'' + '}';
     }
 
 }

@@ -21,26 +21,30 @@
  */
 package org.picketlink.config.http;
 
-import org.picketlink.http.HttpMethod;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.picketlink.http.HttpMethod;
+
 /**
- * <p>A configuration builder with covenience methods to configure protected paths.</p>
+ * <p>
+ * A configuration builder with covenience methods to configure protected paths.
+ * </p>
  *
  * @author Pedro Igor
  */
-public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationChildBuilder implements PathConfigurationChildBuilder {
+public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationChildBuilder implements
+        PathConfigurationChildBuilder {
 
     private final String groupName;
     private final String uri;
     private Boolean secured;
     private AuthenticationConfigurationBuilder authenticationConfigBuilder;
     private AuthorizationConfigurationBuilder authorizationConfigurationBuilder;
+    private CORSConfigurationBuilder corsConfigurationBuilder;
     private InboundHeaderConfigurationBuilder inboundHeaderConfigurationBuilder;
     private LogoutConfigurationBuilder logoutConfigurationBuilder;
     private Set<HttpMethod> methods = new HashSet<HttpMethod>();
@@ -54,7 +58,9 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
     }
 
     /**
-     * <p>Provides a set of options to configure authentication for a specific path.</p>
+     * <p>
+     * Provides a set of options to configure authentication for a specific path.
+     * </p>
      *
      * @return
      */
@@ -67,7 +73,9 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
     }
 
     /**
-     * <p>Provides a set of options to configure authorization for a specific path.</p>
+     * <p>
+     * Provides a set of options to configure authorization for a specific path.
+     * </p>
      *
      * @return
      */
@@ -80,7 +88,24 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
     }
 
     /**
-     * <p>Identifies a specific path as being responsible to provide logout functionality.</p>
+     * <p>
+     * Provides a set of options to configure CORS for a specific path.
+     * </p>
+     *
+     * @return
+     */
+    public CORSConfigurationBuilder cors() {
+        if (this.corsConfigurationBuilder == null) {
+            this.corsConfigurationBuilder = new CORSConfigurationBuilder(this);
+        }
+
+        return this.corsConfigurationBuilder;
+    }
+
+    /**
+     * <p>
+     * Identifies a specific path as being responsible to provide logout functionality.
+     * </p>
      *
      * @return
      */
@@ -93,10 +118,14 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
     }
 
     /**
-     * <p>Provides a set of options regarding the request headers for a specific request.</p>
+     * <p>
+     * Provides a set of options regarding the request headers for a specific request.
+     * </p>
      *
-     * <p>In this case, headers are used to identify requests from each other and also enforce different security policies
-     * depending on their presence.</p>
+     * <p>
+     * In this case, headers are used to identify requests from each other and also enforce different security policies
+     * depending on their presence.
+     * </p>
      *
      * @return
      */
@@ -109,10 +138,14 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
     }
 
     /**
-     * <p>Configures the {@link org.picketlink.http.HttpMethod} that are supported by a specific path.</p>
+     * <p>
+     * Configures the {@link org.picketlink.http.HttpMethod} that are supported by a specific path.
+     * </p>
      *
-     * <p>In this case, methods can also be used to identity requests from each other and also enforce different security policies
-     * dependending on their presence.</p>
+     * <p>
+     * In this case, methods can also be used to identity requests from each other and also enforce different security policies
+     * dependending on their presence.
+     * </p>
      *
      * @param methods
      * @return
@@ -123,9 +156,13 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
     }
 
     /**
-     * <p>Specifies a url that will be used to redirect the user after a specific path is processed.</p>
+     * <p>
+     * Specifies a url that will be used to redirect the user after a specific path is processed.
+     * </p>
      *
-     * <p>For instance, after a logout request you may use this method to redirect the user to a different url.</p>
+     * <p>
+     * For instance, after a logout request you may use this method to redirect the user to a different url.
+     * </p>
      *
      * @param redirectUrl
      * @return
@@ -140,7 +177,9 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
     }
 
     /**
-     * <p>Mark a specific path as not protected. When a path is not protected, no security enforcement is applied.</p>
+     * <p>
+     * Mark a specific path as not protected. When a path is not protected, no security enforcement is applied.
+     * </p>
      *
      * @return
      */
@@ -157,12 +196,8 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
             redirectConfigurations.add(builder.create());
         }
 
-        PathConfiguration pathConfiguration = new PathConfiguration(
-            this.groupName,
-            this.uri,
-            this.secured,
-            this.methods,
-            redirectConfigurations);
+        PathConfiguration pathConfiguration = new PathConfiguration(this.groupName, this.uri, this.secured, this.methods,
+                redirectConfigurations);
 
         AuthenticationConfiguration authenticationConfiguration = null;
 
@@ -174,6 +209,12 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
 
         if (this.authorizationConfigurationBuilder != null) {
             authorizationConfiguration = this.authorizationConfigurationBuilder.create(pathConfiguration);
+        }
+
+        CORSConfiguration corsConfiguration = null;
+
+        if (this.corsConfigurationBuilder != null) {
+            corsConfiguration = this.corsConfigurationBuilder.create(pathConfiguration);
         }
 
         InboundHeaderConfiguration inboundHeaderConfiguration = null;
@@ -190,6 +231,7 @@ public class PathConfigurationBuilder extends AbstracHttpSecurityConfigurationCh
 
         pathConfiguration.setAuthenticationConfiguration(authenticationConfiguration);
         pathConfiguration.setAuthorizationConfiguration(authorizationConfiguration);
+        pathConfiguration.setCORSConfiguration(corsConfiguration);
         pathConfiguration.setInboundHeaderConfiguration(inboundHeaderConfiguration);
         pathConfiguration.setLogoutConfiguration(logoutConfiguration);
 

@@ -19,20 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.config.http;
+package org.picketlink.http.internal.cors;
 
 /**
- * @author Pedro Igor
+ * Base Cross-Origin Resource Sharing (CORS) exception, typically thrown during processing of CORS requests.
+ *
+ * @author Giriraj Sharma
  */
-public interface PathConfigurationChildBuilder extends HttpSecurityConfigurationChildBuilder {
+public class CORSException extends Exception {
 
-    AuthenticationConfigurationBuilder authenticateWith();
+    private static final long serialVersionUID = 1L;
 
-    AuthorizationConfigurationBuilder authorizeWith();
+    /**
+     * Creates a new CORS exception with the specified message.
+     *
+     * @param message The message.
+     */
+    public CORSException(final String message) {
 
-    CORSConfigurationBuilder cors();
-
-    OutboundRedirectConfigurationBuilder redirectTo(String url);
-
-    PathConfigurationBuilder unprotected();
+        super(message);
+    }
 }

@@ -19,20 +19,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.config.http;
+package org.picketlink.http.test.cors;
+
+
+import java.util.Enumeration;
+
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+
 
 /**
- * @author Pedro Igor
+ * Mock servlet filter configuration.
+ *
+ * @author Giriraj Sharma
  */
-public interface PathConfigurationChildBuilder extends HttpSecurityConfigurationChildBuilder {
+class MockFilterConfig implements FilterConfig {
 
-    AuthenticationConfigurationBuilder authenticateWith();
 
-    AuthorizationConfigurationBuilder authorizeWith();
+	//@Override
+	public String getFilterName() {
 
-    CORSConfigurationBuilder cors();
+		return "CORSFilter";
+	}
 
-    OutboundRedirectConfigurationBuilder redirectTo(String url);
 
-    PathConfigurationBuilder unprotected();
+	//@Override
+	public String getInitParameter(final String name) {
+
+		return null;
+	}
+
+
+	//@Override
+	public Enumeration getInitParameterNames() {
+
+		return null;
+	}
+
+
+	//@Override
+	public ServletContext getServletContext() {
+
+		return new MockServletContext();
+	}
 }
