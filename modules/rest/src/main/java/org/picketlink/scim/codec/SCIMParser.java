@@ -25,7 +25,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMResource;
-import org.picketlink.scim.model.v11.SCIMSchema;
 import org.picketlink.scim.model.v11.SCIMUser;
 import org.picketlink.scim.model.v11.ServiceProviderConfiguration;
 
@@ -126,25 +125,6 @@ public class SCIMParser {
     public ServiceProviderConfiguration parseServiceProviderConfiguration(InputStream is) throws SCIMParsingException {
         try {
             return mapper.readValue(is, ServiceProviderConfiguration.class);
-        } catch (JsonParseException e) {
-            throw new SCIMParsingException(e);
-        } catch (JsonMappingException e) {
-            throw new SCIMParsingException(e);
-        } catch (IOException e) {
-            throw new SCIMParsingException(e);
-        }
-    }
-
-    /**
-     * Parse {@link ServiceProviderConfiguration}
-     *
-     * @param is
-     * @return
-     * @throws SCIMParsingException
-     */
-    public SCIMSchema parseSchema(InputStream is) throws SCIMParsingException {
-        try {
-            return mapper.readValue(is, SCIMSchema.class);
         } catch (JsonParseException e) {
             throw new SCIMParsingException(e);
         } catch (JsonMappingException e) {

@@ -23,7 +23,7 @@ package org.picketlink.scim.model.v11;
  * @author anil saldhana
  * @since Apr 8, 2013
  */
-public class Name {
+public class UserName {
     private String formatted;
     private String familyName;
     private String givenName;
@@ -35,7 +35,7 @@ public class Name {
         return formatted;
     }
 
-    public Name setFormatted(String formatted) {
+    public UserName setFormatted(String formatted) {
         this.formatted = formatted;
         return this;
     }
@@ -44,7 +44,7 @@ public class Name {
         return familyName;
     }
 
-    public Name setFamilyName(String familyName) {
+    public UserName setFamilyName(String familyName) {
         this.familyName = familyName;
         return this;
     }
@@ -53,7 +53,7 @@ public class Name {
         return givenName;
     }
 
-    public Name setGivenName(String givenName) {
+    public UserName setGivenName(String givenName) {
         this.givenName = givenName;
         return this;
     }
@@ -62,7 +62,7 @@ public class Name {
         return middleName;
     }
 
-    public Name setMiddleName(String middleName) {
+    public UserName setMiddleName(String middleName) {
         this.middleName = middleName;
         return this;
     }
@@ -71,7 +71,7 @@ public class Name {
         return honorificPrefix;
     }
 
-    public Name setHonorificPrefix(String honorificPrefix) {
+    public UserName setHonorificPrefix(String honorificPrefix) {
         this.honorificPrefix = honorificPrefix;
         return this;
     }
@@ -80,7 +80,7 @@ public class Name {
         return honorificSuffix;
     }
 
-    public Name setHonorificSuffix(String honorificSuffix) {
+    public UserName setHonorificSuffix(String honorificSuffix) {
         this.honorificSuffix = honorificSuffix;
         return this;
     }

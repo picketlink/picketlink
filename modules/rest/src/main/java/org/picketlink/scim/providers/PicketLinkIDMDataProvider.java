@@ -56,7 +56,7 @@ import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMResource;
 import org.picketlink.scim.model.v11.SCIMUser;
-import org.picketlink.scim.model.v11.Name;
+import org.picketlink.scim.model.v11.UserName;
 
 /**
  * An IDM implementation of the {@link DataProvider}
@@ -89,7 +89,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         if (result.size() > 0) {
             user = result.get(0);
             scimUser.setId(id);
-            Name userName = new Name();
+            UserName userName = new UserName();
             userName.setGivenName(user.getFirstName());
             userName.setFamilyName(user.getLastName());
             scimUser.setName(userName);
@@ -181,7 +181,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
 
         User simpleUser = new User();
         simpleUser.setLoginName(user.getDisplayName());
-        Name userName = user.getName();
+        UserName userName = user.getName();
 
         if(userName != null){
             simpleUser.setFirstName(userName.getGivenName());

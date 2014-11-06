@@ -1,0 +1,317 @@
+<!-- ~ JBoss, Home of Professional Open Source. ~ Copyright 2010, Red Hat, 
+   Inc., and individual contributors ~ as indicated by the @author tags. See 
+   the copyright.txt file in the ~ distribution for a full listing of individual 
+   contributors. ~ ~ This is free software; you can redistribute it and/or modify 
+   it ~ under the terms of the GNU Lesser General Public License as ~ published 
+   by the Free Software Foundation; either version 2.1 of ~ the License, or 
+   (at your option) any later version. ~ ~ This software is distributed in the 
+   hope that it will be useful, ~ but WITHOUT ANY WARRANTY; without even the 
+   implied warranty of ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+   See the GNU ~ Lesser General Public License for more details. ~ ~ You should 
+   have received a copy of the GNU Lesser General Public ~ License along with 
+   this software; if not, write to the Free ~ Software Foundation, Inc., 51 
+   Franklin St, Fifth Floor, Boston, MA ~ 02110-1301 USA, or see the FSF site: 
+   http://www.fsf.org. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <parent>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-parent</artifactId>
+      <version>2.7.0-SNAPSHOT</version>
+      <relativePath>../../pom.xml</relativePath>
+   </parent>
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>picketlink-rest</artifactId>
+   <packaging>jar</packaging>
+   <name>PicketLink REST</name>
+   <url>http://jboss.org/picketlink/</url>
+   <description>PicketLink REST provides a set of RESTful identity services and clients, including support for SCIM 1.1</description>
+   <licenses>
+      <license>
+         <name>Apache License, Version 2.0</name>
+         <distribution>repo</distribution>
+         <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      </license>
+   </licenses>
+   <organization>
+      <name>JBoss Inc.</name>
+      <url>http://www.jboss.org</url>
+   </organization>
+
+   <properties>
+      <resteasy.version>2.3.6.Final</resteasy.version>
+      <arquillian.version>1.0.1.Final</arquillian.version>
+      <weld.version>1.2.0.Beta1</weld.version>
+      <jboss.bom.version>1.0.0.M7</jboss.bom.version>
+      <javaee6.spec.version>3.0.2.Final</javaee6.spec.version>
+   </properties>
+
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <printSummary>true</printSummary>
+               <disableXmlReport>false</disableXmlReport>
+               <testFailureIgnore>true</testFailureIgnore>
+               <includes>
+                  <include>**/**TestCase.java</include>
+               </includes>
+               <forkMode>pertest</forkMode> 
+               <useFile>false</useFile>
+               <trimStackTrace>false</trimStackTrace>
+            </configuration>
+         </plugin>
+         <!-- Generate the attached test jar -->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.3.2</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>test-jar</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+         <!-- Enable checkstyle execution -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.9.1</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.picketlink</groupId>
+						<artifactId>picketlink-build-config</artifactId>
+						<version>${project.version}</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<configLocation>picketlink-checkstyle/checkstyle.xml</configLocation>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError>
+					<useFile />
+				</configuration>
+				<executions>
+					<execution>
+						<id>check-style</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>checkstyle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+      </plugins>
+   </build>
+      <dependencyManagement>
+        <dependencies>
+          <!-- Arquillian -->
+          <dependency>
+            <groupId>org.jboss.arquillian</groupId>
+            <artifactId>arquillian-bom</artifactId>
+            <version>${arquillian.version}</version>
+            <scope>import</scope>
+            <type>pom</type>
+          </dependency>
+            <!-- JBoss Weld -->
+          <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-core-bom</artifactId>
+            <version>${weld.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+          </dependency>
+        </dependencies>
+     </dependencyManagement>
+   <dependencies>
+      <dependency>
+          <groupId>javax.enterprise</groupId>
+          <artifactId>cdi-api</artifactId>
+          <scope>provided</scope>
+        </dependency>
+      <dependency>
+         <groupId>org.jboss.spec.javax.servlet</groupId>
+         <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.picketlink</groupId>
+      	 <artifactId>picketlink-idm-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.picketlink</groupId>
+      	 <artifactId>picketlink-idm-impl</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.picketlink</groupId>
+      	 <artifactId>picketlink-idm-simple-schema</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.codehaus.jackson</groupId>
+         <artifactId>jackson-jaxrs</artifactId>
+         <version>1.9.2</version>
+      </dependency>
+
+      <!-- Test dependencies -->
+     <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-cdi</artifactId>
+        <version>${resteasy.version}</version>
+         <scope>test</scope>
+        <exclusions>
+          <exclusion>
+               <groupId>org.jboss.resteasy</groupId>
+               <artifactId>resteasy-jaxrs</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.spec.javax.ejb</groupId>
+         <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.ejb3</groupId>
+         <artifactId>jboss-ejb3-api</artifactId>
+         <version>3.1.0</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jaxrs</artifactId>
+        <version>${resteasy.version}</version>
+         <scope>compile</scope>
+      </dependency> 
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      
+      <!-- depends on slf4j-api, log4j -->
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-ext</artifactId>
+          <scope>test</scope>
+       </dependency>
+       <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+          <scope>test</scope>
+          <exclusions>
+            <exclusion>
+              <artifactId>slf4j-api</artifactId>
+              <groupId>org.slf4j</groupId>
+          </exclusion>
+        </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-log4j12</artifactId>
+         <version>1.6.0</version>
+         <scope>test</scope>
+     </dependency>
+
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-server</artifactId>
+         <version>8.1.8.v20121106</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-plus</artifactId>
+         <version>8.1.8.v20121106</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-jndi</artifactId>
+         <version>8.1.8.v20121106</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-webapp</artifactId>
+         <version>8.1.8.v20121106</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-jsp</artifactId>
+         <version>8.1.8.v20121106</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpclient</artifactId>
+         <version>4.1.2</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.hibernate.javax.persistence</groupId>
+         <artifactId>hibernate-jpa-2.0-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-core</artifactId>
+         <version>4.1.9.Final</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-entitymanager</artifactId>
+         <version>4.1.9.Final</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>com.h2database</groupId>
+         <artifactId>h2</artifactId>
+         <version>1.3.161</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging-processor</artifactId>
+         <scope>provided</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.weld.servlet</groupId>
+         <artifactId>weld-servlet</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.weld</groupId>
+         <artifactId>weld-core</artifactId>
+         <scope>test</scope>
+         <exclusions>
+           <exclusion>
+             <artifactId>slf4j-ext</artifactId>
+             <groupId>org.slf4j</groupId>
+           </exclusion>
+           <exclusion>
+              <artifactId>slf4j-api</artifactId>
+              <groupId>org.slf4j</groupId>
+           </exclusion>
+         </exclusions>
+       </dependency>
+
+   </dependencies>
+</project>

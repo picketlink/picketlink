@@ -23,7 +23,7 @@ import org.picketlink.scim.model.v11.Meta;
 import org.picketlink.scim.model.v11.SCIMUser;
 import org.picketlink.scim.model.v11.SCIMUser.Emails;
 import org.picketlink.scim.model.v11.SCIMUser.Ims;
-import org.picketlink.scim.model.v11.Name;
+import org.picketlink.scim.model.v11.UserName;
 
 import java.io.InputStream;
 
@@ -47,13 +47,11 @@ public class UserParsingTestCase {
         assertNotNull(user);
 
         assertEquals("2819c223-7f76-453a-919d-413861904646", user.getId());
-        String[] externalId = user.getExternalId(); 
-        assertEquals(1, externalId.length);
-        assertEquals("701984", externalId[0]);
+        assertEquals("701984", user.getExternalId());
         assertEquals("Ms. Barbara J Jensen III", user.getName().getFormatted());
 
         // Validate User Name
-        Name userName = user.getName();
+        UserName userName = user.getName();
         assertEquals("Ms. Barbara J Jensen III", userName.getFormatted());
         assertEquals("Jensen", userName.getFamilyName());
         assertEquals("Barbara", userName.getGivenName());
@@ -82,8 +80,8 @@ public class UserParsingTestCase {
 
         assertEquals("Employee", user.getUserType());
         assertEquals("Tour Guide", user.getTitle());
-        assertEquals("en-US", user.getPreferredLanguage());
-        assertEquals("en-US", user.getLocale());
+        assertEquals("en_US", user.getPreferredLanguage());
+        assertEquals("en_US", user.getLocale());
         assertEquals("America/Los_Angeles", user.getTimezone());
         assertTrue(user.isActive());
 
@@ -97,6 +95,6 @@ public class UserParsingTestCase {
         assertEquals("2010-01-23T04:56:22Z", meta.getCreated());
         assertEquals("2011-05-13T04:42:34Z", meta.getLastModified());
         assertEquals("W\"a330bc54f0671c9\"", meta.getVersion());
-        assertEquals("https://example.com/v2/Users/2819c223-7f76-453a-919d-413861904646", meta.getLocation());
+        assertEquals("https://example.com/v1/Users/2819c223-7f76-453a-919d-413861904646", meta.getLocation());
     }
 }
