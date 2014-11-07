@@ -20,10 +20,13 @@ package org.picketlink.test.idm.query;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
@@ -271,6 +274,30 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
         assertEquals(users.get(2).getLoginName(), "john2");
         assertEquals(users.get(1).getLoginName(), "mary");
         assertEquals(users.get(0).getLoginName(), "mary2");
+    }
+
+    @Test
+    @Configuration(include = LDAPStoreConfigurationTester.class)
+    public void testLDAPEntryDNAsAttribute() throws Exception {
+        createPopulatedUser("john", "John", "Anthony");
+
+        IdentityQueryBuilder queryBuilder = getIdentityManager().getQueryBuilder();
+
+        IdentityQuery<User> userQuery = queryBuilder.createIdentityQuery(User.class);
+
+        userQuery.where(queryBuilder.equal(User.LOGIN_NAME, "john"));
+
+        List<User> users = userQuery.getResultList();
+
+        assertEquals(1, users.size());
+
+        User user = users.get(0);
+
+        assertFalse(user.getAttributes().isEmpty());
+
+        Attribute<String> entryDN = user.getAttribute(LDAPIdentityStore.ENTRY_DN_ATTRIBUTE_NAME);
+
+        assertEquals("uid=john,ou=People,dc=jboss,dc=org", entryDN.getValue());
     }
 
     private void createPopulatedUser(String username, String firstName, String lastName) {

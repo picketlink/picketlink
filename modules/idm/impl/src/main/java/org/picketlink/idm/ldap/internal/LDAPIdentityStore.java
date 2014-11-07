@@ -90,6 +90,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         implements CredentialStore<LDAPIdentityStoreConfiguration> {
 
     public static final String EMPTY_ATTRIBUTE_VALUE = " ";
+    public static final String ENTRY_DN_ATTRIBUTE_NAME = "org.picketlink.idm.ldap.entry.dn";
+
     private LDAPOperationManager operationManager;
 
     @Override
@@ -686,6 +688,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             if (attributedType == null) {
                 attributedType = newInstance(getConfig().getSupportedTypeByBaseDN(entryBaseDN, getEntryObjectClasses(attributes)));
             }
+
+            attributedType.setAttribute(new org.picketlink.idm.model.Attribute<String>(ENTRY_DN_ATTRIBUTE_NAME, entryDN));
 
             LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
 
