@@ -159,5 +159,5 @@ public interface IdentityQueryBuilder {
      *
      * @return
      */
-    <T extends IdentityType> IdentityQuery createIdentityQuery(Class<T> identityType);
+    <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType);
 }
