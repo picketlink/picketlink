@@ -17,14 +17,6 @@
  */
 package org.picketlink.scim.providers;
 
-import java.io.Serializable;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -49,6 +41,7 @@ import org.picketlink.idm.model.basic.Group;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
@@ -57,6 +50,13 @@ import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMResource;
 import org.picketlink.scim.model.v11.SCIMUser;
 import org.picketlink.scim.model.v11.UserName;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * An IDM implementation of the {@link DataProvider}
@@ -81,8 +81,9 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         verifyIdentityManager();
         SCIMUser scimUser = new SCIMUser();
 
-        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
-        query.setParameter(AttributedType.ID, id);
+        IdentityQueryBuilder queryBuilder = identityManager.<User>getQueryBuilder();
+        IdentityQuery<User> query = queryBuilder.createIdentityQuery(User.class);
+        query.where(queryBuilder.equal(AttributedType.ID, id));
 
         List<User> result = query.getResultList();
         User user = null;
