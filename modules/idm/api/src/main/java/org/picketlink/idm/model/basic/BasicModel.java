@@ -520,7 +520,7 @@ public class BasicModel {
         RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
 
         query.setParameter(Grant.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.ROLE, role);
+        query.setParameter(Grant.ROLE, role);
 
         for (Grant grant : query.getResultList()) {
             relationshipManager.remove(grant);
