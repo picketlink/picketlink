@@ -23,9 +23,12 @@ package org.picketlink.authorization;
 
 import org.apache.deltaspike.security.api.authorization.Secures;
 import org.picketlink.Identity;
+import org.picketlink.authentication.levels.InsufficientSecurityLevelException;
+import org.picketlink.authentication.levels.Level;
 import org.picketlink.authorization.annotations.GroupsAllowed;
 import org.picketlink.authorization.annotations.LoggedIn;
 import org.picketlink.authorization.annotations.PartitionsAllowed;
+import org.picketlink.authorization.annotations.RequiresLevel;
 import org.picketlink.authorization.annotations.RequiresPermission;
 import org.picketlink.authorization.annotations.Restrict;
 import org.picketlink.authorization.annotations.RolesAllowed;
@@ -36,11 +39,13 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.internal.el.ELProcessor;
+import org.picketlink.producer.AbstractLevelFactory;
 
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.interceptor.InvocationContext;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
@@ -71,6 +76,9 @@ public class DefaultAuthorizationManager {
 
     @Inject
     private RelationshipManager relationshipManager;
+
+    @Inject
+    private AbstractLevelFactory abstractFactory;
 
     @Secures
     @LoggedIn
@@ -150,6 +158,21 @@ public class DefaultAuthorizationManager {
         Class<? extends Partition> partitionType = partitionsAllowed.type();
 
         return AuthorizationUtil.hasPartition(getIdentity(), partitionType, partitionNames);
+    }
+
+    @Secures
+    @RequiresLevel
+    public boolean hasLevel(InvocationContext invocationContext){
+        RequiresLevel requireslevel = getAnnotation(invocationContext,RequiresLevel.class);
+        String level = requireslevel.value();
+
+        Level requiredLevel = abstractFactory.getFactory().createLevel(level);
+        if (!AuthorizationUtil.hasLevel(identity, requiredLevel)){
+            throw new InsufficientSecurityLevelException(requiredLevel,
+                    "Expected security level is: " + requiredLevel + " but the current level is: " +identity.getLevel());
+        }
+
+        return true;
     }
 
     private <T extends Annotation> T getAnnotation(InvocationContext invocationContext, Class<T> annotationType) {

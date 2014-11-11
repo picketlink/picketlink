@@ -22,6 +22,7 @@
 package org.picketlink.authorization.util;
 
 import org.picketlink.Identity;
+import org.picketlink.authentication.levels.Level;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -372,5 +373,17 @@ public class AuthorizationUtil {
         }
 
         return false;
+    }
+
+    /**
+     * <p>Checks if an user has given security level.</p>
+     *
+     * @param identity The {@link org.picketlink.Identity} instance representing an authenticated user.
+     * @param level Level which user should have
+     *
+     * @return True if the user has at least given level
+     */
+    public static boolean hasLevel(Identity identity, Level level){
+        return (level.compareTo(identity.getLevel()) <= 0);
     }
 }

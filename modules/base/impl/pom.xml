@@ -18,6 +18,7 @@
     <version.weld>1.1.23.Final</version.weld>
     <version.mockito>1.9.5</version.mockito>
     <version.slf4j>1.6.0</version.slf4j>
+    <version.javax.ejb>3.2</version.javax.ejb>
   </properties>
 
   <dependencies>
@@ -85,6 +86,13 @@
       <artifactId>weld-se</artifactId>
       <version>${version.weld}</version>
       <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>javax.ejb</groupId>
+      <artifactId>javax.ejb-api</artifactId>
+      <version>${version.javax.ejb}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

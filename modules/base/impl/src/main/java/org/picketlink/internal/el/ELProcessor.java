@@ -22,6 +22,7 @@
 package org.picketlink.internal.el;
 
 import org.picketlink.Identity;
+import org.picketlink.authentication.levels.LevelFactory;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
@@ -69,6 +70,9 @@ public class ELProcessor {
     @Inject
     private Instance<RelationshipManager> relationshipManagerInstance;
 
+    @Inject
+    private Instance<LevelFactory> levelFactoryInstance;
+
     public <R> R eval(String expression) {
         PicketLinkELContext context = new PicketLinkELContext(this.elResolver);
         ValueExpression valueExpression = this.expressionFactory.createValueExpression(context, expression, Object.class);
@@ -103,6 +107,7 @@ public class ELProcessor {
 
         evaluationContext.setIdentity(this.identityInstance.get());
         evaluationContext.setPartitionManager(this.partitionManager.get());
+        evaluationContext.setLevelFactory(this.levelFactoryInstance.get());
     }
 
     private void releaseEvaluationContext() {

@@ -37,13 +37,23 @@ import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.authentication.internal.IdmAuthenticator;
+import org.picketlink.authentication.levels.DifferentUserLoggedInExcpetion;
+import org.picketlink.authentication.levels.Level;
+import org.picketlink.authentication.levels.SecurityLevelManager;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.permission.spi.PermissionResolver;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+
 import java.io.Serializable;
+import java.util.List;
 
 import static org.picketlink.log.BaseLog.AUTHENTICATION_LOGGER;
 
@@ -73,12 +83,17 @@ public abstract class AbstractIdentity implements Identity {
     @Inject
     private transient PermissionResolver permissionResolver;
 
+    @Inject
+    private transient SecurityLevelManager securityLevelManager;
+
     /**
      * Flag indicating whether we are currently authenticating
      */
     private boolean authenticating;
 
     private Account account;
+
+    private Level securityLevel;
 
     public boolean isLoggedIn() {
         // If there is an account set, then the account is logged in.
@@ -91,6 +106,14 @@ public abstract class AbstractIdentity implements Identity {
     }
 
     @Override
+    public Level getLevel() {
+        if(securityLevel == null){
+            securityLevel = securityLevelManager.resolveSecurityLevel();
+        }
+        return securityLevel;
+    };
+
+    @Override
     public AuthenticationResult login() {
         try {
             if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
@@ -98,11 +121,30 @@ public abstract class AbstractIdentity implements Identity {
                     .getCredential(), this.loginCredential.getUserId());
             }
 
-            if (isLoggedIn()) {
-                throw new UserAlreadyLoggedInException("active agent: " + this.account.toString());
-            }
+            Account validatedAccount = null;
 
-            Account validatedAccount = authenticate();
+            if (isLoggedIn()) {
+                if (securityLevelManager.resolveSecurityLevel().compareTo(securityLevel) <= 0) {
+                    throw new UserAlreadyLoggedInException("active agent: " + this.account.toString());
+                } else {
+                    validatedAccount = authenticate();
+                    if(validatedAccount != null){
+                        //obtain username of the current user and the user which is trying to rise level
+                        Property firstdeclaredField = getDefaultLoginNameProperty(validatedAccount.getClass());
+                        Object firstUsername = firstdeclaredField.getValue(validatedAccount);
+                        Property seconddeclaredField = getDefaultLoginNameProperty(this.account.getClass());
+                        Object secondUsername = seconddeclaredField.getValue(this.account);
+                        //if the second user does not have username or they does not match, then exception is thrown
+                        if(secondUsername == null || !secondUsername.equals(firstUsername)){
+                            throw new DifferentUserLoggedInExcpetion("active agent: "+ this.account.toString() +
+                                " but agent: "+ validatedAccount.toString() + " is trying to log in");
+                        }
+                    }
+                }
+            }
+            else{
+                validatedAccount = authenticate();
+            }
 
             if (validatedAccount != null) {
                 if (!validatedAccount.isEnabled()) {
@@ -135,6 +177,7 @@ public abstract class AbstractIdentity implements Identity {
     protected void handleSuccessfulLoginAttempt(Account validatedAccount) {
         AUTHENTICATION_LOGGER.debugf("Authentication was successful for credentials [%s]. User id is [%s].", this.loginCredential.getCredential(), this.loginCredential.getUserId());
         this.account = validatedAccount;
+        securityLevel = securityLevelManager.resolveSecurityLevel();
         eventBridge.fireEvent(new LoggedInEvent());
     }
 
@@ -170,13 +213,7 @@ public abstract class AbstractIdentity implements Identity {
 
             eventBridge.fireEvent(new PreAuthenticateEvent());
 
-            Authenticator authenticator = authenticatorInstance.isUnsatisfied() ?
-                idmAuthenticatorInstance.get() :
-                authenticatorInstance.get();
-
-            if (authenticator == null) {
-                throw new AuthenticationException("No Authenticator has been configured.");
-            }
+            Authenticator authenticator = getAuthenticator();
 
             if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
                 AUTHENTICATION_LOGGER.debugf("Authentication is going to be performed by authenticator [%s]", authenticator);
@@ -201,6 +238,15 @@ public abstract class AbstractIdentity implements Identity {
         }
 
         return validatedAccount;
+    }
+
+    private Authenticator getAuthenticator() throws AuthenticationException {
+        Authenticator authenticator = authenticatorInstance.isUnsatisfied() ? idmAuthenticatorInstance.get() : authenticatorInstance.get();
+
+        if (authenticator == null) {
+            throw new AuthenticationException("No Authenticator has been configured.");
+        }
+        return authenticator;
     }
 
     protected void postAuthenticate(Authenticator authenticator) {
@@ -236,6 +282,8 @@ public abstract class AbstractIdentity implements Identity {
     private void unAuthenticate(boolean invalidateLoginCredential) {
         this.account = null;
 
+        this.securityLevel = securityLevelManager.resolveSecurityLevel();
+
         if (invalidateLoginCredential) {
             loginCredential.invalidate();
         }
@@ -249,4 +297,19 @@ public abstract class AbstractIdentity implements Identity {
         return isLoggedIn() && permissionResolver.resolvePermission(this.account, resourceClass, identifier, operation);
     }
 
+    protected Property getDefaultLoginNameProperty(Class<? extends Account> accountType) {
+        List<Property<Object>> properties = PropertyQueries
+            .createQuery(accountType)
+            .addCriteria(new AnnotatedPropertyCriteria(StereotypeProperty.class)).getResultList();
+
+        for (Property property : properties) {
+            StereotypeProperty stereotypeProperty = property.getAnnotatedElement().getAnnotation(StereotypeProperty.class);
+
+            if (StereotypeProperty.Property.IDENTITY_USER_NAME.equals(stereotypeProperty.value())) {
+                return property;
+            }
+        }
+
+        throw IDMMessages.MESSAGES.credentialUnknownUserNameProperty(accountType);
+    }
 }
