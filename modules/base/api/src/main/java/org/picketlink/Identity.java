@@ -18,6 +18,7 @@
 package org.picketlink;
 
 import org.picketlink.authentication.AuthenticationException;
+import org.picketlink.authentication.levels.Level;
 import org.picketlink.idm.model.Account;
 
 import java.io.Serializable;
@@ -39,6 +40,15 @@ public interface Identity extends Serializable {
      * @return true if the user is logged in
      */
     boolean isLoggedIn();
+
+    /**
+     * Return the current security level of the user.
+     *
+     * The user does not have to be logged in order to get some security level.
+     *
+     * @return current security level
+     */
+    Level getLevel();
 
     Account getAccount();
 
