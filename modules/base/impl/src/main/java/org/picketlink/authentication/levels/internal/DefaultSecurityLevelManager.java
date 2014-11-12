@@ -1,6 +1,5 @@
 package org.picketlink.authentication.levels.internal;
 
-import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.levels.Level;
 import org.picketlink.authentication.levels.SecurityLevelManager;
 import org.picketlink.authentication.levels.SecurityLevelResolver;
@@ -22,12 +21,10 @@ public class DefaultSecurityLevelManager implements SecurityLevelManager {
     private Level defaultSecurityLevel;
 
     @Inject
-    @PicketLink
     @DefaultSecurityLevel
     private Instance<Level> levelInstance;
 
     @Inject
-    @PicketLink
     @Any
     private Instance<SecurityLevelResolver> resolverInstances;
 
