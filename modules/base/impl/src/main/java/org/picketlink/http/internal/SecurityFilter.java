@@ -164,7 +164,9 @@ public class SecurityFilter implements Filter {
 
             pathConfiguration = this.pathMatcher.matches(request);
 
-            performAuthenticationIfRequired(pathConfiguration, request, response);
+            Identity identity = getIdentity();
+
+            performAuthenticationIfRequired(pathConfiguration, identity, request, response);
 
             if (isSecured(pathConfiguration)) {
                 if (!isMethodAllowed(pathConfiguration, request)) {
@@ -172,8 +174,6 @@ public class SecurityFilter implements Filter {
                 }
 
                 if (!response.isCommitted()) {
-                    Identity identity = getIdentity();
-
                     if (!identity.isLoggedIn()) {
                         challengeClientForCredentials(pathConfiguration, request, response);
                     } else if (isLogoutPath(pathConfiguration)) {
@@ -364,8 +364,8 @@ public class SecurityFilter implements Filter {
         }
     }
 
-    private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Identity identity = getIdentity();
+    private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, Identity identity,
+            HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpAuthenticationScheme authenticationScheme = getAuthenticationScheme(pathConfiguration, request);
 
         if (authenticationScheme != null) {
