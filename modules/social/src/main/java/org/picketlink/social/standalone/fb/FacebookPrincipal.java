@@ -23,12 +23,15 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.security.Principal;
 
+import javax.enterprise.inject.Vetoed;
+
 /**
  * An instance of {@link Principal} representing a facebook user
  *
  * @author Marcel Kolsteren
  * @since Sep 26, 2010
  */
+ @Vetoed
 public class FacebookPrincipal implements Principal, Serializable {
     private static final long serialVersionUID = 8086364702249670998L;
 
