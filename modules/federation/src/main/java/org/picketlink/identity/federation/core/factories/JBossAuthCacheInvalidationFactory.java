@@ -18,6 +18,7 @@
 package org.picketlink.identity.federation.core.factories;
 
 import org.jboss.logging.Logger;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -45,6 +46,11 @@ public class JBossAuthCacheInvalidationFactory {
      * @return
      */
     public static TimeCacheExpiry getCacheExpiry() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(PicketLinkFederationConstants.RUNTIME_PERMISSION_CORE);
+        }
+
         return ExpiringPrincipalCacheInvalidation.get();
     }
 
