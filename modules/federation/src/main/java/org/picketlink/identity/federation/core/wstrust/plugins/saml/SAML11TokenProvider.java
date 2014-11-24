@@ -21,11 +21,13 @@ package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.AbstractSecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
@@ -105,7 +107,8 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         String assertionID = IDGenerator.create("ID_");
 
         // lifetime and audience restrictions.
-        Lifetime lifetime = wstContext.getRequestSecurityToken().getLifetime();
+        Lifetime lifetime = adjustLifetimeForClockSkew( wstContext.getRequestSecurityToken().getLifetime() );
+
         SAML11AudienceRestrictionCondition restriction = null;
         AppliesTo appliesTo = wstContext.getRequestSecurityToken().getAppliesTo();
         if (appliesTo != null) {
@@ -220,8 +223,9 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
 
         // adjust the lifetime for the renewed assertion.
         SAML11ConditionsType conditions = oldAssertion.getConditions();
-        conditions.setNotBefore(wstContext.getRequestSecurityToken().getLifetime().getCreated());
-        conditions.setNotOnOrAfter(wstContext.getRequestSecurityToken().getLifetime().getExpires());
+        Lifetime lifetime = adjustLifetimeForClockSkew( wstContext.getRequestSecurityToken().getLifetime() );
+        conditions.setNotBefore(lifetime.getCreated());
+        conditions.setNotOnOrAfter(lifetime.getExpires());
 
         // create a new unique ID for the renewed assertion.
         String assertionID = IDGenerator.create("ID_");
@@ -298,7 +302,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
 
         // check the assertion lifetime.
         try {
-            if (AssertionUtil.hasExpired(assertion)) {
+            if (AssertionUtil.hasExpired(assertion, Long.parseLong(this.properties.get("CLOCK_SKEW")))) {
                 code = WSTrustConstants.STATUS_CODE_INVALID;
                 reason = "Validation failure: assertion expired or used before its lifetime period";
             }
@@ -364,4 +368,19 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
                 && SAML11Constants.ASSERTION_11_NSURI.equals(element.getNamespaceURI());
     }
 
+    protected Lifetime adjustLifetimeForClockSkew(Lifetime lifetime) throws ProcessingException {
+        try 
+        {
+          // adjust the lifetime to reflect the clock skew setting
+          lifetime.setCreated( XMLTimeUtil.subtract(lifetime.getCreated(), 
+                               new Integer(this.properties.get("CLOCK_SKEW"))) );
+          lifetime.setExpires( XMLTimeUtil.add(lifetime.getExpires(), 
+                               new Integer(this.properties.get("CLOCK_SKEW"))) );
+          return lifetime;
+        }
+        catch( ConfigurationException ce )
+        {
+          throw new ProcessingException(ce.getMessage());
+        }
+    }
 }
