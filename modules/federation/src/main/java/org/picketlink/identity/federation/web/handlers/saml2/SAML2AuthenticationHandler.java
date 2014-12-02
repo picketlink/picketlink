@@ -503,16 +503,28 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 // add the principal to the session
                 session.setAttribute(GeneralConstants.PRINCIPAL_ID, userPrincipal);
 
-                Document assertionDocument = AssertionUtil.asDocument((AssertionType) assertion);
+                Document responseDocument = request.getRequestDocument();
+                Element assertionElement =
+                        DocumentUtil.getChildElement(responseDocument.getDocumentElement(),
+                                new QName(JBossSAMLConstants.ASSERTION.get()));
+                try {
+                    Document assertionDocument = DocumentUtil.createDocument();
+                    Node clonedAssertion = assertionElement.cloneNode(true);
 
-                String assertionAttributeName = (String) handlerConfig
-                        .getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+                    assertionDocument.adoptNode(clonedAssertion);
+                    assertionDocument.appendChild(clonedAssertion);
 
-                if (assertionAttributeName != null) {
-                    session.setAttribute(assertionAttributeName, assertionDocument);
+                    String assertionAttributeName = (String) handlerConfig
+                            .getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+
+                    if (assertionAttributeName != null) {
+                        session.setAttribute(assertionAttributeName, assertionDocument);
+                    }
+
+                    session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
+                } catch (ConfigurationException e) {
+                    throw new ProcessingException("Could not store assertion document into session.", e);
                 }
-
-                session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
 
                 SessionManager sessionManager = SessionManager.get(session.getServletContext());
 
