@@ -144,7 +144,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         String assertionID = IDGenerator.create("ID_");
 
         // lifetime and audience restrictions.
-        Lifetime lifetime = context.getRequestSecurityToken().getLifetime();
+        Lifetime lifetime = adjustLifetimeForClockSkew( context.getRequestSecurityToken().getLifetime() );
         AudienceRestrictionType restriction = null;
         AppliesTo appliesTo = context.getRequestSecurityToken().getAppliesTo();
         if (appliesTo != null)
@@ -259,8 +259,9 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
 
         // adjust the lifetime for the renewed assertion.
         ConditionsType conditions = oldAssertion.getConditions();
-        conditions.setNotBefore(context.getRequestSecurityToken().getLifetime().getCreated());
-        conditions.setNotOnOrAfter(context.getRequestSecurityToken().getLifetime().getExpires());
+        Lifetime lifetime = adjustLifetimeForClockSkew( context.getRequestSecurityToken().getLifetime() );
+        conditions.setNotBefore(lifetime.getCreated());
+        conditions.setNotOnOrAfter(lifetime.getExpires());
 
         // create a new unique ID for the renewed assertion.
         String assertionID = IDGenerator.create("ID_");
@@ -337,7 +338,9 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
 
         // check the assertion lifetime.
         try {
-            if (AssertionUtil.hasExpired(assertion)) {
+            long clockSkewInMilis = getClockSkewInMillis();
+
+            if (AssertionUtil.hasExpired(assertion, clockSkewInMilis)) {
                 code = WSTrustConstants.STATUS_CODE_INVALID;
                 reason = "Validation failure: assertion expired or used before its lifetime period";
             }

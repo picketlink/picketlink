@@ -105,7 +105,8 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         String assertionID = IDGenerator.create("ID_");
 
         // lifetime and audience restrictions.
-        Lifetime lifetime = wstContext.getRequestSecurityToken().getLifetime();
+        Lifetime lifetime = adjustLifetimeForClockSkew( wstContext.getRequestSecurityToken().getLifetime() );
+
         SAML11AudienceRestrictionCondition restriction = null;
         AppliesTo appliesTo = wstContext.getRequestSecurityToken().getAppliesTo();
         if (appliesTo != null) {
@@ -220,8 +221,9 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
 
         // adjust the lifetime for the renewed assertion.
         SAML11ConditionsType conditions = oldAssertion.getConditions();
-        conditions.setNotBefore(wstContext.getRequestSecurityToken().getLifetime().getCreated());
-        conditions.setNotOnOrAfter(wstContext.getRequestSecurityToken().getLifetime().getExpires());
+        Lifetime lifetime = adjustLifetimeForClockSkew( wstContext.getRequestSecurityToken().getLifetime() );
+        conditions.setNotBefore(lifetime.getCreated());
+        conditions.setNotOnOrAfter(lifetime.getExpires());
 
         // create a new unique ID for the renewed assertion.
         String assertionID = IDGenerator.create("ID_");
@@ -298,7 +300,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
 
         // check the assertion lifetime.
         try {
-            if (AssertionUtil.hasExpired(assertion)) {
+            if (AssertionUtil.hasExpired(assertion, getClockSkewInMillis())) {
                 code = WSTrustConstants.STATUS_CODE_INVALID;
                 reason = "Validation failure: assertion expired or used before its lifetime period";
             }
@@ -363,5 +365,4 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         return element == null ? false : "Assertion".equals(element.getLocalName())
                 && SAML11Constants.ASSERTION_11_NSURI.equals(element.getNamespaceURI());
     }
-
 }

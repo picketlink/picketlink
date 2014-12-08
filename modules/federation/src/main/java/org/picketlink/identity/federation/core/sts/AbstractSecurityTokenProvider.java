@@ -19,7 +19,10 @@ package org.picketlink.identity.federation.core.sts;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.registry.DefaultRevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.DefaultTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.FileBasedRevocationRegistry;
@@ -32,6 +35,7 @@ import org.picketlink.identity.federation.core.sts.registry.OJDBCRevocationRegis
 import org.picketlink.identity.federation.core.sts.registry.OJDBCTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.RevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry;
+import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 
 import java.util.Map;
 
@@ -212,4 +216,26 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                 DefaultRevocationRegistry();
         }
     }
+
+    protected long getClockSkewInMillis() {
+        String clockSkew = this.properties.get("CLOCK_SKEW");
+
+        if (clockSkew == null) {
+            clockSkew = "0";
+        }
+
+        return Long.parseLong(clockSkew);
+    }
+
+    protected Lifetime adjustLifetimeForClockSkew(Lifetime lifetime) throws ProcessingException {
+        try  {
+            lifetime.setCreated( XMLTimeUtil.subtract(lifetime.getCreated(), getClockSkewInMillis()));
+            lifetime.setExpires( XMLTimeUtil.add(lifetime.getExpires(), getClockSkewInMillis()));
+            return lifetime;
+        } catch( ConfigurationException ce ) {
+            throw new ProcessingException(ce.getMessage());
+        }
+    }
+
+
 }
