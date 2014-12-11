@@ -63,11 +63,11 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
 
     @Override
     public void challengeClient(HttpServletRequest request, HttpServletResponse response) {
-        if (!isFormSubmitted(request) && this.configuration.isRestoreOriginalRequest()) {
+        String requestedUri = request.getRequestURI();
+
+        if (!isFormSubmitted(request) && this.configuration.isRestoreOriginalRequest() && !requestedUri.contains(this.configuration.getLoginPageUrl())) {
             requestCache.saveRequest(request);
         }
-
-        String requestedUri = request.getRequestURI();
 
         if (!requestedUri.contains(this.configuration.getLoginPageUrl())
             && !requestedUri.contains(this.configuration.getErrorPageUrl())) {
