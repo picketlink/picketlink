@@ -320,6 +320,8 @@ public class SAMLParserUtil {
         } else if (typeValue.contains(":anyType")) {
             // TODO: for now assume that it is a text value that can be parsed and set as the attribute value
             return StaxParserUtil.getElementText(xmlEventReader);
+        } else if(typeValue.contains(":base64Binary")){
+            return StaxParserUtil.getElementText(xmlEventReader);
         }
 
         throw logger.parserUnknownXSI(typeValue);
