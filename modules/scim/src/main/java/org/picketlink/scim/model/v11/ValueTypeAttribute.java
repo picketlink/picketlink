@@ -27,27 +27,47 @@ import org.picketlink.scim.annotations.ResourceAttributeDefinition;
  */
 public abstract class ValueTypeAttribute {
 
-    @ResourceAttributeDefinition
-    private String value;
+    @ResourceAttributeDefinition(
+            name = "display",
+            type = "string",
+            multiValued = false,
+            description = "A human readable name, primarily used for display purposes. READ-ONLY.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
+    private String display;
 
-    @ResourceAttributeDefinition
-    private String type;
+    @ResourceAttributeDefinition(
+            name = "primary",
+            type = "boolean",
+            multiValued = false,
+            description = "A Boolean value indicating the 'primary' or preferred attribute value for this attribute. The primary attribute value 'true' MUST appear no more than once.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
+    private boolean primary;
 
-    public String getValue() {
-        return value;
+    public String getDisplay() {
+        return display;
     }
 
-    public ValueTypeAttribute setValue(String value) {
-        this.value = value;
+    public ValueTypeAttribute setDisplay(String display) {
+        this.display = display;
         return this;
     }
 
-    public String getType() {
-        return type;
+    public boolean isPrimary() {
+        return primary;
     }
 
-    public ValueTypeAttribute setType(String type) {
-        this.type = type;
+    public ValueTypeAttribute setPrimary(boolean primary) {
+        this.primary = primary;
         return this;
     }
 }

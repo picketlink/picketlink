@@ -17,12 +17,11 @@
  */
 package org.picketlink.scim.model.v11.resource;
 
+import java.net.URI;
+
 import org.picketlink.scim.annotations.ResourceAttributeDefinition;
 import org.picketlink.scim.annotations.ResourceDefinition;
-import org.picketlink.scim.model.v11.Name;
 import org.picketlink.scim.model.v11.ValueTypeAttribute;
-
-import java.net.URI;
 
 /**
  * SCIM User Type
@@ -31,81 +30,287 @@ import java.net.URI;
  * @since Apr 8, 2013
  */
 @ResourceDefinition(
-    id = "urn:ietf:params:scim:schemas:core:2.0:User",
-    schema = "urn:ietf:params:scim:schemas:core:2.0:User",
-    name = "User",
-    endpointName = "/User",
-    description = "User Account"
-)
+        id = "urn:ietf:params:scim:schemas:core:2.0:User",
+        schema = "urn:ietf:params:scim:schemas:core:2.0:User",
+        name = "User",
+        endpointName = "/User",
+        description = "User Account"
+    )
 public class SCIMUser extends AbstractSCIMResource {
 
     public static URI ID = URI.create("urn:ietf:params:scim:schemas:core:2.0:User");
 
     @ResourceAttributeDefinition(
-        description = "Unique identifier for the User typically used by the user to directly authenticate to the service provider. Each User MUST include a non-empty userName value.  This identifier MUST be unique across the Service Consumer's entire set of Users.  REQUIRED")
+            name = "userName",
+            type = "string",
+            multiValued = false,
+            description = "Unique identifier for the User typically used by the user to directly authenticate to the service provider. Each User MUST include a non-empty userName value.  This identifier MUST be unique across the Service Consumer's entire set of Users.  REQUIRED",
+            required = true,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "server"
+            )
     private String userName;
 
     @ResourceAttributeDefinition(
-        description = "The components of the user's real name. Providers MAY return just the full name as a single string in the formatted sub-attribute, or they MAY return just the individual component attributes using the other sub-attributes, or they MAY return both. If both variants are returned, they SHOULD be describing the same name, with the formatted name indicating how the component attributes should be combined.",
-        required = false
-        )
+            name = "name",
+            type = "complex",
+            multiValued = false,
+            description = "The components of the user's real name. Providers MAY return just the full name as a single string in the formatted sub-attribute, or they MAY return just the individual component attributes using the other sub-attributes, or they MAY return both. If both variants are returned, they SHOULD be describing the same name, with the formatted name indicating how the component attributes should be combined.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private Name name;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "displayName",
+            type = "string",
+            multiValued = false,
+            description = "The name of the User, suitable for display to end-users. The name SHOULD be the full name of the User being described if known",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String displayName;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "nickName",
+            type = "string",
+            multiValued = false,
+            description = "The casual way to address the user in real life, e.g. \"Bob\" or \"Bobby\" instead of \"Robert\".  This attribute SHOULD NOT be used to represent a User's username (e.g. bjensen or mpepperidge)",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String nickName;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "profileUrl",
+            type = "string",
+            multiValued = false,
+            description = "A fully qualified URL to a page representing the User's online profile",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String profileUrl;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "title",
+            type = "string",
+            multiValued = false,
+            description = "The user's title, such as \"Vice President.\"",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String title;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "userType",
+            type = "string",
+            multiValued = false,
+            description = "Used to identify the organization to user relationship. Typical values used might be \"Contractor\", \"Employee\", \"Intern\", \"Temp\", \"External\", and \"Unknown\" but any value may be used ",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String userType;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "preferredLanguage",
+            type = "string",
+            multiValued = false,
+            description = "Indicates the User's preferred written or spoken language.  Generally used for selecting a localized User interface. e.g., 'en_US' specifies the language English and country US.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String preferredLanguage;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "locale",
+            type = "string",
+            multiValued = false,
+            description = "Used to indicate the User's default location for purposes of localizing items such as currency, date time format, numerical representations, etc.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String locale;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "timezone",
+            type = "string",
+            multiValued = false,
+            description = "The User's time zone in the \"Olson\" timezone database format [19]; e.g.,'America/Los_Angeles'",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String timezone;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "active",
+            type = "boolean",
+            multiValued = false,
+            description = "A Boolean value indicating the User's administrative status.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private boolean active;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "password",
+            type = "string",
+            multiValued = false,
+            description = "The User's clear text password.  This attribute is intended to be used as a means to specify an initial password when creating a new User or to reset an existing User's password.",
+            required = false,
+            caseExact = false,
+            mutability = "writeOnly",
+            returned = "never",
+            uniqueness = "none"
+            )
     private String password;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "addresses",
+            type = "complex",
+            multiValued = true,
+            description = "A physical mailing address for this User, as described in (address Element). Canonical Type Values of work, home, and other. The value attribute is a complex type with the following sub-attributes.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private Addresses[] addresses;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "phoneNumbers",
+            type = "complex",
+            multiValued = true,
+            description = "Phone numbers for the User.  The value SHOULD be canonicalized by the Service Provider according to format in RFC3966 [20] e.g. 'tel:+1-201-555-0123'.  Canonical Type values of work, home, mobile, fax, pager and other.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private PhoneNumbers[] phoneNumbers;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "ims",
+            type = "complex",
+            multiValued = true,
+            description = "Instant messaging addresses for the User.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private Ims[] ims;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "emails",
+            type = "complex",
+            multiValued = true,
+            description = "E-mail addresses for the user. The value SHOULD be canonicalized by the Service Provider, e.g. bjensen@example.com instead of bjensen@EXAMPLE.COM. Canonical Type values of work, home, and other.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private Emails[] emails;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "photos",
+            type = "complex",
+            multiValued = true,
+            description = "URLs of photos of the User.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private Photos[] photos;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "groups",
+            type = "complex",
+            multiValued = true,
+            description = "A list of groups that the user belongs to, either thorough direct membership, nested groups, or dynamically calculated",
+            required = false,
+            caseExact = false,
+            mutability = "readOnly",
+            returned = "default",
+            uniqueness = "none"
+            )
     private SCIMGroup[] groups;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "x509Certificates",
+            type = "complex",
+            multiValued = true,
+            description = "A list of certificates issued to the User.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private X509Certificates[] x509Certificates;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "entitlements",
+            type = "complex",
+            multiValued = true,
+            description = "A list of entitlements for the User that represent a thing the User has.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private Entitlement[] entitlements;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "roles",
+            type = "complex",
+            multiValued = true,
+            description = "A list of roles for the User that collectively represent who the User is; e.g., 'Student', 'Faculty'.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private Role[] roles;
 
     public Name getName() {
@@ -279,40 +484,392 @@ public class SCIMUser extends AbstractSCIMResource {
         return this;
     }
 
-    public static class Emails extends ValueTypeAttribute {
+    public Entitlement[] getEntitlements() {
+        return entitlements;
+    }
 
-        @ResourceAttributeDefinition
-        private boolean primary;
+    public SCIMUser setEntitlements(Entitlement[] entitlements) {
+        this.entitlements = entitlements;
+        return this;
+    }
 
-        public Emails() {
+    public Role[] getRoles() {
+        return roles;
+    }
+
+    public SCIMUser setRoles(Role[] roles) {
+        this.roles = roles;
+        return this;
+    }
+
+    public static class Name {
+
+        @ResourceAttributeDefinition(
+                name = "formatted",
+                type = "string",
+                multiValued = false,
+                description = "The full name, including all middle names, titles, and suffixes as appropriate, formatted for display (e.g. Ms. Barbara J Jensen, III.).",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String formatted;
+
+        @ResourceAttributeDefinition(
+                name = "familyName",
+                type = "string",
+                multiValued = false,
+                description = "The family name of the User, or Last Name in most Western languages (e.g. Jensen given the full name Ms. Barbara J Jensen, III.).",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String familyName;
+
+        @ResourceAttributeDefinition(
+                name = "givenName",
+                type = "string",
+                multiValued = false,
+                description = "The given name of the User, or First Name in most Western languages (e.g. Barbara given the full name Ms. Barbara J Jensen, III.).",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String givenName;
+
+        @ResourceAttributeDefinition(
+                name = "middleName",
+                type = "string",
+                multiValued = false,
+                description = "The middle name(s) of the User (e.g. Robert given the full name Ms. Barbara J Jensen, III.).",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String middleName;
+
+        @ResourceAttributeDefinition(
+                name = "honorificPrefix",
+                type = "string",
+                multiValued = false,
+                description = "The honorific prefix(es) of the User, or Title in most Western languages (e.g. Ms. given the full name Ms. Barbara J Jensen, III.).",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String honorificPrefix;
+
+        @ResourceAttributeDefinition(
+                name = "honorificSuffix",
+                type = "string",
+                multiValued = false,
+                description = "The honorific suffix(es) of the User, or Suffix in most Western languages (e.g. III. given the full name Ms. Barbara J Jensen, III.).",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String honorificSuffix;
+
+        public String getFormatted() {
+            return formatted;
         }
 
-        public boolean isPrimary() {
-            return primary;
+        public Name setFormatted(String formatted) {
+            this.formatted = formatted;
+            return this;
         }
 
-        public Emails setPrimary(boolean primary) {
-            this.primary = primary;
+        public String getFamilyName() {
+            return familyName;
+        }
+
+        public Name setFamilyName(String familyName) {
+            this.familyName = familyName;
+            return this;
+        }
+
+        public String getGivenName() {
+            return givenName;
+        }
+
+        public Name setGivenName(String givenName) {
+            this.givenName = givenName;
+            return this;
+        }
+
+        public String getMiddleName() {
+            return middleName;
+        }
+
+        public Name setMiddleName(String middleName) {
+            this.middleName = middleName;
+            return this;
+        }
+
+        public String getHonorificPrefix() {
+            return honorificPrefix;
+        }
+
+        public Name setHonorificPrefix(String honorificPrefix) {
+            this.honorificPrefix = honorificPrefix;
+            return this;
+        }
+
+        public String getHonorificSuffix() {
+            return honorificSuffix;
+        }
+
+        public Name setHonorificSuffix(String honorificSuffix) {
+            this.honorificSuffix = honorificSuffix;
             return this;
         }
     }
 
+    public static class Emails extends ValueTypeAttribute {
+
+        @ResourceAttributeDefinition(
+                name = "value",
+                type = "string",
+                multiValued = false,
+                description = "E-mail addresses for the user. The value SHOULD be canonicalized by the Service Provider, e.g. bjensen@example.com instead of bjensen@EXAMPLE.COM. Canonical Type values of work, home, and other.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String value;
+
+        @ResourceAttributeDefinition(
+                name = "type",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the attribute's function; e.g., 'work' or 'home'.",
+                required = false,
+                caseExact = false,
+                canonicalValues = {"work", "home", "other"},
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String type;
+
+        public String getValue() {
+            return value;
+        }
+
+        public Emails setValue(String value) {
+            this.value = value;
+            return this;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public Emails setType(String type) {
+            this.type = type;
+            return this;
+        }
+
+    }
+
     public static class Ims extends ValueTypeAttribute {
+
+        @ResourceAttributeDefinition(
+                name = "value",
+                type = "string",
+                multiValued = false,
+                description = "Instant messaging address for the User.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String value;
+
+        @ResourceAttributeDefinition(
+                name = "type",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the attribute's function; e.g., 'aim', 'gtalk', 'mobile' etc.",
+                required = false,
+                caseExact = false,
+                canonicalValues = {"aim", "gtalk", "icq", "xmpp", "msn", "skype", "qq", "yahoo"},
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String type;
+
+        public String getValue() {
+            return value;
+        }
+
+        public Ims setValue(String value) {
+            this.value = value;
+            return this;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public Ims setType(String type) {
+            this.type = type;
+            return this;
+        }
 
     }
 
     public static class Photos extends ValueTypeAttribute {
 
+        @ResourceAttributeDefinition(
+                name = "value",
+                type = "string",
+                multiValued = false,
+                description = "URL of a photo of the User.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String value;
+
+        @ResourceAttributeDefinition(
+                name = "type",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the attribute's function; e.g., 'photo' or 'thumbnail'.",
+                required = false,
+                caseExact = false,
+                canonicalValues = {"photo", "thumbnail"},
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String type;
+
+        public String getValue() {
+            return value;
+        }
+
+        public Photos setValue(String value) {
+            this.value = value;
+            return this;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public Photos setType(String type) {
+            this.type = type;
+            return this;
+        }
+
     }
 
     public static class PhoneNumbers extends ValueTypeAttribute {
 
+        @ResourceAttributeDefinition(
+                name = "value",
+                type = "string",
+                multiValued = false,
+                description = "Phone number of the User",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String value;
+
+        @ResourceAttributeDefinition(
+                name = "type",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the attribute's function; e.g., 'work' or 'home' or 'mobile' etc.",
+                required = false,
+                caseExact = false,
+                canonicalValues = {"work", "home", "mobile", "fax", "pager", "other"},
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String type;
+
+        public String getType() {
+            return type;
+        }
+
+        public PhoneNumbers setType(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public PhoneNumbers setValue(String value) {
+            this.value = value;
+            return this;
+        }
+
     }
 
-    public static class X509Certificates {
+    public static class X509Certificates extends ValueTypeAttribute {
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "value",
+                type = "string",
+                multiValued = false,
+                description = "The value of a X509 certificate.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String value;
+
+        @ResourceAttributeDefinition(
+                name = "type",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the attribute's function.",
+                required = false,
+                caseExact = false,
+                canonicalValues = {},
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String type;
+
+        public String getType() {
+            return type;
+        }
+
+        public X509Certificates setType(String type) {
+            this.type = type;
+            return this;
+        }
 
         public String getValue() {
             return value;
@@ -322,76 +879,212 @@ public class SCIMUser extends AbstractSCIMResource {
             this.value = value;
             return this;
         }
+
     }
 
     public static class Entitlement extends ValueTypeAttribute {
 
-        private String display;
-        private boolean primary;
+        @ResourceAttributeDefinition(
+                name = "value",
+                type = "string",
+                multiValued = false,
+                description = "The value of an entitlement",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String value;
 
-        public String getDisplay() {
-            return display;
+        @ResourceAttributeDefinition(
+                name = "type",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the attribute's function.",
+                required = false,
+                caseExact = false,
+                canonicalValues = {},
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String type;
+
+        public String getValue() {
+            return value;
         }
 
-        public void setDisplay(String display) {
-            this.display = display;
+        public Entitlement setValue(String value) {
+            this.value = value;
+            return this;
         }
 
-        public boolean isPrimary() {
-            return primary;
+        public String getType() {
+            return type;
         }
 
-        public void setPrimary(boolean primary) {
-            this.primary = primary;
+        public Entitlement setType(String type) {
+            this.type = type;
+            return this;
         }
+
     }
 
     public static class Role extends ValueTypeAttribute {
 
-        private String display;
-        private boolean primary;
+        @ResourceAttributeDefinition(
+                name = "value",
+                type = "string",
+                multiValued = false,
+                description = "The value of a role.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String value;
 
-        public String getDisplay() {
-            return display;
+        @ResourceAttributeDefinition(
+                name = "type",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the attribute's function.",
+                required = false,
+                caseExact = false,
+                canonicalValues = {},
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
+        private String type;
+
+        public String getValue() {
+            return value;
         }
 
-        public void setDisplay(String display) {
-            this.display = display;
+        public Role setValue(String value) {
+            this.value = value;
+            return this;
         }
 
-        public boolean isPrimary() {
-            return primary;
+        public String getType() {
+            return type;
         }
 
-        public void setPrimary(boolean primary) {
-            this.primary = primary;
+        public Role setType(String type) {
+            this.type = type;
+            return this;
         }
+
     }
 
     public static class Addresses {
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "type",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the attribute's function; e.g., 'work' or 'home'.",
+                canonicalValues = {"work", "home", "other"},
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String type;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "streetAddress",
+                type = "string",
+                multiValued = false,
+                description = "The full street address component, which may include house number, street name, PO BOX, and multi-line extended street address information. This attribute MAY contain newlines.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String streetAddress;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "locality",
+                type = "string",
+                multiValued = false,
+                description = "The city or locality component.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String locality;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "region",
+                type = "string",
+                multiValued = false,
+                description = "The state or region component.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String region;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "postalCode",
+                type = "string",
+                multiValued = false,
+                description = "The zipcode or postal code component.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String postalCode;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "country",
+                type = "string",
+                multiValued = false,
+                description = "The country name component.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String country;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "formatted",
+                type = "string",
+                multiValued = false,
+                description = "The full mailing address, formatted for display or use with a mailing label. This attribute MAY contain newlines.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String formatted;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "primary",
+                type = "string",
+                multiValued = false,
+                description = "A Boolean value indicating the 'primary' or preferred attribute value for this attribute, e.g. the preferred mailing address or primary e-mail address. The primary attribute value 'true' MUST appear no more than once.",
+                required = false,
+                caseExact = false,
+                mutability = "readWrite",
+                returned = "default",
+                uniqueness = "none"
+                )
         private boolean primary;
 
         public String getType() {

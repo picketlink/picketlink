@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.scim.model.v11.schema;
+package org.picketlink.scim.model.v11.resource;
 
 import org.picketlink.scim.model.v11.SCIMMetaData;
 
@@ -25,6 +25,7 @@ import org.picketlink.scim.model.v11.SCIMMetaData;
  * @author anil saldhana
  * @since Apr 8, 2013
  */
+
 public class SCIMResourceType {
 
     private String id;

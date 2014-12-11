@@ -34,16 +34,27 @@ import static java.lang.annotation.ElementType.METHOD;
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({FIELD, METHOD})
+@Target({ FIELD, METHOD })
 @Inherited
 public @interface ResourceAttributeDefinition {
 
     String name() default "";
+
+    String type() default "";
+
     String description() default "";
-    String canonicalValues() default "";
+
+    String[] canonicalValues() default "";
+
+    boolean multiValued() default false;
+
     boolean caseExact() default false;
+
     boolean required() default true;
+
     String mutability() default "readWrite";
+
     String returned() default "default";
+
     String uniqueness() default "server";
 }

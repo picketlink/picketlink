@@ -19,7 +19,7 @@ package org.picketlink.test.scim.parsing;
 
 import org.junit.Test;
 import org.picketlink.scim.model.v11.parser.SCIMParser;
-import org.picketlink.scim.model.v11.schema.SCIMResourceType;
+import org.picketlink.scim.model.v11.resource.SCIMResourceType;
 
 import java.io.InputStream;
 

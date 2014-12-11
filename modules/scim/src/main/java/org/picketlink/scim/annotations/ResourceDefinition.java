@@ -36,8 +36,12 @@ import static java.lang.annotation.ElementType.TYPE;
 public @interface ResourceDefinition {
 
     String endpointName();
+
     String id();
+
     String name() default "";
+
     String schema() default "";
+
     String description() default "";
 }

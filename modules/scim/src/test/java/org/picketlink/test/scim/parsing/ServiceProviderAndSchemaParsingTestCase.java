@@ -20,10 +20,10 @@ package org.picketlink.test.scim.parsing;
 import org.junit.Test;
 import org.picketlink.scim.model.v11.SCIMMetaData;
 import org.picketlink.scim.model.v11.parser.SCIMParser;
+import org.picketlink.scim.model.v11.resource.ServiceProviderConfiguration;
+import org.picketlink.scim.model.v11.resource.ServiceProviderConfiguration.Bulk;
+import org.picketlink.scim.model.v11.resource.ServiceProviderConfiguration.Filter;
 import org.picketlink.scim.model.v11.schema.SCIMSchema;
-import org.picketlink.scim.model.v11.schema.ServiceProviderConfiguration;
-import org.picketlink.scim.model.v11.schema.ServiceProviderConfiguration.Bulk;
-import org.picketlink.scim.model.v11.schema.ServiceProviderConfiguration.Filter;
 
 import java.io.InputStream;
 

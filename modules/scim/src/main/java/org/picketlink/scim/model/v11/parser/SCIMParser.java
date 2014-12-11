@@ -23,9 +23,9 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.picketlink.scim.model.v11.schema.SCIMSchema;
-import org.picketlink.scim.model.v11.schema.ServiceProviderConfiguration;
 import org.picketlink.scim.model.v11.resource.SCIMResource;
-import org.picketlink.scim.model.v11.schema.SCIMResourceType;
+import org.picketlink.scim.model.v11.resource.SCIMResourceType;
+import org.picketlink.scim.model.v11.resource.ServiceProviderConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,7 +67,7 @@ public class SCIMParser {
     }
 
     /**
-     * Parse {@link org.picketlink.scim.model.v11.schema.SCIMResourceType}
+     * Parse {@link org.picketlink.scim.model.v11.resource.SCIMResourceType}
      *
      * @param is
      *

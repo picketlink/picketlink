@@ -17,6 +17,7 @@
  */
 package org.picketlink.scim.model.v11.resource;
 
+import org.picketlink.scim.annotations.ResourceAttributeDefinition;
 import org.picketlink.scim.model.v11.SCIMMetaData;
 
 /**
@@ -27,8 +28,32 @@ import org.picketlink.scim.model.v11.SCIMMetaData;
  */
 public abstract class AbstractSCIMResource implements SCIMResource {
 
+    @ResourceAttributeDefinition(
+            name = "id",
+            type = "string",
+            multiValued = false,
+            description = "Unique identifier for the SCIM resource as defined by the Service Provider. Each representation of the resource MUST include a non-empty id value. This identifier MUST be unique across the Service Provider's entire set of resources. It MUST be a stable, non-reassignable identifier that does not change when the same resource is returned in subsequent requests. The value of the id attribute is always issued by the Service Provider and MUST never be specified by the Service Consumer. REQUIRED.",
+            required = true,
+            caseExact = false,
+            mutability = "readOnly",
+            returned = "always",
+            uniqueness = "server"
+            )
     private String id;
+
+    @ResourceAttributeDefinition(
+            name = "externalId",
+            type = "string",
+            multiValued = false,
+            description = "An identifier for the Resource as defined by the Service Consumer.",
+            required = true,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String[] externalId;
+
     private SCIMMetaData meta;
     private String[] schemas;
 

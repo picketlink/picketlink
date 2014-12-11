@@ -18,12 +18,12 @@
 package org.picketlink.test.scim.parsing;
 
 import org.junit.Test;
-import org.picketlink.scim.model.v11.Name;
 import org.picketlink.scim.model.v11.SCIMMetaData;
 import org.picketlink.scim.model.v11.parser.SCIMParser;
 import org.picketlink.scim.model.v11.resource.SCIMUser;
 import org.picketlink.scim.model.v11.resource.SCIMUser.Emails;
 import org.picketlink.scim.model.v11.resource.SCIMUser.Ims;
+import org.picketlink.scim.model.v11.resource.SCIMUser.Name;
 
 import java.io.InputStream;
 

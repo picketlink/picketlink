@@ -22,7 +22,7 @@ import org.picketlink.scim.annotations.ResourceDefinition;
 import org.picketlink.scim.model.v11.parser.SCIMWriter;
 import org.picketlink.scim.model.v11.parser.SCIMWriterException;
 import org.picketlink.scim.model.v11.resource.SCIMResource;
-import org.picketlink.scim.model.v11.schema.SCIMResourceType;
+import org.picketlink.scim.model.v11.resource.SCIMResourceType;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -30,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+
 import java.util.Map;
 
 /**

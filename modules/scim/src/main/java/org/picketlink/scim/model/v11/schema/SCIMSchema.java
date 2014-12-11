@@ -100,13 +100,11 @@ public class SCIMSchema {
             scimSchema.setDescription(resourceDefinition.description());
 
             List<BasicAttribute> attributes = new ArrayList<BasicAttribute>();
-            List<Property<Object>> result = PropertyQueries
-                .createQuery(resourceType)
-                .addCriteria(new AnnotatedPropertyCriteria(ResourceAttributeDefinition.class))
-                .getResultList();
+            List<Property<Object>> result = PropertyQueries.createQuery(resourceType)
+                    .addCriteria(new AnnotatedPropertyCriteria(ResourceAttributeDefinition.class)).getResultList();
 
             for (Property property : result) {
-                attributes.add(Attribute.fromDefinition(property));
+                attributes.add(Attribute.fromAttributeDefinition(property));
             }
 
             scimSchema.setAttributes(attributes.toArray(new Attribute[attributes.size()]));
@@ -119,8 +117,9 @@ public class SCIMSchema {
 
     public static class Attribute extends BasicAttribute {
 
-        public static Attribute fromDefinition(Property property) {
-            ResourceAttributeDefinition annotation = property.getAnnotatedElement().getAnnotation(ResourceAttributeDefinition.class);
+        public static Attribute fromAttributeDefinition(Property property) {
+            ResourceAttributeDefinition annotation = property.getAnnotatedElement().getAnnotation(
+                    ResourceAttributeDefinition.class);
             Attribute attribute = new Attribute();
 
             String name = annotation.name();
@@ -130,8 +129,8 @@ public class SCIMSchema {
             }
 
             attribute.setName(name);
-
             attribute.setDescription(annotation.description());
+            attribute.setMultiValued(annotation.multiValued());
             attribute.setCaseExact(annotation.caseExact());
             attribute.setMutability(annotation.mutability());
             attribute.setRequired(annotation.required());
@@ -139,19 +138,21 @@ public class SCIMSchema {
             attribute.setUniqueness(annotation.uniqueness());
 
             Class javaType = property.getJavaClass();
-
             attribute.setType(Attribute.Type.fromJavaType(javaType));
 
             if ("complex".equals(attribute.getType())) {
                 ArrayList<BasicAttribute> subAttributes = new ArrayList<BasicAttribute>();
-                List<Property<Object>> result = PropertyQueries
-                    .createQuery(javaType)
-                    .addCriteria(new AnnotatedPropertyCriteria(ResourceAttributeDefinition.class))
-                    .getResultList();
 
+                if (javaType.isArray()) {
+                    javaType = javaType.getComponentType();
+                }
+
+                List<Property<Object>> result = PropertyQueries.createQuery(javaType)
+                        .addCriteria(new AnnotatedPropertyCriteria(ResourceAttributeDefinition.class))
+                        .getResultList();
 
                 for (Property subAttributeProperty : result) {
-                    subAttributes.add(fromDefinition2(subAttributeProperty));
+                    subAttributes.add(fromSubAttributeDefinition(subAttributeProperty));
                 }
 
                 attribute.setSubAttributes(subAttributes.toArray(new BasicAttribute[subAttributes.size()]));
@@ -160,8 +161,9 @@ public class SCIMSchema {
             return attribute;
         }
 
-        public static BasicAttribute fromDefinition2(Property property) {
-            ResourceAttributeDefinition annotation = property.getAnnotatedElement().getAnnotation(ResourceAttributeDefinition.class);
+        public static BasicAttribute fromSubAttributeDefinition(Property property) {
+            ResourceAttributeDefinition annotation = property.getAnnotatedElement().getAnnotation(
+                    ResourceAttributeDefinition.class);
             Attribute attribute = new Attribute();
 
             String name = annotation.name();
@@ -171,16 +173,16 @@ public class SCIMSchema {
             }
 
             attribute.setName(name);
-
             attribute.setDescription(annotation.description());
+            attribute.setMultiValued(annotation.multiValued());
             attribute.setCaseExact(annotation.caseExact());
             attribute.setMutability(annotation.mutability());
+            attribute.setCanonicalValues(annotation.canonicalValues());
             attribute.setRequired(annotation.required());
             attribute.setReturned(annotation.returned());
             attribute.setUniqueness(annotation.uniqueness());
 
             Class javaType = property.getJavaClass();
-
             attribute.setType(Attribute.Type.fromJavaType(javaType));
 
             return attribute;
@@ -223,7 +225,6 @@ public class SCIMSchema {
 
         private BasicAttribute[] subAttributes;
 
-
         public BasicAttribute[] getSubAttributes() {
             return subAttributes;
         }
@@ -240,7 +241,6 @@ public class SCIMSchema {
         private String type;
         private String description;
         private boolean multiValued;
-        private boolean readOnly;
         private boolean required;
         private boolean caseExact;
         private String[] canonicalValues;
@@ -272,15 +272,6 @@ public class SCIMSchema {
 
         public BasicAttribute setDescription(String description) {
             this.description = description;
-            return this;
-        }
-
-        public boolean isReadOnly() {
-            return readOnly;
-        }
-
-        public BasicAttribute setReadOnly(boolean readOnly) {
-            this.readOnly = readOnly;
             return this;
         }
 
