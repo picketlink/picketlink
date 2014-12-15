@@ -116,6 +116,7 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
 public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
     public static final String SINGLE_ATTRIBUTE_STATEMENT = "SINGLE_ATTRIBUTE_STATEMENT";
+    public static final String FORCE_AUTHN = "FORCE_AUTHN";
 
     private final IDPAuthenticationHandler idp = new IDPAuthenticationHandler();
 
@@ -439,6 +440,12 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                         response.getDestination(), issuerValue);
 
                 createRequestedAuthnContext(authn);
+
+                String forceAuthn = (String) handlerConfig.getParameter(FORCE_AUTHN);
+
+                if (forceAuthn != null) {
+                    authn.setForceAuthn(Boolean.valueOf(forceAuthn));
+                }
 
                 String bindingType = getSPConfiguration().getBindingType();
                 boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
