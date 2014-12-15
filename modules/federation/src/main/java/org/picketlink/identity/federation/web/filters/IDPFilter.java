@@ -242,10 +242,18 @@ public class IDPFilter implements Filter {
      * @throws ServletException
      */
     private void handleSAMLMessage(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (hasSAML11Target(request)) {
-            // We have SAML 1.1 IDP first scenario. Now we need to create a SAMLResponse and send back
-            // to SP as per target
-            handleSAML11(request, response);
+        if (isUnsolicitedResponse(request)) {
+            String samlVersion = request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_SAML_VERSION.get());
+
+            if (samlVersion != null && JBossSAMLConstants.VERSION_2_0.get().equals(samlVersion)) {
+                // We have SAML 2 IDP-Initiated SSO/Unsolicited Response. Now we need to create a SAMLResponse and send back
+                // to SP as per target
+                handleSAML2UnsolicitedResponse(request, response);
+            } else {
+                // We have SAML 1.1 IDP first scenario. Now we need to create a SAMLResponse and send back
+                // to SP as per target
+                handleSAML11UnsolicitedResponse(request, response);
+            }
         } else {
 
             HttpSession session = request.getSession();
@@ -273,7 +281,7 @@ public class IDPFilter implements Filter {
             }
 
             if (isNotNull(samlRequestMessage)) {
-                processSAMLRequestMessage(request, response);
+                processSAMLRequestMessage(request, response, null, isGlobalLogout(request));
             } else if (isNotNull(samlResponseMessage)) {
                 processSAMLResponseMessage(request, response);
             } else if (request.getServletPath().equals(request.getContextPath() + "/")) {
@@ -441,12 +449,9 @@ public class IDPFilter implements Filter {
         }
     }
 
-    protected void processSAMLRequestMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void processSAMLRequestMessage(HttpServletRequest request, HttpServletResponse response, RequestAbstractType requestType, boolean ignoreSignatureValidation) throws IOException {
         Principal userPrincipal = request.getUserPrincipal();
-        HttpSession session = request.getSession();
-        SAMLDocumentHolder samlDocumentHolder = null;
-        SAML2Object samlObject = null;
-
+        HttpSession session = request.getSession(true);
         Document samlResponse = null;
         boolean isErrorResponse = false;
         String destination = null;
@@ -464,28 +469,51 @@ public class IDPFilter implements Filter {
 
         String referer = request.getHeader("Referer");
 
-        //cleanUpSessionNote(request);
+        cleanUpSessionNote(request);
 
         // Determine the transport mechanism
         boolean isSecure = request.isSecure();
         String loginType = determineLoginType(isSecure);
 
+        IDPType idpConfiguration = this.idpConfiguration;
         IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(request, idpConfiguration, keyManager);
 
+        SAMLDocumentHolder samlDocumentHolder = null;
+        SAML2Object samlObject = null;
+        String responseDestination = referer;
+
         try {
-            samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
+            if (requestType == null) {
+                if (samlRequestMessage == null) {
+                    throw logger.samlIDPValidationCheckFailed();
+                }
+                samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
+            } else {
+                samlDocumentHolder = new SAMLDocumentHolder(requestType);
+                samlDocumentHolder.setSamlDocument(new SAML2Request().convert(requestType));
+            }
+
+            if (samlDocumentHolder == null) {
+                return;
+            }
+
             samlObject = samlDocumentHolder.getSamlObject();
 
             if (!(samlObject instanceof RequestAbstractType)) {
                 throw logger.wrongTypeError(samlObject.getClass().getName());
             }
 
-            // Get the SAML Request Message
             RequestAbstractType requestAbstractType = (RequestAbstractType) samlObject;
             String issuer = requestAbstractType.getIssuer().getValue();
+            // get the destination attribute for the response
+            if (requestAbstractType instanceof AuthnRequestType) {
+                AuthnRequestType authnRequestType = (AuthnRequestType) requestAbstractType;
+                URI senderURL = authnRequestType.getSenderURL();
 
-            if (samlRequestMessage == null)
-                throw logger.samlIDPValidationCheckFailed();
+                if(senderURL != null) {
+                    responseDestination = senderURL.toString();
+                }
+            }
 
             IssuerInfoHolder idpIssuer = new IssuerInfoHolder(getIdentityURL());
             ProtocolContext protocolContext = new HTTPContext(request, response, servletContext);
@@ -502,16 +530,23 @@ public class IDPFilter implements Filter {
             // Set the options on the handler request
             Map<String, Object> requestOptions = new HashMap<String, Object>();
 
-            requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, willIgnoreSignatureOfCurrentRequest(issuer));
+            Boolean ignoreSignatures = willIgnoreSignatureOfCurrentRequest(issuer);
+
+            if (ignoreSignatureValidation) {
+                ignoreSignatures = ignoreSignatureValidation;
+            }
+
+            requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, ignoreSignatures);
             requestOptions.put(GeneralConstants.SP_SSO_METADATA_DESCRIPTOR, spSSOMetadataMap.get(issuer));
             requestOptions.put(GeneralConstants.SSO_METADATA_DESCRIPTOR, spSSOMetadataMap.get(issuer));
             requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-            requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
-            requestOptions.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
-            requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, this.idpConfiguration.isSupportsSignature());
+            requestOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
+            requestOptions.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, idpConfiguration.isStrictPostBinding());
+            requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, idpConfiguration.isSupportsSignature());
 
-            if (assertionID != null)
+            if (assertionID != null) {
                 requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID);
+            }
 
             if (this.keyManager != null) {
                 PublicKey validatingKey = getIssuerPublicKey(request, issuer);
@@ -570,62 +605,72 @@ public class IDPFilter implements Filter {
                 status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
             }
             logger.samlIDPRequestProcessingError(e);
-            samlResponse = webRequestUtil.getErrorResponse(referer, status, getIdentityURL(),
-                    this.idpConfiguration.isSupportsSignature());
+            samlResponse = webRequestUtil.getErrorResponse(responseDestination, status, getIdentityURL(),
+                    idpConfiguration.isSupportsSignature());
             isErrorResponse = true;
-        } finally {
-            if (!response.isCommitted()) {
-                try {
-                    // if the destination is null, probably because some error occur during authentication, use the AuthnRequest
-                    // AssertionConsumerServiceURL as the destination
-                    if (destination == null && samlObject instanceof AuthnRequestType) {
-                        AuthnRequestType authRequest = (AuthnRequestType) samlObject;
-
-                        destination = authRequest.getSenderURL().toASCIIString();
-                    }
-
-                    // if destination is still empty redirect the user to the identity url. If the user is already authenticated he
-                    // will be probably redirected to the idp hosted page.
-                    if (destination == null) {
-                        response.sendRedirect(getIdentityURL());
-                    } else {
-                        IDPWebRequestUtil.WebRequestUtilHolder holder = webRequestUtil.getHolder();
-                        holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
-                            .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
-                            .setErrorResponse(isErrorResponse).setServletResponse(response)
-                            .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
-
-                        holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
-
-                        if (requestedPostProfile != null)
-                            holder.setPostBindingRequested(requestedPostProfile);
-                        else
-                            holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
-
-                        if (this.idpConfiguration.isSupportsSignature()) {
-                            holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
-                        }
-
-                        if (enableAudit) {
-                            PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
-                            auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
-                            auditEvent.setDestination(destination);
-                            auditEvent.setWhoIsAuditing(contextPath);
-                            auditHelper.audit(auditEvent);
-                        }
-
-                        webRequestUtil.send(holder);
-                    }
-                } catch (ParsingException e) {
-                    logger.samlAssertionPasingFailed(e);
-                } catch (GeneralSecurityException e) {
-                    logger.trace("Security Exception:", e);
-                } catch (Exception e) {
-                    logger.error(e);
-                }
-            }
         }
-        return;
+
+        try {
+            // if the destination is null, probably because some error occur during authentication, use the AuthnRequest
+            // AssertionConsumerServiceURL as the destination
+            boolean forceAuthn = false;
+
+            if (samlObject instanceof AuthnRequestType) {
+                AuthnRequestType authRequest = (AuthnRequestType) samlObject;
+
+                if (destination == null) {
+                    destination = authRequest.getSenderURL().toASCIIString();
+                }
+
+                forceAuthn = authRequest.isForceAuthn();
+            }
+
+            // if destination is still empty redirect the user to the identity url. If the user is already authenticated he
+            // will be probably redirected to the idp hosted page.
+            if (destination == null) {
+                response.sendRedirect(getIdentityURL());
+            } else if (samlResponse != null) {
+                IDPWebRequestUtil.WebRequestUtilHolder holder = webRequestUtil.getHolder();
+                holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
+                        .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
+                        .setErrorResponse(isErrorResponse).setServletResponse(response)
+                        .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
+
+                holder.setStrictPostBinding(idpConfiguration.isStrictPostBinding());
+
+                if (requestedPostProfile != null) {
+                    holder.setPostBindingRequested(requestedPostProfile);
+                } else {
+                    holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
+                }
+
+                if (idpConfiguration.isSupportsSignature()) {
+                    holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+                }
+
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
+                    auditEvent.setDestination(destination);
+                    auditEvent.setWhoIsAuditing(contextPath);
+                    auditHelper.audit(auditEvent);
+                }
+
+                if (forceAuthn) {
+                    session.invalidate();
+                }
+
+                webRequestUtil.send(holder);
+            } else if (destination != null) {
+                response.sendRedirect(destination);
+            }
+        } catch (ParsingException e) {
+            logger.samlAssertionPasingFailed(e);
+        } catch (GeneralSecurityException e) {
+            logger.trace("Security Exception:", e);
+        } catch (Exception e) {
+            logger.error(e);
+        }
     }
 
     /**
@@ -1350,5 +1395,117 @@ public class IDPFilter implements Filter {
 
     public SAMLConfigurationProvider getConfigProvider() {
         return this.configProvider;
+    }
+
+    /**
+     * <p> Checks if the given {@link javax.servlet.http.HttpServletRequest} containes a SAML11 Target parameter. Usually this indicates that the given request is
+     * a SAML11 request. </p>
+     *
+     * @param request
+     *
+     * @return
+     */
+    private boolean isUnsolicitedResponse(HttpServletRequest request) {
+        return isNotNull(request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_TARGET.get()));
+    }
+
+    private void handleSAML2UnsolicitedResponse(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        SAML2Request samlRequest = new SAML2Request();
+        String id = IDGenerator.create("ID_");
+
+        String assertionConsumerURL = request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_TARGET.get());
+
+        try {
+            AuthnRequestType authn = samlRequest
+                    .createAuthnRequestType(id, assertionConsumerURL, assertionConsumerURL, assertionConsumerURL);
+
+            String requestedBinding = request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_SAML_BINDING.get());
+
+            if ("POST".equalsIgnoreCase(requestedBinding)) {
+                authn.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get()));
+            } else {
+                authn.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get()));
+            }
+
+            processSAMLRequestMessage(request, response, authn, true);
+        } catch (Exception e) {
+            throw new ServletException("Could not handle SAML 2.0 Unsolicited Response.", e);
+        }
+    }
+
+    protected void handleSAML11UnsolicitedResponse(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(request, idpConfiguration, keyManager);
+
+            Principal userPrincipal = request.getUserPrincipal();
+            String contextPath = servletContext.getContextPath();
+
+            String target = request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_TARGET.get());
+
+            HttpSession session = request.getSession();
+            SAML11AssertionType saml11Assertion = (SAML11AssertionType) session.getAttribute("SAML11");
+            if (saml11Assertion == null) {
+                SAML11ProtocolContext saml11Protocol = new SAML11ProtocolContext();
+                saml11Protocol.setIssuerID(getIdentityURL());
+                SAML11SubjectType subject = new SAML11SubjectType();
+                SAML11SubjectType.SAML11SubjectTypeChoice subjectChoice = new SAML11SubjectType.SAML11SubjectTypeChoice(new SAML11NameIdentifierType(
+                        userPrincipal.getName()));
+                subject.setChoice(subjectChoice);
+                saml11Protocol.setSubjectType(subject);
+
+                PicketLinkCoreSTS.instance().issueToken(saml11Protocol);
+                saml11Assertion = saml11Protocol.getIssuedAssertion();
+                session.setAttribute("SAML11", saml11Assertion);
+
+                if (AssertionUtil.hasExpired(saml11Assertion)) {
+                    saml11Protocol.setIssuedAssertion(saml11Assertion);
+                    PicketLinkCoreSTS.instance().renewToken(saml11Protocol);
+                    saml11Assertion = saml11Protocol.getIssuedAssertion();
+                    session.setAttribute("SAML11", saml11Assertion);
+                }
+            }
+            List<String> roles = this.roleGenerator.generateRoles(userPrincipal);
+            SAML11AttributeStatementType attributeStatement = this.createAttributeStatement(roles);
+
+            if (attributeStatement != null) {
+                saml11Assertion.add(attributeStatement);
+            }
+
+            // Send it as SAMLResponse
+            String id = IDGenerator.create("ID_");
+            SAML11ResponseType saml11Response = new SAML11ResponseType(id, XMLTimeUtil.getIssueInstant());
+            saml11Response.add(saml11Assertion);
+            saml11Response.setStatus(SAML11StatusType.successType());
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+            writer.write(saml11Response);
+
+            Document samlResponse = org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil
+                    .getDocument(new ByteArrayInputStream(baos.toByteArray()));
+
+            IDPWebRequestUtil.WebRequestUtilHolder holder = webRequestUtil.getHolder();
+            holder.setResponseDoc(samlResponse).setDestination(target).setRelayState("").setAreWeSendingRequest(false)
+                    .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+
+            String requestedBinding = request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_SAML_BINDING.get());
+
+            if ("POST".equalsIgnoreCase(requestedBinding)) {
+                holder.setPostBindingRequested(true);
+            }
+
+            if (enableAudit) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
+                auditEvent.setDestination(target);
+                auditEvent.setWhoIsAuditing(contextPath);
+                auditHelper.audit(auditEvent);
+            }
+
+            webRequestUtil.send(holder);
+        } catch (GeneralSecurityException e) {
+            logger.samlIDPHandlingSAML11Error(e);
+            throw new ServletException();
+        }
     }
 }
