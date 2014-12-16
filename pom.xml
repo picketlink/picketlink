@@ -299,6 +299,10 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.jboss.jandex</groupId>
+        <artifactId>jandex-maven-plugin</artifactId>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
@@ -406,6 +410,20 @@
           <artifactId>maven-deploy-plugin</artifactId>
           <version>${version.deploy.plugin}</version>
         </plugin>
+        <plugin>
+          <groupId>org.jboss.jandex</groupId>
+          <artifactId>jandex-maven-plugin</artifactId>
+          <version>1.0.1</version>
+            <executions>
+              <execution>
+                <id>make-index</id>
+                  <goals>
+                    <goal>jandex</goal>
+                  </goals>
+                  <!-- phase is 'process-classes by default' -->
+                </execution>
+            </executions>
+          </plugin>
       </plugins>
     </pluginManagement>
   </build>
