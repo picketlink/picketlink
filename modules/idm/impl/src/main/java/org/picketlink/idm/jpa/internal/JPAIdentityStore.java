@@ -642,7 +642,11 @@ public class JPAIdentityStore
             Object[] valuesToSearch = new String[inCondition.getValue().length];
 
             for (int i = 0; i < inCondition.getValue().length; i++) {
-                valuesToSearch[i] = Base64.encodeObject((Serializable) inCondition.getValue()[i]);
+                if (convertValueToBase64) {
+                    valuesToSearch[i] = Base64.encodeObject((Serializable) inCondition.getValue()[i]);
+                } else {
+                    valuesToSearch[i] = inCondition.getValue()[i];
+                }
             }
 
             predicates.add(attributeOwnerEntity.get(attributeProperty.getName()).in(valuesToSearch));
