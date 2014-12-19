@@ -181,7 +181,7 @@ public class EntityMapper {
                                 throw new IdentityManagementException("Owner does not exists or was not provided.");
                             }
                         } else {
-                            EntityMapper entityMapper = this.store.getMapperForEntity(mappedValue.getClass());
+                            EntityMapper entityMapper = this.store.getMapperForEntity(mappedProperty.getJavaClass());
 
                             propertyValue = entityMapper.createType(mappedValue, entityManager);
                         }
