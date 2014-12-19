@@ -733,7 +733,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             }
         }
 
-        throw MESSAGES.storeNotFound(PartitionStore.class);
+        throw MESSAGES.storeNotFound(PartitionStore.class, partitionClass);
     }
 
     @Override

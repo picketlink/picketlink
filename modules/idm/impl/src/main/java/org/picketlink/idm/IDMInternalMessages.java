@@ -49,8 +49,8 @@ public interface IDMInternalMessages extends IDMMessages {
     IDMInternalMessages MESSAGES = Messages.getBundle(IDMInternalMessages.class);
 
     // identity store API messages 300-399
-    @Message(id = 300, value = "No store found with type [%s].")
-    IdentityManagementException storeNotFound(Class<? extends IdentityStore> partitionStoreClass);
+    @Message(id = 300, value = "No store [%s] found that supports the given type [%s]. Check if the type was specified in your configuration.")
+    IdentityManagementException storeNotFound(Class<? extends IdentityStore> partitionStoreClass, Class<? extends Partition> partitionClass);
 
     @Message(id = 301, value = "Error while trying to determine EntityManager - context parameter not set.")
     IdentityManagementException storeJpaCouldNotGetEntityManagerFromStoreContext();

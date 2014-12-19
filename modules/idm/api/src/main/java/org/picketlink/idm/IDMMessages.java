@@ -172,7 +172,7 @@ public interface IDMMessages {
     SecurityConfigurationException configJpaStoreRequiredMappingAnnotation(Class<?> entityType,
                                                                            Class<? extends Annotation> annotation);
 
-    @Message(value = "Invalid mapping for type [%s]. No entity found with a field annotated with %s.")
+    @Message(value = "Invalid mapping for type [%s]. No entity found with a field annotated with %s. Do you have an entity mapping this type?")
     SecurityConfigurationException configJpaStoreRequiredMappingAnnotationForAttributedType(Class<? extends AttributedType> attributedType,
         Class<? extends Annotation> annotation);
 
