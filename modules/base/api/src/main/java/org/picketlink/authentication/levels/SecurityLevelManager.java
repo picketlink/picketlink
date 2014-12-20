@@ -7,7 +7,7 @@ package org.picketlink.authentication.levels;
  */
 public interface SecurityLevelManager {
 
-    int DEFAULT_SECURITY_LEVEL = 1;
+    String DEFAULT_SECURITY_LEVEL = "1";
 
     /**
      * Resolves current Level for the user. It will return the highest Level resolved.

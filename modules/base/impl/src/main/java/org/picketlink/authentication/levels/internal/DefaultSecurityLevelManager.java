@@ -4,6 +4,7 @@ import org.picketlink.authentication.levels.Level;
 import org.picketlink.authentication.levels.SecurityLevelManager;
 import org.picketlink.authentication.levels.SecurityLevelResolver;
 import org.picketlink.authentication.levels.annotations.DefaultSecurityLevel;
+import org.picketlink.producer.LevelFactoryResolver;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -29,9 +30,12 @@ public class DefaultSecurityLevelManager implements SecurityLevelManager {
     private Instance<SecurityLevelResolver> resolverInstances;
 
     @Inject
+    private LevelFactoryResolver lfr;
+
+    @Inject
     public void init() {
         if (levelInstance.isUnsatisfied()) {
-            defaultSecurityLevel = new DefaultLevel(DEFAULT_SECURITY_LEVEL);
+            defaultSecurityLevel = lfr.resolve().createLevel(DEFAULT_SECURITY_LEVEL);
         } else {
             defaultSecurityLevel = levelInstance.get();
         }
