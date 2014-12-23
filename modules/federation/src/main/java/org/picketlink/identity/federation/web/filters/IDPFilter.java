@@ -552,7 +552,9 @@ public class IDPFilter implements Filter {
             // if destination is still empty redirect the user to the identity url. If the user is already authenticated he
             // will be probably redirected to the idp hosted page.
             if (destination == null) {
-                response.sendRedirect(getIdentityURL());
+                if (!response.isCommitted()) {
+                    response.sendRedirect(getIdentityURL());
+                }
             } else if (samlResponse != null) {
                 IDPWebRequestUtil.WebRequestUtilHolder holder = webRequestUtil.getHolder();
                 holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
