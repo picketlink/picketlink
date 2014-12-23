@@ -8,9 +8,12 @@ import org.mockito.MockitoAnnotations;
 import org.picketlink.authentication.levels.Level;
 import org.picketlink.authentication.levels.SecurityLevelResolver;
 import org.picketlink.authentication.levels.internal.DefaultLevel;
+import org.picketlink.authentication.levels.internal.DefaultLevelFactory;
 import org.picketlink.authentication.levels.internal.DefaultSecurityLevelManager;
+import org.picketlink.producer.LevelFactoryResolver;
 
 import javax.enterprise.inject.Instance;
+
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
@@ -22,6 +25,9 @@ public class DefaultSecurityLevelManagerTestCase {
 
     @Mock
     private Instance<Level> levelInstance;
+
+    @Mock
+    private LevelFactoryResolver lfr;
 
     @Mock
     private Instance<SecurityLevelResolver> resolverInstances;
@@ -39,6 +45,7 @@ public class DefaultSecurityLevelManagerTestCase {
 
     @Test
     public void synchronousLevelResolveTest() throws InterruptedException, ExecutionException{
+        when(lfr.resolve()).thenReturn(new DefaultLevelFactory());
         when(levelInstance.isUnsatisfied()).thenReturn(true);
         SecurityLevelResolver one = mock(SecurityLevelResolver.class);
         when(one.resolve()).thenReturn(new DefaultLevel(2));
