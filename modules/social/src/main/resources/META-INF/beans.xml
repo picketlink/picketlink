@@ -20,4 +20,5 @@ limitations under the License.
        xsi:schemaLocation="
 http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
+	<scan><exclude name="org.picketlink.social.standalone.fb.FacebookPrincipal"></exclude></scan>
 </beans>

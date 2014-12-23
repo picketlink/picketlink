@@ -140,4 +140,21 @@ public class ELFunctionMethods {
 
         return AuthorizationUtil.hasPartition(identity, null, new String[]{partitionName});
     }
+
+    /**
+     * <p>Checks if an user has such security level.</p>
+     *
+     * <p>This method requires that valid {@link ELEvaluationContext} associated with the current
+     * invation thread.</p>
+     *
+     * @param level Security level which the user should have.
+     *
+     * @return True if the user has same or higher level.
+     */
+    public static boolean hasLevel(String level){
+        ELEvaluationContext evaluationContext = ELEvaluationContext.get();
+        Identity identity = evaluationContext.getIdentity();
+
+        return AuthorizationUtil.hasLevel(identity, evaluationContext.getLevelFactory().createLevel(level));
+    }
 }

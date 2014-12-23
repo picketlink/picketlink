@@ -125,7 +125,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         IdentityManager identityManager = getIdentityManager();
 
         IdentityQueryBuilder queryBuilder = identityManager.<T>getQueryBuilder();
-        IdentityQuery<T> query = queryBuilder.createIdentityQuery(john.getClass());
+        IdentityQuery<T> query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
 
         query.where(queryBuilder.like(Agent.LOGIN_NAME, "john%"));
 
@@ -137,7 +137,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         contains(result, johnSmith.getId());
         contains(result, johns.getId());
 
-        query = queryBuilder.createIdentityQuery(john.getClass());
+        query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
         query.where(queryBuilder.like(Agent.LOGIN_NAME, "j%"));
 
         result = query.getResultList();
@@ -145,7 +145,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertFalse(result.isEmpty());
         assertEquals(4, result.size());
 
-        query = queryBuilder.createIdentityQuery(john.getClass());
+        query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
         query.where(queryBuilder.like(Agent.LOGIN_NAME, "%smith"));
 
         result = query.getResultList();
@@ -155,7 +155,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         contains(result, johnSmith.getId());
         contains(result, jsmith.getId());
 
-        query = queryBuilder.createIdentityQuery(john.getClass());
+        query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
         query.where(queryBuilder.like(Agent.LOGIN_NAME, "%.smith"));
 
         result = query.getResultList();
@@ -164,7 +164,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertEquals(1, result.size());
         contains(result, johnSmith.getId());
 
-        query = queryBuilder.createIdentityQuery(john.getClass());
+        query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
         query.where(queryBuilder.like(Agent.LOGIN_NAME, "%jo%"));
 
         result = query.getResultList();

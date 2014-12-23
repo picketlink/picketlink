@@ -54,7 +54,6 @@ public class QueryApiTestCase extends AbstractPartitionManagerTestCase {
     @Test
     public void testEqualCondition() {
         User john = createUser("john");
-        User mary = createUser("mary");
 
         IdentityManager identityManager = getIdentityManager();
         IdentityQueryBuilder builder = identityManager.getQueryBuilder();
@@ -309,6 +308,24 @@ public class QueryApiTestCase extends AbstractPartitionManagerTestCase {
         result = query.getResultList();
 
         assertEquals(0, result.size());
+
+        john.setEmail("john@picketlink.org");
+
+        identityManager.update(john);
+
+        query = queryBuilder.createIdentityQuery(john.getClass());
+
+        query.where(queryBuilder.in(User.EMAIL, john.getEmail()));
+
+        result = query.getResultList();
+
+        assertEquals(1, result.size());
+
+        query.where(queryBuilder.in(User.LOGIN_NAME, john.getLoginName()));
+
+        result = query.getResultList();
+
+        assertEquals(1, result.size());
     }
 
     @Test

@@ -79,6 +79,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpSessionListener;
 import javax.xml.namespace.QName;
+import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
@@ -496,7 +497,60 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         SAMLParser parser = new SAMLParser();
         SAML2Object saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
 
-        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, responseDoc);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+
+        session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal() {
+            public String getName() {
+                return "Hi";
+            }
+        });
+
+        handler.handleStatusResponseType(request, response);
+
+        assertNotNull(session.getAttribute("org.picketlink.sp.SAML_ASSERTION"));
+    }
+
+    @Test
+    public void testResponseWithNamespacesInRootElementOnly() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
+        handlerConfig.addParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, "org.picketlink.sp.SAML_ASSERTION");
+
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        ProviderType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        // Create a Protocol Context
+        MockServletContext servletContext = createServletContext();
+        MockHttpSession session = new MockHttpSession();
+
+        session.setServletContext(servletContext);
+
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream("parser/saml2/saml2-response-namespace-root-.xml");
+        Document responseDoc = DocumentUtil.getDocument(is);
+
+        SAMLParser parser = new SAMLParser();
+        SAML2Object saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
+
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, responseDoc);
         IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
         SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
                 SAML2Handler.HANDLER_TYPE.SP);

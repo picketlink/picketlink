@@ -22,6 +22,7 @@
 package org.picketlink.internal.el;
 
 import org.picketlink.Identity;
+import org.picketlink.authentication.levels.LevelFactory;
 import org.picketlink.idm.PartitionManager;
 
 /**
@@ -42,6 +43,7 @@ class ELEvaluationContext {
 
     private Identity identity;
     private PartitionManager partitionManager;
+    private LevelFactory levelFactory;
 
     static ELEvaluationContext get() {
         return evaluationContext.get();
@@ -65,5 +67,13 @@ class ELEvaluationContext {
 
     PartitionManager getPartitionManager() {
         return this.partitionManager;
+    }
+
+    void setLevelFactory(LevelFactory factory){
+        levelFactory = factory;
+    }
+
+    LevelFactory getLevelFactory(){
+        return levelFactory;
     }
 }

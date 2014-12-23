@@ -116,6 +116,7 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
 public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
     public static final String SINGLE_ATTRIBUTE_STATEMENT = "SINGLE_ATTRIBUTE_STATEMENT";
+    public static final String FORCE_AUTHN = "FORCE_AUTHN";
 
     private final IDPAuthenticationHandler idp = new IDPAuthenticationHandler();
 
@@ -440,6 +441,12 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
                 createRequestedAuthnContext(authn);
 
+                String forceAuthn = (String) handlerConfig.getParameter(FORCE_AUTHN);
+
+                if (forceAuthn != null) {
+                    authn.setForceAuthn(Boolean.valueOf(forceAuthn));
+                }
+
                 String bindingType = getSPConfiguration().getBindingType();
                 boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
 
@@ -503,16 +510,31 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 // add the principal to the session
                 session.setAttribute(GeneralConstants.PRINCIPAL_ID, userPrincipal);
 
-                Document assertionDocument = AssertionUtil.asDocument((AssertionType) assertion);
+                Document responseDocument = request.getRequestDocument();
+                Element assertionElement =
+                        DocumentUtil.getChildElement(responseDocument.getDocumentElement(),
+                                new QName(JBossSAMLConstants.ASSERTION.get()));
 
-                String assertionAttributeName = (String) handlerConfig
-                        .getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+                if (assertionElement != null) {
+                    try {
+                        Document assertionDocument = DocumentUtil.createDocument();
+                        Node clonedAssertion = assertionElement.cloneNode(true);
 
-                if (assertionAttributeName != null) {
-                    session.setAttribute(assertionAttributeName, assertionDocument);
+                        assertionDocument.adoptNode(clonedAssertion);
+                        assertionDocument.appendChild(clonedAssertion);
+
+                        String assertionAttributeName = (String) handlerConfig
+                                .getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+
+                        if (assertionAttributeName != null) {
+                            session.setAttribute(assertionAttributeName, assertionDocument);
+                        }
+
+                        session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
+                    } catch (ConfigurationException e) {
+                        throw new ProcessingException("Could not store assertion document into session.", e);
+                    }
                 }
-
-                session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
 
                 SessionManager sessionManager = SessionManager.get(session.getServletContext());
 

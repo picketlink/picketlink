@@ -44,6 +44,7 @@ public class PicketLinkFunctionMapper extends FunctionMapper {
             addFunction("hasPartition", ELFunctionMethods.class.getMethod("hasPartition", new Class[]{String.class}));
             addFunction("hasAttribute", ELFunctionMethods.class.getMethod("hasAttribute", String.class));
             addFunction("isMember", ELFunctionMethods.class.getMethod("isMember", new Class[]{String.class}));
+            addFunction("hasLevel", ELFunctionMethods.class.getMethod("hasLevel",String.class));
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Error configuring built-in EL functions.", e);
         }

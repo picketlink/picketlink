@@ -70,6 +70,11 @@ public class PicketLinkCoreSTS {
     }
 
     public static PicketLinkCoreSTS instance() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(rte);
+        }
+
         if (_instance == null)
             _instance = new PicketLinkCoreSTS();
 

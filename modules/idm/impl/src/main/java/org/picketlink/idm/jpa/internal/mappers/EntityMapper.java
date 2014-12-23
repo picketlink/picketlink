@@ -166,7 +166,13 @@ public class EntityMapper {
             }
 
             try {
-                attributedType = (P) newInstance(entityInstance.getClass(), getTypeProperty().getValue(entityInstance).toString());
+                Object expectedTypeName = getTypeProperty().getValue(entityInstance);
+
+                if (expectedTypeName == null) {
+                    throw new IdentityManagementException("Could not determine type from entity [" + entityInstance.getClass() + "]. Type property is [" + getTypeProperty() + "].");
+                }
+
+                attributedType = (P) newInstance(entityInstance.getClass(), expectedTypeName.toString());
 
                 EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
 
@@ -181,7 +187,7 @@ public class EntityMapper {
                                 throw new IdentityManagementException("Owner does not exists or was not provided.");
                             }
                         } else {
-                            EntityMapper entityMapper = this.store.getMapperForEntity(mappedValue.getClass());
+                            EntityMapper entityMapper = this.store.getMapperForEntity(mappedProperty.getJavaClass());
 
                             propertyValue = entityMapper.createType(mappedValue, entityManager);
                         }
@@ -206,7 +212,7 @@ public class EntityMapper {
                     }
                 }
             } catch (Exception e) {
-                throw new IdentityManagementException("Could not create [" + attributedType + " from entity [" + entityInstance + "].", e);
+                throw new IdentityManagementException("Could not create [" + attributedType + " from entity [" + entityInstance.getClass() + "].", e);
             }
         }
 

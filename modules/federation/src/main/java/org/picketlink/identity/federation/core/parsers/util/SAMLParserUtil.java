@@ -46,6 +46,11 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Element;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -53,10 +58,6 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * Utility methods for SAML Parser
@@ -239,7 +240,7 @@ public class SAMLParserUtil {
      * @throws ParsingException
      */
     public static void parseAttributeType(XMLEventReader xmlEventReader, StartElement startElement, String rootTag,
-                                          AttributeType attributeType) throws ParsingException {
+            AttributeType attributeType) throws ParsingException {
         // Look for X500 Encoding
         QName x500EncodingName = new QName(JBossSAMLURIConstants.X500_NSURI.get(), JBossSAMLConstants.ENCODING.get(),
                 JBossSAMLURIConstants.X500_PREFIX.get());
@@ -313,14 +314,17 @@ public class SAMLParserUtil {
 
             throw logger.unsupportedType(StaxParserUtil.getStartElementName(startElement));
         }
-
+        //      RK Added an additional type check for base64Binary type as calheers is passing this type
         String typeValue = StaxParserUtil.getAttributeValue(type);
         if (typeValue.contains(":string")) {
             return StaxParserUtil.getElementText(xmlEventReader);
         } else if (typeValue.contains(":anyType")) {
             // TODO: for now assume that it is a text value that can be parsed and set as the attribute value
             return StaxParserUtil.getElementText(xmlEventReader);
+        } else if(typeValue.contains(":base64Binary")){
+            return StaxParserUtil.getElementText(xmlEventReader);
         }
+
 
         throw logger.parserUnknownXSI(typeValue);
     }
@@ -468,6 +472,10 @@ public class SAMLParserUtil {
                 authnContextSequence.setClassRef(aAuthnContextClassRefType);
 
                 authnContextType.setSequence(authnContextSequence);
+            } else if (JBossSAMLConstants.AUTHENTICATING_AUTHORITY.get().equals(tag)) {
+              startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+              String text = StaxParserUtil.getElementText(xmlEventReader);
+              authnContextType.addAuthenticatingAuthority(URI.create(text));
             } else
                 throw logger.parserUnknownTag(tag, startElement.getLocation());
         }

@@ -47,4 +47,7 @@ public interface PicketLinkFederationConstants {
     String PBE_ALGORITHM = "PBEwithMD5andDES";
     // Prefix to indicate a particular configuration property value is masked
     String PASS_MASK_PREFIX = "MASK-";
+
+    RuntimePermission RUNTIME_PERMISSION_CORE = new RuntimePermission("org.picketlink.core");
+
 }
