@@ -24,8 +24,7 @@ package org.picketlink.config.http;
 /**
  * @author Pedro Igor
  */
-public abstract class AbstractPathConfigurationChildBuilder extends AbstracHttpSecurityConfigurationChildBuilder implements
-        PathConfigurationChildBuilder {
+public abstract class AbstractPathConfigurationChildBuilder extends AbstracHttpSecurityConfigurationChildBuilder implements PathConfigurationChildBuilder {
 
     private final PathConfigurationBuilder builder;
 
@@ -42,11 +41,6 @@ public abstract class AbstractPathConfigurationChildBuilder extends AbstracHttpS
     @Override
     public AuthorizationConfigurationBuilder authorizeWith() {
         return builder.authorizeWith();
-    }
-
-    @Override
-    public CORSConfigurationBuilder cors() {
-        return builder.cors();
     }
 
     @Override

@@ -30,8 +30,6 @@ public interface PathConfigurationChildBuilder extends HttpSecurityConfiguration
 
     AuthorizationConfigurationBuilder authorizeWith();
 
-    CORSConfigurationBuilder cors();
-
     OutboundRedirectConfigurationBuilder redirectTo(String url);
 
     PathConfigurationBuilder unprotected();
