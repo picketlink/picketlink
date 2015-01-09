@@ -26,16 +26,21 @@ package org.picketlink.config.http;
  */
 public class FormAuthenticationConfiguration extends AbstractAuthenticationSchemeConfiguration implements AuthenticationSchemeConfiguration {
 
+    public static final String DEFAULT_AUTHENTICATION_URI = "j_security_check";
+
     private final String loginPageUrl;
     private final String errorPageUrl;
+    private final String authenticationUri;
     private final boolean restoreOriginalRequest;
 
     public FormAuthenticationConfiguration(
         String loginPageUrl,
         String errorPageUrl,
         boolean restoreOriginalRequest,
+        String authenticationUri,
         AuthenticationConfiguration authenticationConfiguration) {
         super(authenticationConfiguration);
+
         if (loginPageUrl == null) {
             loginPageUrl = "/login.html";
         }
@@ -48,6 +53,12 @@ public class FormAuthenticationConfiguration extends AbstractAuthenticationSchem
 
         this.errorPageUrl = errorPageUrl;
         this.restoreOriginalRequest = restoreOriginalRequest;
+
+        if (authenticationUri == null) {
+            authenticationUri = "j_security_check";
+        }
+
+        this.authenticationUri = authenticationUri;
     }
 
     public String getLoginPageUrl() {
@@ -60,5 +71,9 @@ public class FormAuthenticationConfiguration extends AbstractAuthenticationSchem
 
     public boolean isRestoreOriginalRequest() {
         return this.restoreOriginalRequest;
+    }
+
+    public String getAuthenticationUri() {
+        return this.authenticationUri;
     }
 }

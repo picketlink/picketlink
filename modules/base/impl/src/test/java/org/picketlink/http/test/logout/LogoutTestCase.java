@@ -23,6 +23,7 @@ package org.picketlink.http.test.logout;
 
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
+import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
@@ -32,7 +33,6 @@ import org.picketlink.test.weld.Deployment;
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -58,7 +58,7 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
 
     @Test
     public void testLogout() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -95,7 +95,7 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
 
     @Test
     public void testLogoutFromAjax() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 

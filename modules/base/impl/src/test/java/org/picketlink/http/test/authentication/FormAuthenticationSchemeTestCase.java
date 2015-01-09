@@ -23,6 +23,7 @@ package org.picketlink.http.test.authentication;
 
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
+import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
 import org.picketlink.http.internal.authentication.schemes.support.RequestCache;
@@ -63,7 +64,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
 
     @Test
     public void testFormRedirectToError() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("invalid_user");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("invalid_password");
 
@@ -84,7 +85,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
         verify(this.response).sendRedirect(eq("/picketlink-app/loginFormProtectedUri.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -105,7 +106,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
         verify(this.response).sendRedirect(eq("/picketlink-app/pathWithoutWildCardLogin.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getServletPath()).thenReturn("/pathWithoutWildCard/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/pathWithoutWildCard/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -127,7 +128,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
         when(this.request.getServletPath())
-            .thenReturn("/formProtectedUriRestoreOriginalRequest/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+            .thenReturn("/formProtectedUriRestoreOriginalRequest/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 

@@ -23,6 +23,7 @@ package org.picketlink.http.test.path;
 
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
+import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.HttpMethod;
 import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
@@ -63,7 +64,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getServletPath()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -92,7 +93,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getServletPath()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -129,7 +130,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getServletPath()).thenReturn("/overrideMethod/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/overrideMethod/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -156,7 +157,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -192,7 +193,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
