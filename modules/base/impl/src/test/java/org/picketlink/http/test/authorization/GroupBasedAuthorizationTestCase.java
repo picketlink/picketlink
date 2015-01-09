@@ -23,6 +23,7 @@ package org.picketlink.http.test.authorization;
 
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
+import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
@@ -56,7 +57,7 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
     public void testOnlyAdministrators() throws Exception {
         when(this.request.getServletPath()).thenReturn("/onlyAdministratorsMember");
 
-        when(this.request.getServletPath()).thenReturn("/onlyAdministratorsMember/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/onlyAdministratorsMember/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -70,7 +71,7 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
     public void testGroupNotAllowed() throws Exception {
         when(this.request.getServletPath()).thenReturn("/onlyExecutivesGroup");
 
-        when(this.request.getServletPath()).thenReturn("/onlyExecutivesGroup/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/onlyExecutivesGroup/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 

@@ -23,6 +23,7 @@ package org.picketlink.http.test.authorization;
 
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
+import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.config.http.PathConfiguration;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.authorization.PathAuthorizer;
@@ -56,7 +57,7 @@ public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase
 
     @Test
     public void testOnlyManagers() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/onlyManagerRole/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/onlyManagerRole/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -75,7 +76,7 @@ public class CustomPathAuthorizerTestCase extends AbstractSecurityFilterTestCase
 
     @Test
     public void testCustomAuthorizer() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 

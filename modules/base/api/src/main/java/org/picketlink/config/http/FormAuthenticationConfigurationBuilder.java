@@ -31,6 +31,7 @@ public class FormAuthenticationConfigurationBuilder extends AuthenticationMethod
     private String loginPageUrl;
     private String errorPageUrl;
     private boolean restoreOriginalRequest;
+    private String authenticationUri;
 
     FormAuthenticationConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
@@ -70,8 +71,20 @@ public class FormAuthenticationConfigurationBuilder extends AuthenticationMethod
         return this;
     }
 
+
+    /**
+     * <p>Specifies the URI that must be used to initiate the authentication. Defaults to <code>j_security_check.</code>.</p>
+     *
+     * @param authenticationUri
+     * @return
+     */
+    public FormAuthenticationConfigurationBuilder authenticationUri(String authenticationUri) {
+        this.authenticationUri = authenticationUri;
+        return this;
+    }
+
     @Override
     AuthenticationSchemeConfiguration create(AuthenticationConfiguration authenticationConfiguration) {
-        return new FormAuthenticationConfiguration(this.loginPageUrl, this.errorPageUrl, this.restoreOriginalRequest, authenticationConfiguration);
+        return new FormAuthenticationConfiguration(this.loginPageUrl, this.errorPageUrl, this.restoreOriginalRequest, this.authenticationUri, authenticationConfiguration);
     }
 }

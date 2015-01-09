@@ -38,7 +38,6 @@ import java.io.IOException;
  */
 public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAuthenticationConfiguration> {
 
-    public static final String J_SECURITY_CHECK = "j_security_check";
     public static final String J_USERNAME = "j_username";
     public static final String J_PASSWORD = "j_password";
 
@@ -56,8 +55,17 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
     @Override
     public void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds) {
         if (isFormSubmitted(request)) {
-            creds.setUserId(request.getParameter(J_USERNAME));
-            creds.setPassword(request.getParameter(J_PASSWORD));
+            String username = request.getParameter(J_USERNAME);
+
+            if (username != null) {
+                creds.setUserId(username);
+            }
+
+            String password = request.getParameter(J_PASSWORD);
+
+            if (password != null) {
+                creds.setPassword(password);
+            }
         }
     }
 
@@ -113,6 +121,6 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
     }
 
     private boolean isFormSubmitted(HttpServletRequest request) {
-        return request.getRequestURI().contains(J_SECURITY_CHECK);
+        return request.getRequestURI().contains(this.configuration.getAuthenticationUri());
     }
 }

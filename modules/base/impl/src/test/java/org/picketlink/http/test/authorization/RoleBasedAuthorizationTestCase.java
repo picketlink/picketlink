@@ -24,6 +24,7 @@ package org.picketlink.http.test.authorization;
 import org.junit.Test;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.config.SecurityConfigurationBuilder;
+import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.internal.authentication.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
@@ -62,7 +63,7 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
 
     @Test
     public void testOnlyManagers() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -80,7 +81,7 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
 
     @Test
     public void testRoleNotAllowed() throws Exception {
-        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
