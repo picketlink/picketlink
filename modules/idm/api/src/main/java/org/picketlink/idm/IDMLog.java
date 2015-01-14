@@ -30,7 +30,7 @@ import org.picketlink.common.logging.Log;
 import org.picketlink.common.logging.LogFactory;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.spi.IdentityStore;
 
 import static org.picketlink.idm.IDMLog.PICKETLINK_IDM_PROJECT_CODE;
@@ -70,7 +70,7 @@ public interface IDMLog extends Log {
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 1002, value = "No partition assigned for identity type [%s] by identity store [%s]. We assume this entry belongs to the default partition [%s].")
-    void partitionUndefinedForTypeUsingDefault(IdentityType identityType, IdentityStore identityStore, Realm defaultPartition);
+    void partitionUndefinedForTypeUsingDefault(IdentityType identityType, IdentityStore identityStore, Partition defaultPartition);
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 1003, value = "Trying to find account [%s] using default account type [%s] with property [%s].")

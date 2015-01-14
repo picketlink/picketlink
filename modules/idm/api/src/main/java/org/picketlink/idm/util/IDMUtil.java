@@ -23,7 +23,9 @@ import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 
 import java.util.Arrays;
@@ -137,17 +139,23 @@ public class IDMUtil {
      *
      * <p>The default partition will be used when the type does not provide a partition by its own.</p>
      *
+     * @param context
      * @param identityType
      * @param identityStore
      * @param partitionManager
      */
-    public static void configureDefaultPartition(IdentityType identityType, IdentityStore identityStore, PartitionManager partitionManager) {
+    public static void configureDefaultPartition(IdentityContext context, IdentityType identityType, IdentityStore identityStore, PartitionManager partitionManager) {
         if (identityType != null) {
             if (identityType.getPartition() == null) {
-                Realm defaultPartition = partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM);
+                Partition partition = context.getPartition();
 
-                ROOT_LOGGER.partitionUndefinedForTypeUsingDefault(identityType, identityStore, defaultPartition);
-                identityType.setPartition(defaultPartition);
+                if (partition == null) {
+                    partition = partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM);
+
+                    ROOT_LOGGER.partitionUndefinedForTypeUsingDefault(identityType, identityStore, partition);
+                }
+
+                identityType.setPartition(partition);
             }
 
             Property<IdentityType> parentProperty = PropertyQueries
@@ -156,7 +164,7 @@ public class IDMUtil {
                     .getFirstResult();
 
             if (parentProperty != null) {
-                configureDefaultPartition(parentProperty.getValue(identityType), identityStore, partitionManager);
+                configureDefaultPartition(context, parentProperty.getValue(identityType), identityStore, partitionManager);
             }
         }
     }

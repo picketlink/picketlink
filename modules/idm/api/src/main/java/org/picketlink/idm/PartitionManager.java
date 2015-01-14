@@ -43,7 +43,7 @@ import java.util.List;
  *
  * @author Shane Bryzak
  */
-public interface PartitionManager extends Serializable {
+public interface PartitionManager extends AttributedTypeManager<Partition>, Serializable {
 
     /**
      * <p>Creates an {@link IdentityManager} instance for the default partition.</p>
@@ -147,18 +147,6 @@ public interface PartitionManager extends Serializable {
     <T extends Partition> T lookupById(final Class<T> partitionClass, String id) throws IdentityManagementException;
 
     /**
-     * <p>Adds a partition to the default configuration.</p>
-     *
-     * <p>Only a single configuration may support partition. In this case the partition will be always created
-     * with a reference to this configuration.</p>
-     *
-     * @param partition
-     *
-     * @throws IdentityManagementException if any error occurs during the creation.
-     */
-    void add(Partition partition) throws IdentityManagementException;
-
-    /**
      * <p>Adds a new partition with a reference to the given <code>configurationName</code>.</p>
      *
      * @param partition
@@ -168,31 +156,6 @@ public interface PartitionManager extends Serializable {
      * during the creation.
      */
     void add(Partition partition, String configurationName) throws IdentityManagementException;
-
-    /**
-     * <p>Updates the attributes of the specified partition.</p>
-     *
-     * @param partition The given <code>partition</code> must exists before calling this method, otherwise an exception
-     * will be
-     * thrown.
-     *
-     * @throws IdentityManagementException if no partition exists or if any error occurs during the update.
-     */
-    void update(Partition partition) throws IdentityManagementException;
-
-    /**
-     * <p>Removes the specified partition.</p>
-     *
-     * <p>Before calling this method make sure the <code>partition</code> references a valid instance that points
-     * to a partition already stored with its identifier.</p>
-     *
-     * @param partition The given <code>partition</code> must exists before calling this method, otherwise an exception
-     * will be
-     * thrown.
-     *
-     * @throws IdentityManagementException if no partition exists or if any error occurs during the update.
-     */
-    void remove(Partition partition) throws IdentityManagementException;
 
     /**
      * <p>Retrieves the configuration used to build this <code>PartitionManager</code>.</p>

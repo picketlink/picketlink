@@ -26,6 +26,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.OperationNotSupportedException;
+import org.picketlink.idm.internal.ContextualRelationshipManager;
 import org.picketlink.idm.internal.RelationshipReference;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -59,17 +60,17 @@ import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
  */
 public class DefaultRelationshipQuery<T extends Relationship> implements RelationshipQuery<T> {
 
+    private final ContextualRelationshipManager relationshipManager;
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
-    private IdentityContext context;
-    private StoreSelector storeSelector;
-    private Class<T> relationshipClass;
+    private final IdentityContext context;
+    private final Class<T> relationshipClass;
     private int offset;
     private int limit;
 
-    public DefaultRelationshipQuery(IdentityContext context, Class<T> relationshipClass, StoreSelector storeSelector) {
+    public DefaultRelationshipQuery(IdentityContext context, Class<T> relationshipClass, ContextualRelationshipManager relationshipManager) {
         this.context = context;
         this.relationshipClass = relationshipClass;
-        this.storeSelector = storeSelector;
+        this.relationshipManager = relationshipManager;
     }
 
     @Override
@@ -108,7 +109,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         List<T> result = new ArrayList<T>();
 
         try {
-            AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(this.context);
+            AttributeStore<?> attributeStore = getStoreSelector().getStoreForAttributeOperation(this.context);
 
             for (IdentityStore<?> store : getStores()) {
                 List<T> references = store.fetchQueryResults(context, this);
@@ -122,7 +123,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
                     for (Property<IdentityType> identityTypeProperty : identityTypes) {
                         IdentityType identityType = identityTypeProperty.getValue(relationship);
 
-                        configureDefaultPartition(identityType, store, getPartitionManager());
+                        configureDefaultPartition(this.context, identityType, store, getPartitionManager());
                     }
 
                     if (RelationshipReference.class.isInstance(relationship)) {
@@ -145,6 +146,10 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         return result;
     }
 
+    private PartitionManager getPartitionManager() {
+        return this.relationshipManager.getPartitionManager();
+    }
+
     private void resolveIdentityTypes(RelationshipReference reference) {
         Relationship relationship = reference.getRelationship();
 
@@ -152,8 +157,8 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
             String type = reference.getIdentityType(descriptor);
             String partitionId = reference.getPartitionId(descriptor);
             String identityTypeId = reference.getIdentityTypeId(descriptor);
-
             PartitionManager partitionManager = getPartitionManager();
+
             Partition partition = partitionManager.lookupById(Partition.class, partitionId);
 
             if (partition == null) {
@@ -170,7 +175,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
             }
 
             IdentityManager identityManager = partitionManager.createIdentityManager(partition);
-            IdentityType identityType = identityManager.lookupIdentityById(identityTypeClass, identityTypeId);
+            IdentityType identityType = identityManager.lookupById(identityTypeClass, identityTypeId);
 
             if (identityType == null) {
                 throw new IdentityManagementException("Referenced IdentityType [" + identityTypeId + "] from " +
@@ -186,10 +191,6 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
             property.setValue(relationship, identityType);
         }
-    }
-
-    private PartitionManager getPartitionManager() {
-        return (PartitionManager) this.storeSelector;
     }
 
     @Override
@@ -229,10 +230,14 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         }
 
         try {
-            return storeSelector.getStoresForRelationshipQuery(context, relationshipClass, partitions);
+            return getStoreSelector().getStoresForRelationshipQuery(context, relationshipClass, partitions);
         } catch (OperationNotSupportedException onse) {
             return Collections.EMPTY_SET;
         }
+    }
+
+    private StoreSelector getStoreSelector() {
+        return this.relationshipManager.getStoreSelector();
     }
 
 }

@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
@@ -27,7 +28,9 @@ import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.spi.RelationshipPolicy;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Collections.unmodifiableList;
 
@@ -133,6 +136,23 @@ public class IdentityConfiguration {
     /**
      * <p>Check if the configuration supports credential management.</p>
      *
+     * <p>Credential management is supported if any of the configured identity stores support it.</p>
+     *
+     * @return True if the configuration supports credential. Otherwise is false.
+     */
+    public boolean supportsAttribute() {
+        for (IdentityStoreConfiguration storeConfiguration: getStoreConfiguration()) {
+            if (storeConfiguration.supportsAttribute()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * <p>Check if the configuration supports credential management.</p>
+     *
      * <p>Permission management is supported if any of the configured identity stores support it.</p>
      *
      * @return
@@ -145,5 +165,21 @@ public class IdentityConfiguration {
         }
 
         return false;
+    }
+
+    /**
+     * <p>Returns a set containing all {@link org.picketlink.idm.model.AttributedType} supported by this configuration.
+     * The resulting set is a combination of the supported types of each identity store supported by this configuration.</p>
+     *
+     * @return
+     */
+    public Set<Class<? extends AttributedType>> getSupportedTypes() {
+        HashSet<Class<? extends AttributedType>> supportedTypes = new HashSet<Class<? extends AttributedType>>();
+
+        for (IdentityStoreConfiguration storeConfiguration : getStoreConfiguration()) {
+            supportedTypes.addAll(storeConfiguration.getSupportedTypes().keySet());
+        }
+
+        return supportedTypes;
     }
 }

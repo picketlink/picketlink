@@ -35,7 +35,7 @@ import org.picketlink.idm.credential.handler.TokenCredentialHandler;
 import org.picketlink.idm.credential.handler.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
-import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.internal.AbstractAttributeStore;
 import org.picketlink.idm.internal.RelationshipReference;
 import org.picketlink.idm.internal.util.PermissionUtil;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
@@ -105,6 +105,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -134,7 +135,7 @@ import static org.picketlink.idm.internal.util.PermissionUtil.asOperationList;
     TOTPCredentialHandler.class,
     TokenCredentialHandler.class})
 public class JPAIdentityStore
-        extends AbstractIdentityStore<JPAIdentityStoreConfiguration>
+        extends AbstractAttributeStore<JPAIdentityStoreConfiguration>
         implements CredentialStore<JPAIdentityStoreConfiguration>, PartitionStore<JPAIdentityStoreConfiguration>,
         AttributeStore<JPAIdentityStoreConfiguration>, PermissionStore {
 
@@ -374,20 +375,70 @@ public class JPAIdentityStore
     }
 
     @Override
-    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType attributedType, String attributeName) {
-        EntityManager entityManager = getEntityManager(context);
-        Map<String, Attribute<Serializable>> attributes = getAttributes(attributedType, attributeName, entityManager);
+    protected Collection<Attribute<? extends Serializable>> getAttributes(IdentityContext identityContext, AttributedType attributedType) {
+        EntityMapper attributeMapper = getAttributeMapper(attributedType.getClass());
+        Class<?> attributeEntityClass = attributeMapper.getEntityType();
+        EntityManager entityManager = getEntityManager(identityContext);
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<?> cq = cb.createQuery(attributeEntityClass);
+        Root<?> from = cq.from(attributeEntityClass);
+        List<Predicate> predicates = new ArrayList<Predicate>();
 
-        return (Attribute<V>) attributes.get(attributeName);
-    }
+        Property attributeNameProperty = attributeMapper.getProperty(Attribute.class, AttributeName.class).getValue();
 
-    @Override
-    public void loadAttributes(IdentityContext context, AttributedType attributedType) {
-        Map<String, Attribute<Serializable>> attributes = getAttributes(attributedType, null, getEntityManager(context));
+//        if (attributeName != null) {
+//            predicates.add(cb.equal(from.get(attributeNameProperty.getName()),
+//                    attributeName));
+//        }
 
-        for (Attribute attribute : attributes.values()) {
-            attributedType.setAttribute(attribute);
+        Property ownerProperty = attributeMapper.getProperty(Attribute.class, OwnerReference.class).getValue();
+
+        if (getConfig().supportsType(attributedType.getClass(), IdentityOperation.create)
+                && !String.class.equals(ownerProperty.getJavaClass())) {
+            predicates.add(cb.equal(from.get(ownerProperty.getName()),
+                    getOwnerEntity(attributedType, ownerProperty, entityManager)));
+        } else {
+            predicates.add(cb.equal(from.get(ownerProperty.getName()), attributedType.getId()));
         }
+
+        cq.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
+        Map<String, Attribute<? extends Serializable>> attributes = new HashMap<String, Attribute<? extends Serializable>>();
+
+        for (Object attributeEntity : entityManager.createQuery(cq).getResultList()) {
+            String storedName = attributeNameProperty.getValue(attributeEntity).toString();
+            Serializable storedValue = (Serializable) Base64.decodeToObject(attributeValueProperty.getValue(attributeEntity).toString());
+
+            Attribute attribute = attributes.get(storedName);
+
+            if (attribute == null) {
+                attribute = new Attribute<Serializable>(storedName, storedValue);
+            } else {
+                // if it is a multi-valued attribute
+                if (attribute != null) {
+                    Serializable[] values = null;
+
+                    if (attribute.getValue().getClass().isArray()) {
+                        values = (Serializable[]) attribute.getValue();
+                    } else {
+                        values = (Serializable[]) Array.newInstance(attribute.getValue().getClass(), 1);
+                        values[0] = attribute.getValue();
+                    }
+
+                    Serializable[] newValues = Arrays.copyOf(values, values.length + 1);
+
+                    newValues[newValues.length - 1] = storedValue;
+
+                    attribute.setValue(newValues);
+
+                }
+            }
+
+            attributes.put(attribute.getName(), attribute);
+        }
+
+        return attributes.values();
     }
 
     @Override
@@ -797,7 +848,7 @@ public class JPAIdentityStore
     }
 
     @Override
-    public void setAttribute(IdentityContext context, AttributedType attributedType, Attribute<? extends
+    public void doSetAttribute(IdentityContext context, AttributedType attributedType, Attribute<? extends
             Serializable> attribute) {
         removeAttribute(context, attributedType, attribute.getName());
 
@@ -1259,74 +1310,6 @@ public class JPAIdentityStore
 
     private EntityMapper getRootMapper(Class<? extends AttributedType> aClass) {
         return getMapperFor(aClass).get(0);
-    }
-
-    private Map<String, Attribute<Serializable>> getAttributes(final AttributedType attributedType,
-                                                               final String attributeName, final EntityManager entityManager) {
-        EntityMapper attributeMapper = getAttributeMapper(attributedType.getClass());
-
-        Class<?> attributeEntityClass = attributeMapper.getEntityType();
-
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<?> cq = cb.createQuery(attributeEntityClass);
-        Root<?> from = cq.from(attributeEntityClass);
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        Property attributeNameProperty = attributeMapper.getProperty(Attribute.class, AttributeName.class).getValue();
-
-        if (attributeName != null) {
-            predicates.add(cb.equal(from.get(attributeNameProperty.getName()),
-                    attributeName));
-        }
-
-        Property ownerProperty = attributeMapper.getProperty(Attribute.class, OwnerReference.class).getValue();
-
-        if (getConfig().supportsType(attributedType.getClass(), IdentityOperation.create)
-                && !String.class.equals(ownerProperty.getJavaClass())) {
-            predicates.add(cb.equal(from.get(ownerProperty.getName()),
-                    getOwnerEntity(attributedType, ownerProperty, entityManager)));
-        } else {
-            predicates.add(cb.equal(from.get(ownerProperty.getName()), attributedType.getId()));
-        }
-
-        cq.where(predicates.toArray(new Predicate[predicates.size()]));
-
-        Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
-        Map<String, Attribute<Serializable>> attributes = new HashMap<String, Attribute<Serializable>>();
-
-        for (Object attributeEntity : entityManager.createQuery(cq).getResultList()) {
-            String storedName = attributeNameProperty.getValue(attributeEntity).toString();
-            Serializable storedValue = (Serializable) Base64.decodeToObject(attributeValueProperty.getValue(attributeEntity).toString());
-
-            Attribute<Serializable> attribute = attributes.get(storedName);
-
-            if (attribute == null) {
-                attribute = new Attribute<Serializable>(storedName, storedValue);
-            } else {
-                // if it is a multi-valued attribute
-                if (attribute != null) {
-                    Serializable[] values = null;
-
-                    if (attribute.getValue().getClass().isArray()) {
-                        values = (Serializable[]) attribute.getValue();
-                    } else {
-                        values = (Serializable[]) Array.newInstance(attribute.getValue().getClass(), 1);
-                        values[0] = attribute.getValue();
-                    }
-
-                    Serializable[] newValues = Arrays.copyOf(values, values.length + 1);
-
-                    newValues[newValues.length - 1] = storedValue;
-
-                    attribute.setValue(newValues);
-
-                }
-            }
-
-            attributes.put(attribute.getName(), attribute);
-        }
-
-        return attributes;
     }
 
     private void addAttributeQueryPredicates(Class<? extends AttributedType> attributedType,

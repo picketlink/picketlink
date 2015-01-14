@@ -26,7 +26,7 @@ import org.picketlink.idm.query.RelationshipQuery;
  *
  * @author Shane Bryzak
  */
-public interface RelationshipManager {
+public interface RelationshipManager extends AttributedTypeManager<Relationship> {
 
     /**
      * <p>

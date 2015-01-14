@@ -22,13 +22,14 @@
 package org.picketlink.idm.query.internal;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.internal.ContextualIdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.Condition;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.IdentityQueryBuilder;
-import org.picketlink.idm.query.Sort;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.Sort;
+import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.StoreSelector;
 
 /**
@@ -36,11 +37,13 @@ import org.picketlink.idm.spi.StoreSelector;
  */
 public class DefaultQueryBuilder implements IdentityQueryBuilder {
 
-    private final ContextualIdentityManager identityManager;
     private final StoreSelector storeSelector;
+    private final IdentityContext identityContext;
+    private final PartitionManager partitionManager;
 
-    public DefaultQueryBuilder(ContextualIdentityManager identityManager, StoreSelector storeSelector) {
-        this.identityManager = identityManager;
+    public DefaultQueryBuilder(IdentityContext identityContext, PartitionManager partitionManager, StoreSelector storeSelector) {
+        this.identityContext = identityContext;
+        this.partitionManager = partitionManager;
         this.storeSelector = storeSelector;
     }
 
@@ -102,7 +105,7 @@ public class DefaultQueryBuilder implements IdentityQueryBuilder {
 
     @Override
     public <T extends IdentityType> IdentityQuery createIdentityQuery(Class<T> identityType) {
-        return new DefaultIdentityQuery(this, this.identityManager, identityType, storeSelector);
+        return new DefaultIdentityQuery(this, this.identityContext, identityType, this.partitionManager, this.storeSelector);
     }
 
     private void throwExceptionIfNotComparable(Object x) {
