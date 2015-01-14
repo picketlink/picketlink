@@ -33,7 +33,7 @@ import org.picketlink.idm.credential.handler.TokenCredentialHandler;
 import org.picketlink.idm.credential.handler.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
-import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.internal.AbstractAttributeStore;
 import org.picketlink.idm.internal.RelationshipReference;
 import org.picketlink.idm.internal.util.PermissionUtil;
 import org.picketlink.idm.model.Account;
@@ -69,6 +69,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,7 +95,7 @@ import static org.picketlink.idm.internal.util.PermissionUtil.hasAttributes;
     DigestCredentialHandler.class,
     TOTPCredentialHandler.class,
     TokenCredentialHandler.class})
-public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration>
+public class FileIdentityStore extends AbstractAttributeStore<FileIdentityStoreConfiguration>
     implements PartitionStore<FileIdentityStoreConfiguration>,
     CredentialStore<FileIdentityStoreConfiguration>,
     AttributeStore<FileIdentityStoreConfiguration>, PermissionStore {
@@ -607,7 +608,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public void setAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
+    public void doSetAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
         FileAttribute fileAttribute = getFileAttribute(type);
 
         if (fileAttribute == null) {
@@ -619,21 +620,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
         this.fileDataSource.getAttributes().put(type.getId(), fileAttribute);
         this.fileDataSource.flushAttributes();
-    }
-
-    @Override
-    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type, String attributeName) {
-        FileAttribute fileAttribute = getFileAttribute(type);
-
-        if (fileAttribute != null) {
-            for (Attribute<? extends Serializable> attribute : fileAttribute.getEntry()) {
-                if (attribute.getName().equals(attributeName)) {
-                    return (Attribute<V>) attribute;
-                }
-            }
-        }
-
-        return null;
     }
 
     @Override
@@ -653,14 +639,18 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public void loadAttributes(IdentityContext context, AttributedType attributedType) {
+    protected Collection<Attribute<? extends Serializable>> getAttributes(IdentityContext context, AttributedType attributedType) {
+        Collection<Attribute<? extends Serializable>> attributes = new HashSet<Attribute<? extends Serializable>>();
+
         FileAttribute fileAttribute = getFileAttribute(attributedType);
 
         if (fileAttribute != null) {
             for (Attribute<? extends Serializable> attribute : fileAttribute.getEntry()) {
-                attributedType.setAttribute(attribute);
+                attributes.add(attribute);
             }
         }
+
+        return attributes;
     }
 
     private FileAttribute getFileAttribute(final AttributedType type) {

@@ -17,23 +17,19 @@
  */
 package org.picketlink.idm.internal;
 
-import org.picketlink.idm.IdGenerator;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
-import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.event.RelationshipCreatedEvent;
 import org.picketlink.idm.event.RelationshipDeletedEvent;
 import org.picketlink.idm.event.RelationshipUpdatedEvent;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
-import org.picketlink.idm.spi.AttributeStore;
-import org.picketlink.idm.spi.StoreSelector;
+import org.picketlink.idm.spi.IdentityContext;
 
-import java.io.Serializable;
 import java.util.List;
 
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
@@ -45,75 +41,52 @@ import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
  *
  * @author Shane Bryzak
  */
-public class ContextualRelationshipManager extends AbstractIdentityContext implements RelationshipManager {
+public class ContextualRelationshipManager extends AbstractAttributedTypeManager<Relationship> implements RelationshipManager {
 
-    private StoreSelector storeSelector;
-    private PrivilegeChainQuery privilegeChainQuery;
+    private final PartitionManager partitionManager;
 
-    public ContextualRelationshipManager(EventBridge eventBridge, IdGenerator idGenerator, StoreSelector storeSelector,
-            PrivilegeChainQuery privilegeChainQuery) {
-        super(null, eventBridge, idGenerator);
-        this.storeSelector = storeSelector;
-        this.privilegeChainQuery = privilegeChainQuery;
-    }
-
-
-    @Override
-    public void add(Relationship relationship) {
-        if (relationship == null) {
-            MESSAGES.nullArgument("Relationship");
-        }
-
-        try {
-            storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.create).add(this, relationship);
-
-            addAttributes(relationship);
-
-            getEventBridge().raiseEvent(new RelationshipCreatedEvent(relationship, getPartitionManager()));
-        } catch (Exception e) {
-            throw MESSAGES.attributedTypeAddFailed(relationship, e);
-        }
+    public ContextualRelationshipManager(DefaultPartitionManager partitionManager) {
+        super(partitionManager.getStoreSelector(), partitionManager.getConfiguration(), null);
+        this.partitionManager = partitionManager;
     }
 
     @Override
-    public void update(Relationship relationship) {
-        if (relationship == null) {
-            MESSAGES.nullArgument("Relationship");
-        }
+    protected void doAdd(Relationship relationship) {
+        IdentityContext identityContext = getIdentityContext();
 
-        try {
-            storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.update).update(this, relationship);
-
-            removeAttributes(relationship);
-            addAttributes(relationship);
-
-            getEventBridge().raiseEvent(new RelationshipUpdatedEvent(relationship, getPartitionManager()));
-        } catch (Exception e) {
-            throw MESSAGES.attributedTypeUpdateFailed(relationship, e);
-        }
+        getStoreSelector().getStoreForRelationshipOperation(identityContext, relationship.getClass(), relationship, IdentityOperation.create)
+                .add(identityContext, relationship);
     }
 
     @Override
-    public void remove(Relationship relationship) {
-        if (relationship == null) {
-            MESSAGES.nullArgument("Relationship");
-        }
+    protected void fireAttributedTypeAddedEvent(Relationship relationship) {
+        fireEvent(new RelationshipCreatedEvent(relationship, this.partitionManager));
+    }
 
-        try {
-            List<? extends Relationship> result = createRelationshipQuery(relationship.getClass()).setParameter
-                    (Relationship.ID, relationship.getId())
-                    .getResultList();
+    @Override
+    protected void fireAttributedTypeUpdatedEvent(Relationship relationship) {
+        fireEvent(new RelationshipUpdatedEvent(relationship, this.partitionManager));
+    }
 
-            if (!result.isEmpty()) {
-                removeAllAttributes(relationship);
-            }
+    @Override
+    protected void doUpdate(Relationship relationship) {
+        IdentityContext identityContext = getIdentityContext();
 
-            storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.delete).remove(this, relationship);
+        getStoreSelector().getStoreForRelationshipOperation(identityContext, relationship.getClass(), relationship, IdentityOperation.update)
+                .update(identityContext, relationship);
+    }
 
-            getEventBridge().raiseEvent(new RelationshipDeletedEvent(relationship, getPartitionManager()));
-        } catch (Exception e) {
-            throw MESSAGES.attributedTypeRemoveFailed(relationship, e);
-        }
+    @Override
+    protected void fireAttributedTypeRemovedEvent(Relationship attributedType) {
+        fireEvent(new RelationshipDeletedEvent(attributedType, this.partitionManager));
+    }
+
+    @Override
+    protected void doRemove(Relationship relationship) {
+        IdentityContext identityContext = getIdentityContext();
+
+        getStoreSelector().getStoreForRelationshipOperation(identityContext, relationship.getClass(), relationship, IdentityOperation.delete)
+                .remove(identityContext, relationship);
     }
 
     @Override
@@ -122,51 +95,12 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
             MESSAGES.nullArgument("Relationship Type");
         }
 
-        return new DefaultRelationshipQuery<T>(this, relationshipClass, storeSelector);
+        return new DefaultRelationshipQuery<T>(getIdentityContext(), relationshipClass, this);
     }
 
-    private void removeAllAttributes(final Relationship identityType) {
-        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-        if (attributeStore != null) {
-            Relationship storedType = lookupById(identityType.getClass(), identityType.getId());
-
-            if (storedType != null) {
-                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
-                    attributeStore.removeAttribute(this, identityType, attribute.getName());
-                }
-            }
-        }
-    }
-
-    private void addAttributes(final Relationship identityType) {
-        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-        if (attributeStore != null) {
-            for (Attribute<? extends Serializable> attribute : identityType.getAttributes()) {
-                attributeStore.setAttribute(this, identityType, attribute);
-            }
-        }
-    }
-
-    private void removeAttributes(final Relationship identityType) {
-        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-        if (attributeStore != null) {
-            Relationship storedType = lookupById(identityType.getClass(), identityType.getId());
-
-            if (storedType != null) {
-                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
-                    if (identityType.getAttribute(attribute.getName()) == null) {
-                        attributeStore.removeAttribute(this, identityType, attribute.getName());
-                    }
-                }
-            }
-        }
-    }
-
-    private Relationship lookupById(final Class<? extends Relationship> relationshipType, final String id) {
-        List<? extends Relationship> result = createRelationshipQuery(relationshipType).setParameter
+    @Override
+    public <C extends Relationship> C lookupById(Class<C> attributedType, String id) throws IdentityManagementException {
+        List<C> result = createRelationshipQuery(attributedType).setParameter
                 (Relationship.ID, id)
                 .getResultList();
 
@@ -183,10 +117,22 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
             return true;
         }
 
+        PrivilegeChainQuery privilegeChainQuery = getConfiguration().getPrivilegeChainQuery();
+
         return privilegeChainQuery.inheritsPrivileges(this, identity, assignee);
     }
 
-    private PartitionManager getPartitionManager() {
-        return (PartitionManager) this.storeSelector;
+    @Override
+    protected void checkUniqueness(Relationship attributedType) throws IdentityManagementException {
+        //no-op
+    }
+
+    @Override
+    protected void checkIfExists(Relationship attributedType) throws IdentityManagementException {
+        //no-op
+    }
+
+    public PartitionManager getPartitionManager() {
+        return this.partitionManager;
     }
 }

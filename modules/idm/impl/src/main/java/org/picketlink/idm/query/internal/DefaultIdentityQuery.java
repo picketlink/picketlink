@@ -56,6 +56,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private final Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
     private final IdentityContext context;
     private final Class<T> identityType;
+    private final PartitionManager partitionManager;
     private final StoreSelector storeSelector;
     private final IdentityQueryBuilder queryBuilder;
     private int offset;
@@ -66,12 +67,12 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private final Set<Condition> conditions = new LinkedHashSet<Condition>();
     private final Set<Sort> ordering = new LinkedHashSet<Sort>();
 
-    public DefaultIdentityQuery(IdentityQueryBuilder queryBuilder, IdentityContext context, Class<T> identityType, StoreSelector storeSelector) {
+    public DefaultIdentityQuery(IdentityQueryBuilder queryBuilder, IdentityContext context, Class<T> identityType, PartitionManager partitionManager, StoreSelector storeSelector) {
         this.queryBuilder = queryBuilder;
         this.context = context;
         this.storeSelector = storeSelector;
+        this.partitionManager = partitionManager;
         this.identityType = identityType;
-
     }
 
     @Override
@@ -187,7 +188,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
             for (IdentityStore<?> store : identityStores) {
                 for (T identityType : store.fetchQueryResults(this.context, this)) {
-                    configureDefaultPartition(identityType, store, getPartitionManager());
+                    configureDefaultPartition(this.context, identityType, store, this.partitionManager);
 
                     if (attributeStore != null) {
                         attributeStore.loadAttributes(this.context, identityType);
@@ -250,9 +251,4 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     public Set<Condition> getConditions() {
         return unmodifiableSet(this.conditions);
     }
-
-    private PartitionManager getPartitionManager() {
-        return (PartitionManager) this.storeSelector;
-    }
-
 }

@@ -225,7 +225,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 for (SearchResult result : search) {
                     results.add((V) populateAttributedType(result, null));
                 }
-
             }
         } catch (Exception e) {
             throw MESSAGES.queryIdentityTypeFailed(identityQuery, e);

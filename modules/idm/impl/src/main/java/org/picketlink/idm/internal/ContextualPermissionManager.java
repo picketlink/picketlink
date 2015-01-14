@@ -1,12 +1,10 @@
 package org.picketlink.idm.internal;
 
-import org.picketlink.idm.IdGenerator;
+import org.picketlink.idm.IDMInternalMessages;
 import org.picketlink.idm.PermissionManager;
-import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.permission.Permission;
-import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 import org.picketlink.idm.spi.StoreSelector;
 
 import java.io.Serializable;
@@ -20,49 +18,57 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  * @author Shane Bryzak
  *
  */
-public class ContextualPermissionManager extends AbstractIdentityContext implements PermissionManager {
-    private final StoreSelector storeSelector;
+public class ContextualPermissionManager implements PermissionManager {
 
-    public ContextualPermissionManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
-                                        PermissionHandlerPolicy permissionHandlerPolicy, StoreSelector storeSelector) {
-        super(partition, eventBridge, idGenerator, permissionHandlerPolicy);
-        this.storeSelector = storeSelector;
+    private final StoreSelector storeSelector;
+    private final DefaultIdentityContext identityContext;
+
+    public ContextualPermissionManager(Partition partition, DefaultPartitionManager defaultPartitionManager) {
+        this.identityContext = new DefaultIdentityContext(partition,
+                defaultPartitionManager.getEventBridge(),
+                defaultPartitionManager.getIdGenerator(),
+                defaultPartitionManager.getConfiguration().getPermissionHandlerPolicy());
+        this.storeSelector = defaultPartitionManager.getStoreSelector();
+
+        if (this.storeSelector.getStoreForPermissionOperation(identityContext) == null) {
+            throw IDMInternalMessages.MESSAGES.permissionUnsupportedOperation();
+        }
     }
 
     @Override
     public List<Permission> listPermissions(Object resource) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, resource);
+        return storeSelector.getStoreForPermissionOperation(this.identityContext).listPermissions(this.identityContext, resource);
     }
 
     @Override
     public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, resourceClass, identifier);
+        return storeSelector.getStoreForPermissionOperation(this.identityContext).listPermissions(this.identityContext, resourceClass, identifier);
     }
 
     @Override
     public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, resourceClass, identifier, operation);
+        return storeSelector.getStoreForPermissionOperation(this.identityContext).listPermissions(this.identityContext, resourceClass, identifier, operation);
     }
 
     @Override
     public List<Permission> listPermissions(Object resource, String operation) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, resource, operation);
+        return storeSelector.getStoreForPermissionOperation(this.identityContext).listPermissions(this.identityContext, resource, operation);
     }
 
     @Override
     public List<Permission> listPermissions(Class<?> resource, String operation) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, (Object) resource, operation);
+        return storeSelector.getStoreForPermissionOperation(this.identityContext).listPermissions(this.identityContext, (Object) resource, operation);
     }
 
     @Override
     public List<Permission> listPermissions(IdentityType identityType) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, identityType);
+        return storeSelector.getStoreForPermissionOperation(this.identityContext).listPermissions(this.identityContext, identityType);
     }
 
     @Override
     public void grantPermission(IdentityType assignee, Object resource, String operation) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).grantPermission(this, assignee, resource, operation);
+            storeSelector.getStoreForPermissionOperation(this.identityContext).grantPermission(this.identityContext, assignee, resource, operation);
         } catch (Exception e) {
             throw MESSAGES.permissionGrantFailed(assignee, resource, operation, e);
         }
@@ -71,7 +77,7 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     @Override
     public void revokePermission(IdentityType assignee, Object resource, String operation) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).revokePermission(this, assignee, resource, operation);
+            storeSelector.getStoreForPermissionOperation(this.identityContext).revokePermission(this.identityContext, assignee, resource, operation);
         } catch (Exception ex) {
             throw MESSAGES.permissionRevokeFailed(assignee, resource, operation, ex);
         }
@@ -80,7 +86,7 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     @Override
     public void revokePermission(IdentityType assignee, Class<?> resourceclass, String operation) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).revokePermission(this, assignee, resourceclass, operation);
+            storeSelector.getStoreForPermissionOperation(this.identityContext).revokePermission(this.identityContext, assignee, resourceclass, operation);
         } catch (Exception ex) {
             throw MESSAGES.permissionRevokeFailed(assignee, resourceclass, operation, ex);
         }
@@ -89,7 +95,7 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     @Override
     public void clearPermissions(Object resource) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).revokeAllPermissions(this, resource);
+            storeSelector.getStoreForPermissionOperation(this.identityContext).revokeAllPermissions(this.identityContext, resource);
         } catch (Exception ex) {
             throw MESSAGES.permissionRevokeAllFailed(resource, ex);
         }

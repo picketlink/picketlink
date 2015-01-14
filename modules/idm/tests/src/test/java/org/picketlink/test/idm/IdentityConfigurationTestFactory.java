@@ -17,10 +17,12 @@
  */
 package org.picketlink.test.idm;
 
+import org.picketlink.test.idm.testers.FileManagedAttributeConfigurationTester;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JDBCStoreConfigurationTester;
 import org.picketlink.test.idm.testers.JPACustomTypesConfigurationTester;
+import org.picketlink.test.idm.testers.JPAManagedAttributeConfigurationTester;
 import org.picketlink.test.idm.testers.JPAPermissionStoreConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
@@ -96,6 +98,7 @@ public class IdentityConfigurationTestFactory {
         List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
 
         testers.add(new FileStoreConfigurationTester());
+        testers.add(new FileManagedAttributeConfigurationTester());
 
         return testers;
     }
@@ -107,6 +110,7 @@ public class IdentityConfigurationTestFactory {
         testers.add(new JPAStoreComplexSchemaConfigurationTester());
         testers.add(new JPAPermissionStoreConfigurationTester());
         testers.add(new JPACustomTypesConfigurationTester());
+        testers.add(new JPAManagedAttributeConfigurationTester());
 
         return testers;
     }

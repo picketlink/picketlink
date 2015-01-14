@@ -32,46 +32,12 @@ import java.util.List;
  *
  * @author Shane Bryzak
  */
-public interface IdentityManager {
+public interface IdentityManager extends AttributedTypeManager<IdentityType> {
 
     /**
      * The active IdentityManager instance may be stored in the IdentityContext under this parameter name
      */
     String IDENTITY_MANAGER_CTX_PARAMETER = "IDENTITY_MANAGER_CTX_PARAMETER";
-
-    // Identity CRUD methods
-
-    /**
-     * <p>
-     * Adds the given {@link IdentityType} instance to the configured identity store.
-     * </p>
-     *
-     * @param identityType
-     * @throws IdentityManagementException If cannot store the provided {@link IdentityType} instance.
-     */
-    void add(IdentityType identityType) throws IdentityManagementException;
-
-    /**
-     * <p>
-     * Updates the given {@link IdentityType} instance. The instance must have an identifier, otherwise a exception will be
-     * thrown.
-     * </p>
-     *
-     * @param identityType
-     * @throws IdentityManagementException If cannot update the provided {@link IdentityType} instance.
-     */
-    void update(IdentityType identityType) throws IdentityManagementException;
-
-    /**
-     * <p>
-     * Removes the given {@link IdentityType} instance from the configured identity store. The instance must have an identifier,
-     * otherwise a exception will be thrown.
-     * </p>
-     *
-     * @param value
-     * @throws IdentityManagementException If cannot remove the provided {@link IdentityType} instance.
-     */
-    void remove(IdentityType value) throws IdentityManagementException;
 
     // Query API
 
@@ -91,10 +57,12 @@ public interface IdentityManager {
      * interface any {@link IdentityType} instance that matches the given identifier will be returned.
      * </p>
      *
+     * @deprecated use {@link org.picketlink.idm.IdentityManager#lookupById(Class, String)} instead.
      * @param identityType
      * @param id
      * @return If no {@link IdentityType} is found with the given identifier this method returns null.
      */
+    @Deprecated
     <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id);
 
     /**
