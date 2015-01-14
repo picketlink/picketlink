@@ -354,4 +354,9 @@ public class DefaultPartitionManager extends AbstractAttributedTypeManager<Parti
             attributeStore.loadAttributes(context, partition);
         }
     }
+
+    @Override
+    public IdentityContext getIdentityContext() {
+        return createIdentityContext(null, getConfiguration().getEventBridge(), getConfiguration().getIdGenerator());
+    }
 }
