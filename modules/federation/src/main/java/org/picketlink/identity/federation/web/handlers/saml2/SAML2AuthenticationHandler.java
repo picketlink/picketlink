@@ -701,6 +701,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                         } else if (attrValue instanceof Node) {
                             Node roleNode = (Node) attrValue;
                             roles.add(roleNode.getFirstChild().getNodeValue());
+                        } else if (attrValue instanceof NameIDType) {
+                          NameIDType nameIdType = (NameIDType) attrValue;
+                          roles.add(nameIdType.getValue());
                         } else
                             throw logger.unsupportedRoleType(attrValue);
                     }
