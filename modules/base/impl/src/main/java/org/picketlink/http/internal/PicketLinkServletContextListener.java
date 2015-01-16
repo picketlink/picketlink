@@ -26,12 +26,14 @@ import org.picketlink.extension.PicketLinkExtension;
 
 import javax.inject.Inject;
 import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
+import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import java.util.EnumSet;
+
+import static org.picketlink.log.BaseLog.HTTP_LOGGER;
 
 /**
  * <p>A {@link javax.servlet.ServletContextListener} responsible for configure the PicketLink Security Filter
@@ -52,6 +54,7 @@ public class PicketLinkServletContextListener implements ServletContextListener 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         if (isHttpSecurityEnabled()) {
+            HTTP_LOGGER.info("Initializing PicketLink HTTP Security");
             addSecurityFilter(sce);
         }
     }
@@ -64,9 +67,13 @@ public class PicketLinkServletContextListener implements ServletContextListener 
     private void addSecurityFilter(ServletContextEvent sce) {
         ServletContext servletContext = sce.getServletContext();
 
-        FilterRegistration.Dynamic filter = servletContext.addFilter(PICKETLINK_SECURITY_FILTER_NAME, this.securityFilter);
+        Dynamic filter = servletContext.addFilter(PICKETLINK_SECURITY_FILTER_NAME, this.securityFilter);
 
-        filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+        if (filter != null) {
+            filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+        } else {
+            HTTP_LOGGER.warn("PicketLink Security Filter already registered. You have probably defined the filter in your web deployment descriptor.");
+        }
     }
 
     private boolean isHttpSecurityEnabled() {
