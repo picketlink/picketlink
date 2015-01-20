@@ -31,7 +31,7 @@ import org.picketlink.Identity;
 import org.picketlink.config.http.PathConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.http.HttpMethod;
-import org.picketlink.http.internal.HttpServletRequestListener;
+import org.picketlink.http.internal.HttpServletRequestProducer;
 import org.picketlink.http.internal.SecurityFilter;
 import org.picketlink.test.weld.WeldRunner;
 
@@ -69,7 +69,7 @@ public abstract class AbstractSecurityFilterTestCase {
     protected SecurityFilter securityFilter;
 
     @Inject
-    private HttpServletRequestListener httpServletRequestListener;
+    private HttpServletRequestProducer servletRequestProducer;
 
     @Inject
     protected Identity identity;
@@ -135,7 +135,6 @@ public abstract class AbstractSecurityFilterTestCase {
         }).when(this.filterChain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 
         this.securityFilter.init(filterConfig);
-        this.httpServletRequestListener.requestInitialized(servletRequestEvent);
 
         when(this.request.getContextPath()).thenReturn(CONTEXT_PATH);
         when(this.request.getMethod()).thenReturn(HttpMethod.GET.name());
