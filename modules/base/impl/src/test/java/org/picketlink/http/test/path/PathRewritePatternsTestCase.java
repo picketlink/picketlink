@@ -22,6 +22,8 @@
 package org.picketlink.http.test.path;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
@@ -37,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,7 +79,13 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals(CONTEXT_PATH + "/patternBaseUri/default", picketLinkRequest.get().getRequestURI());
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                assertEquals(CONTEXT_PATH + "/patternBaseUri/default", picketLinkRequest.get().getRequestURI());
+                return null;
+            }
+        }).when(this.filterChain).doFilter(this.request, this.response);
     }
 
     @Test
@@ -87,7 +96,13 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals(CONTEXT_PATH + "/user/profile/" + this.identity.getAccount().getId(), picketLinkRequest.get().getRequestURI());
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                assertEquals(CONTEXT_PATH + "/user/profile/" + identity.getAccount().getId(), picketLinkRequest.get().getRequestURI());
+                return null;
+            }
+        }).when(this.filterChain).doFilter(this.request, this.response);
     }
 
     @Test
@@ -98,7 +113,13 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals(CONTEXT_PATH + "/patternBaseUri/noPattern", picketLinkRequest.get().getRequestURI());
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                assertEquals(CONTEXT_PATH + "/patternBaseUri/noPattern", picketLinkRequest.get().getRequestURI());
+                return null;
+            }
+        }).when(this.filterChain).doFilter(this.request, this.response);
     }
 
     public static class SecurityConfiguration {

@@ -22,6 +22,8 @@
 package org.picketlink.http.test.authorization;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
@@ -40,6 +42,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,7 +82,13 @@ public class RealmBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/onlyDefaultRealmName", picketLinkRequest.get().getServletPath());
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                assertEquals("/onlyDefaultRealmName", picketLinkRequest.get().getServletPath());
+                return null;
+            }
+        }).when(this.filterChain).doFilter(this.request, this.response);
     }
 
     @Test
@@ -89,7 +98,14 @@ public class RealmBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        assertEquals("/onlyDefaultRealmType", picketLinkRequest.get().getServletPath());
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                assertEquals("/onlyDefaultRealmType", picketLinkRequest.get().getServletPath());
+                return null;
+            }
+        }).when(this.filterChain).doFilter(this.request, this.response);
     }
 
     @Test

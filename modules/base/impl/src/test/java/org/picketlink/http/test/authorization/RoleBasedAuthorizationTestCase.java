@@ -22,6 +22,8 @@
 package org.picketlink.http.test.authorization;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.config.http.FormAuthenticationConfiguration;
@@ -41,6 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,7 +79,13 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        assertEquals("/onlyManagerRole", picketLinkRequest.get().getServletPath());
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                assertEquals("/onlyManagerRole", picketLinkRequest.get().getServletPath());
+                return null;
+            }
+        }).when(this.filterChain).doFilter(this.request, this.response);
     }
 
     @Test
