@@ -47,19 +47,22 @@ import static org.picketlink.authorization.util.AuthorizationUtil.hasRole;
  */
 public class PicketLinkHttpServletRequest extends HttpServletRequestWrapper {
 
+    private static ThreadLocal<HttpServletRequest> SERVLET_REQUEST = new ThreadLocal<HttpServletRequest>();
+
     private final Identity identity;
     private final ELProcessor elProcessor;
     private final DefaultLoginCredentials credentials;
     private final PartitionManager partitionManager;
     private final String requestedUri;
 
-    public PicketLinkHttpServletRequest(HttpServletRequest request, Identity identity, DefaultLoginCredentials credentials, PartitionManager partitionManager, ELProcessor elProcessor) {
+    private PicketLinkHttpServletRequest(HttpServletRequest request, Identity identity, DefaultLoginCredentials credentials, PartitionManager partitionManager, ELProcessor elProcessor) {
         super(request);
         this.identity = identity;
         this.credentials = credentials;
         this.partitionManager = partitionManager;
         this.elProcessor = elProcessor;
         this.requestedUri = rewriteUri(request);
+        SERVLET_REQUEST.set(this);
     }
 
     @Override
@@ -120,6 +123,19 @@ public class PicketLinkHttpServletRequest extends HttpServletRequestWrapper {
         }
 
         return super.isUserInRole(roleName);
+    }
+
+    static HttpServletRequest getCurrent() {
+        return SERVLET_REQUEST.get();
+    }
+
+    static HttpServletRequest createRequest(HttpServletRequest request, Identity identity, DefaultLoginCredentials credentials, PartitionManager partitionManager, ELProcessor elProcessor) {
+        endRequest();
+        return new PicketLinkHttpServletRequest(request, identity, credentials, partitionManager, elProcessor);
+    }
+
+    static void endRequest() {
+        SERVLET_REQUEST.remove();
     }
 
     private boolean isLoggedIn() {

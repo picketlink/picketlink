@@ -156,15 +156,15 @@ public class SecurityFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         try {
-            request = this.picketLinkHttpServletRequest.get();
+            Identity identity = getIdentity();
+
+            request = PicketLinkHttpServletRequest.createRequest(request, identity, getCredentials(), getPartitionManager(), this.elProcessor);
 
             if (HTTP_LOGGER.isDebugEnabled()) {
                 HTTP_LOGGER.debugf("Processing request to path [%s].", request.getRequestURI());
             }
 
             pathConfiguration = this.pathMatcher.matches(request);
-
-            Identity identity = getIdentity();
 
             performAuthenticationIfRequired(pathConfiguration, identity, request, response);
 
@@ -189,6 +189,8 @@ public class SecurityFilter implements Filter {
             performOutboundProcessing(pathConfiguration, request, response, chain);
         } catch (Exception e) {
             handleException(pathConfiguration, request, response, e);
+        } finally {
+            PicketLinkHttpServletRequest.endRequest();
         }
     }
 
@@ -586,5 +588,9 @@ public class SecurityFilter implements Filter {
 
     private void initializePathMatcher() {
         this.pathMatcher = new PathMatcher(this.configuration.getPaths(), this.elProcessor);
+    }
+
+    private PartitionManager getPartitionManager() {
+        return resolveInstance(this.partitionManager);
     }
 }
