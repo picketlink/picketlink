@@ -23,7 +23,6 @@ package org.picketlink.http.internal;
 
 import org.jboss.logging.Logger;
 import org.picketlink.Identity;
-import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.config.SecurityConfiguration;
 import org.picketlink.config.SecurityConfigurationBuilder;
@@ -117,8 +116,7 @@ public class SecurityFilter implements Filter {
     private Instance<PathAuthorizer> pathAuthorizerInstance;
 
     @Inject
-    @PicketLink
-    private Instance<HttpServletRequest> picketLinkHttpServletRequest;
+    private HttpServletRequestProducer servletRequestProducer;
 
     @Inject
     private ELProcessor elProcessor;
@@ -158,7 +156,7 @@ public class SecurityFilter implements Filter {
         try {
             Identity identity = getIdentity();
 
-            request = PicketLinkHttpServletRequest.createRequest(request, identity, getCredentials(), getPartitionManager(), this.elProcessor);
+            request = createRequestWrapper(request, identity);
 
             if (HTTP_LOGGER.isDebugEnabled()) {
                 HTTP_LOGGER.debugf("Processing request to path [%s].", request.getRequestURI());
@@ -189,8 +187,6 @@ public class SecurityFilter implements Filter {
             performOutboundProcessing(pathConfiguration, request, response, chain);
         } catch (Exception e) {
             handleException(pathConfiguration, request, response, e);
-        } finally {
-            PicketLinkHttpServletRequest.endRequest();
         }
     }
 
@@ -592,5 +588,13 @@ public class SecurityFilter implements Filter {
 
     private PartitionManager getPartitionManager() {
         return resolveInstance(this.partitionManager);
+    }
+
+    private HttpServletRequest createRequestWrapper(HttpServletRequest request, Identity identity) {
+        request = new PicketLinkHttpServletRequest(request, identity, getCredentials(), getPartitionManager(), this.elProcessor);
+
+        this.servletRequestProducer.setRequest(request);
+
+        return request;
     }
 }
