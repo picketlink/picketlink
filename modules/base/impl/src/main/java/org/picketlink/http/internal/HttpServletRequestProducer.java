@@ -31,13 +31,19 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author Pedro Igor
  */
+@RequestScoped
 public class HttpServletRequestProducer {
+
+    private HttpServletRequest request;
 
     @PicketLink
     @Produces
-    @RequestScoped
     @Typed(HttpServletRequest.class)
     public HttpServletRequest produce() {
-        return PicketLinkHttpServletRequest.getCurrent();
+        return this.request;
+    }
+
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
     }
 }

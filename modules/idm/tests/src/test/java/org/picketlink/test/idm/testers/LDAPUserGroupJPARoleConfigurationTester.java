@@ -23,7 +23,6 @@ import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
-import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
@@ -88,7 +87,7 @@ public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigur
                             }
                         })
                         .supportGlobalRelationship(Grant.class, CustomRelationshipTestCase.CustomRelationship.class)
-                        .supportType(Role.class, Partition.class)
+                        .supportType(Role.class)
                         .supportAttributes(true)
                     .ldap()
                         .baseDN(embeddedServer.getBaseDn())
