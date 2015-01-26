@@ -17,7 +17,10 @@
  */
 package org.picketlink.scim.model.v11.resource;
 
+import java.net.URI;
+
 import org.picketlink.scim.annotations.ResourceAttributeDefinition;
+import org.picketlink.scim.annotations.ResourceDefinition;
 
 /**
  * SCIM Group Type
@@ -25,12 +28,41 @@ import org.picketlink.scim.annotations.ResourceAttributeDefinition;
  * @author anil saldhana
  * @since Apr 8, 2013
  */
+@ResourceDefinition(
+        id = "urn:ietf:params:scim:schemas:core:2.0:Group",
+        schema = "urn:ietf:params:scim:schemas:core:2.0:Group",
+        name = "Group",
+        endpointName = "/Group",
+        description = "Group Account"
+    )
 public class SCIMGroup extends AbstractSCIMResource {
 
-    @ResourceAttributeDefinition
+    public static URI ID = URI.create("urn:ietf:params:scim:schemas:core:2.0:Group");
+
+    @ResourceAttributeDefinition(
+            name = "displayName",
+            type = "string",
+            multiValued = false,
+            description = "A human readable name for the Group.  REQUIRED.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private String displayName;
 
-    @ResourceAttributeDefinition
+    @ResourceAttributeDefinition(
+            name = "members",
+            type = "complex",
+            multiValued = false,
+            description = "A list of members of the Group.",
+            required = false,
+            caseExact = false,
+            mutability = "readWrite",
+            returned = "default",
+            uniqueness = "none"
+            )
     private Members[] members;
 
     public String getDisplayName() {
@@ -53,13 +85,44 @@ public class SCIMGroup extends AbstractSCIMResource {
 
     public static class Members {
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "value",
+                type = "string",
+                multiValued = false,
+                description = "The identifier of the member of this Group.",
+                required = false,
+                caseExact = false,
+                mutability = "immutable",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String value;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "$ref",
+                type = "string",
+                multiValued = false,
+                description = "The URI of the corresponding to the member resource of this Group.",
+                required = false,
+                caseExact = false,
+                mutability = "immutable",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String $ref;
 
-        @ResourceAttributeDefinition
+        @ResourceAttributeDefinition(
+                name = "display",
+                type = "string",
+                multiValued = false,
+                description = "A label indicating the name of group.",
+                required = false,
+                caseExact = false,
+                canonicalValues = {"User", "Group"},
+                mutability = "immutable",
+                returned = "default",
+                uniqueness = "none"
+                )
         private String display;
 
         public String getValue() {
