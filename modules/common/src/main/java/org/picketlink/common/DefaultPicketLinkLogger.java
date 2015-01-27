@@ -41,7 +41,6 @@ import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
@@ -1445,7 +1444,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public ProcessingException assertionExpiredError(AssertionExpiredException aee) {
-        return new ProcessingException(new ProcessingException(ErrorCodes.EXPIRED_ASSERTION + "Assertion has expired", aee));
+        return new ProcessingException(ErrorCodes.EXPIRED_ASSERTION + "Assertion has expired", aee);
     }
 
     /*
