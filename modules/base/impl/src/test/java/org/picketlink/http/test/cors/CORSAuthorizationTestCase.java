@@ -53,7 +53,6 @@ public class CORSAuthorizationTestCase extends AbstractSecurityFilterTestCase {
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
         
-        verify(this.response, times(1)).isCommitted();
         verify(this.response, times(1)).addHeader("Access-Control-Allow-Credentials", "true");
         verify(this.response, times(1)).addHeader("Access-Control-Allow-Origin", "https://www.example.org:9000");
         
@@ -68,7 +67,8 @@ public class CORSAuthorizationTestCase extends AbstractSecurityFilterTestCase {
              .allowedGenericHttpRequests(true)
              .allowedOrigins("https://www.example.org:9000", "http://example.com:8008")
              .supportedMethods("GET", "PUT", "HEAD", "POST", "DELETE", "OPTIONS")
-             .supportedHeaders("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization").exposedHeaders()
+             .supportedHeaders("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization")
+             .exposedHeaders()
              .supportsCredentials(true)
              .maxAge(3600)
              .authorizeWith()

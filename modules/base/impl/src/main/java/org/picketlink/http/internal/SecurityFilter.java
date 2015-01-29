@@ -30,6 +30,7 @@ import org.picketlink.config.http.AuthenticationConfiguration;
 import org.picketlink.config.http.AuthenticationSchemeConfiguration;
 import org.picketlink.config.http.AuthorizationConfiguration;
 import org.picketlink.config.http.BasicAuthenticationConfiguration;
+import org.picketlink.config.http.CORSConfiguration;
 import org.picketlink.config.http.CustomAuthenticationConfiguration;
 import org.picketlink.config.http.DigestAuthenticationConfiguration;
 import org.picketlink.config.http.FormAuthenticationConfiguration;
@@ -55,6 +56,8 @@ import org.picketlink.http.internal.authorization.ExpressionPathAuthorizer;
 import org.picketlink.http.internal.authorization.GroupPathAuthorizer;
 import org.picketlink.http.internal.authorization.RealmPathAuthorizer;
 import org.picketlink.http.internal.authorization.RolePathAuthorizer;
+import org.picketlink.http.internal.cors.CORS;
+import org.picketlink.http.internal.cors.CORSRequestType;
 import org.picketlink.http.internal.util.RequestUtil;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.internal.el.ELProcessor;
@@ -71,6 +74,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -144,7 +148,7 @@ public class SecurityFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException,
-        ServletException {
+            ServletException {
         if (!HttpServletRequest.class.isInstance(servletRequest)) {
             throw new ServletException("This filter can only process HttpServletRequest requests.");
         }
@@ -163,12 +167,13 @@ public class SecurityFilter implements Filter {
             }
 
             pathConfiguration = this.pathMatcher.matches(request);
-
+            // performCORSAuthorizationIfRequired(pathConfiguration, request, response);
             performAuthenticationIfRequired(pathConfiguration, identity, request, response);
 
             if (isSecured(pathConfiguration)) {
                 if (!isMethodAllowed(pathConfiguration, request)) {
-                    throw new MethodNotAllowedException("The given method is not allowed [" + request.getMethod() + "] for path [" + pathConfiguration.getUri() + "].");
+                    throw new MethodNotAllowedException("The given method is not allowed [" + request.getMethod()
+                            + "] for path [" + pathConfiguration.getUri() + "].");
                 }
 
                 if (!response.isCommitted()) {
@@ -178,7 +183,8 @@ public class SecurityFilter implements Filter {
                         performLogout(request, response, identity, pathConfiguration);
                     } else {
                         if (!isAuthorized(pathConfiguration, request, response)) {
-                            throw new AccessDeniedException("The request for the given path [" + pathConfiguration.getUri() + "] was forbidden.");
+                            throw new AccessDeniedException("The request for the given path [" + pathConfiguration.getUri()
+                                    + "] was forbidden.");
                         }
                     }
                 }
@@ -200,7 +206,8 @@ public class SecurityFilter implements Filter {
         return methods.contains(HttpMethod.valueOf(request.getMethod().toUpperCase()));
     }
 
-    private void performOutboundProcessing(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    private void performOutboundProcessing(PathConfiguration pathConfiguration, HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (response.isCommitted()) {
             if (HTTP_LOGGER.isDebugEnabled()) {
                 HTTP_LOGGER.debugf("Response already commited. Ignoring outbound processing for path [%s].", pathConfiguration);
@@ -245,7 +252,8 @@ public class SecurityFilter implements Filter {
         response.sendRedirect(redirectUrl);
     }
 
-    private void handleException(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, Throwable exception) throws IOException {
+    private void handleException(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response,
+            Throwable exception) throws IOException {
         String redirectUrl = null;
         int statusCode;
 
@@ -281,7 +289,9 @@ public class SecurityFilter implements Filter {
             }
 
             if (HTTP_LOGGER.isEnabled(Logger.Level.ERROR)) {
-                HTTP_LOGGER.errorf(exception, "Exception thrown during processing for path [%s]. Sending error with status code [%s].", request.getRequestURI(), statusCode);
+                HTTP_LOGGER.errorf(exception,
+                        "Exception thrown during processing for path [%s]. Sending error with status code [%s].",
+                        request.getRequestURI(), statusCode);
             }
 
             response.sendError(statusCode, message);
@@ -298,7 +308,8 @@ public class SecurityFilter implements Filter {
         return redirectUrl;
     }
 
-    private void performLogout(HttpServletRequest request, HttpServletResponse response, Identity identity, PathConfiguration pathConfiguration) throws IOException {
+    private void performLogout(HttpServletRequest request, HttpServletResponse response, Identity identity,
+            PathConfiguration pathConfiguration) throws IOException {
         if (identity.isLoggedIn()) {
             identity.logout();
         }
@@ -322,7 +333,8 @@ public class SecurityFilter implements Filter {
         return true;
     }
 
-    private void processRequest(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
+    private void processRequest(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response,
+            FilterChain chain) {
         try {
             if (HTTP_LOGGER.isDebugEnabled()) {
                 HTTP_LOGGER.debugf("Continuing to process request for path [%s].", request.getRequestURI());
@@ -334,13 +346,13 @@ public class SecurityFilter implements Filter {
         }
     }
 
-    private void challengeClientForCredentials(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) {
+    private void challengeClientForCredentials(PathConfiguration pathConfiguration, HttpServletRequest request,
+            HttpServletResponse response) {
         HttpAuthenticationScheme authenticationScheme = getAuthenticationScheme(pathConfiguration, request);
 
         if (authenticationScheme != null) {
             if (HTTP_LOGGER.isDebugEnabled()) {
-                HTTP_LOGGER
-                    .debugf("Challenging client using authentication scheme [%s].", authenticationScheme);
+                HTTP_LOGGER.debugf("Challenging client using authentication scheme [%s].", authenticationScheme);
             }
 
             try {
@@ -362,6 +374,33 @@ public class SecurityFilter implements Filter {
         }
     }
 
+    private void performCORSAuthorizationIfRequired(PathConfiguration pathConfiguration, HttpServletRequest request,
+            HttpServletResponse response) {
+
+        if (pathConfiguration.getCORSConfiguration() != null) {
+
+            CORSConfiguration corsConfiguration = pathConfiguration.getCORSConfiguration();
+
+            if (corsConfiguration.getAllowedOrigins() != null && corsConfiguration.getAllowedOrigins().size() != 0) {
+
+                CORSRequestType type = CORSRequestType.detect(request);
+                CORS cors = new CORS(corsConfiguration);
+                if (type.equals(CORSRequestType.ACTUAL)) {
+                    // Simple / actual CORS request
+                    cors.handleActualRequest(corsConfiguration, request, response);
+                } else if (type.equals(CORSRequestType.PREFLIGHT)) {
+                    // Preflight CORS request
+                    cors.handlePreflightRequest(corsConfiguration, request, response);
+                } else if (corsConfiguration.isGenericHttpRequestsAllowed()) {
+                    // Not a CORS request, allow it through
+                } else {
+                    // Generic HTTP requests denied
+                    throw new RuntimeException("Generic HTTP requests not allowed");
+                }
+            }
+        }
+    }
+
     private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, Identity identity,
             HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpAuthenticationScheme authenticationScheme = getAuthenticationScheme(pathConfiguration, request);
@@ -376,8 +415,7 @@ public class SecurityFilter implements Filter {
             if (creds.getCredential() != null) {
                 if (identity.isLoggedIn()) {
                     if (HTTP_LOGGER.isDebugEnabled()) {
-                        HTTP_LOGGER
-                            .debugf("Forcing re-authentication. Logging out current user [%s]", identity.getAccount());
+                        HTTP_LOGGER.debugf("Forcing re-authentication. Logging out current user [%s]", identity.getAccount());
                     }
 
                     identity.logout();
@@ -402,7 +440,8 @@ public class SecurityFilter implements Filter {
         } else {
             if (!identity.isLoggedIn()) {
                 if (pathConfiguration != null && pathConfiguration.getAuthorizationConfiguration() != null) {
-                    throw new AuthenticationRequiredException("The given path [" + pathConfiguration.getUri() + "] requires authentication.");
+                    throw new AuthenticationRequiredException("The given path [" + pathConfiguration.getUri()
+                            + "] requires authentication.");
                 }
             }
         }
@@ -415,7 +454,8 @@ public class SecurityFilter implements Filter {
             AuthenticationConfiguration authcConfiguration = pathConfiguration.getAuthenticationConfiguration();
 
             if (authcConfiguration != null) {
-                AuthenticationSchemeConfiguration authSchemeConfiguration = authcConfiguration.getAuthenticationSchemeConfiguration();
+                AuthenticationSchemeConfiguration authSchemeConfiguration = authcConfiguration
+                        .getAuthenticationSchemeConfiguration();
 
                 authenticationScheme = this.authenticationSchemes.get(pathConfiguration);
 
@@ -436,7 +476,8 @@ public class SecurityFilter implements Filter {
                         CustomAuthenticationConfiguration customAuthcConfig = (CustomAuthenticationConfiguration) authSchemeConfiguration;
                         authcSchemeType = customAuthcConfig.getSchemeType();
                     } else {
-                        throw new HttpSecurityConfigurationException("Unexpected Authentication Scheme configuration [" + authSchemeConfiguration + "].");
+                        throw new HttpSecurityConfigurationException("Unexpected Authentication Scheme configuration ["
+                                + authSchemeConfiguration + "].");
                     }
 
                     authenticationScheme = resolveInstance(this.authenticationSchemesInstance, authcSchemeType);
@@ -464,7 +505,8 @@ public class SecurityFilter implements Filter {
                 HttpSession session = request.getSession(false);
 
                 if (session != null) {
-                    PathConfiguration originalAuthcPath = (PathConfiguration) session.getAttribute(AUTHENTICATION_ORIGINAL_PATH);
+                    PathConfiguration originalAuthcPath = (PathConfiguration) session
+                            .getAttribute(AUTHENTICATION_ORIGINAL_PATH);
 
                     if (originalAuthcPath != null && originalAuthcPath.equals(entry.getKey())) {
                         session.removeAttribute(AUTHENTICATION_ORIGINAL_PATH);
@@ -529,13 +571,15 @@ public class SecurityFilter implements Filter {
 
                     if (authenticationScheme != null) {
                         AuthenticationConfiguration authcConfig = pathConfiguration.getAuthenticationConfiguration();
-                        AuthenticationSchemeConfiguration authcSchemeConfig = authcConfig.getAuthenticationSchemeConfiguration();
+                        AuthenticationSchemeConfiguration authcSchemeConfig = authcConfig
+                                .getAuthenticationSchemeConfiguration();
 
                         if (!CustomAuthenticationConfiguration.class.isInstance(authcSchemeConfig)) {
                             try {
                                 authenticationScheme.initialize(authcSchemeConfig);
                             } catch (Exception e) {
-                                throw new HttpSecurityConfigurationException("Could not initialize Http Authentication Scheme [" + authenticationScheme + "].", e);
+                                throw new HttpSecurityConfigurationException(
+                                        "Could not initialize Http Authentication Scheme [" + authenticationScheme + "].", e);
                             }
                         }
                     }
@@ -552,7 +596,8 @@ public class SecurityFilter implements Filter {
 
                     if (authorizationConfiguration != null) {
                         List<PathAuthorizer> pathAuthorizers = new ArrayList<PathAuthorizer>();
-                        List<Class<? extends PathAuthorizer>> pathAuthorizerTypes = new ArrayList<Class<? extends PathAuthorizer>>(authorizationConfiguration.getAuthorizers());
+                        List<Class<? extends PathAuthorizer>> pathAuthorizerTypes = new ArrayList<Class<? extends PathAuthorizer>>(
+                                authorizationConfiguration.getAuthorizers());
 
                         pathAuthorizerTypes.addAll(getDefaultPathAuthorizers());
 
@@ -560,7 +605,8 @@ public class SecurityFilter implements Filter {
                             try {
                                 pathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, authorizerType));
                             } catch (Exception e) {
-                                throw new HttpSecurityConfigurationException("Could not resolve PathAuthorizer [" + authorizerType + "].", e);
+                                throw new HttpSecurityConfigurationException("Could not resolve PathAuthorizer ["
+                                        + authorizerType + "].", e);
                             }
                         }
 

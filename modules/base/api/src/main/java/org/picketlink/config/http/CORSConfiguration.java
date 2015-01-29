@@ -21,12 +21,7 @@
  */
 package org.picketlink.config.http;
 
-import static java.util.Collections.unmodifiableList;
-
-import java.util.List;
 import java.util.Set;
-
-import org.picketlink.http.cors.CORSPathAuthorizer;
 
 /**
  * @author Giriraj Sharma
@@ -42,13 +37,11 @@ public class CORSConfiguration {
     private final boolean allowAnyOrigin;
     private final boolean supportAnyHeader;
     private final long maxAge;
-    private final List<Class<? extends CORSPathAuthorizer>> corsAuthorizers;
     private final PathConfiguration pathConfiguration;
 
     public CORSConfiguration(PathConfiguration pathConfiguration, boolean allowGenericHttpRequests, Set<String> allowedOrigins,
             Set<String> supportedMethods, Set<String> supportedHeaders, Set<String> exposedHeaders,
-            boolean supportsCredentials, boolean allowAnyOrigin, boolean supportAnyHeader, long maxAge,
-            List<Class<? extends CORSPathAuthorizer>> authorizers) {
+            boolean supportsCredentials, boolean allowAnyOrigin, boolean supportAnyHeader, long maxAge) {
 
         this.pathConfiguration = pathConfiguration;
         this.allowGenericHttpRequests = allowGenericHttpRequests;
@@ -60,7 +53,6 @@ public class CORSConfiguration {
         this.allowAnyOrigin = allowAnyOrigin;
         this.supportAnyHeader = supportAnyHeader;
         this.maxAge = maxAge;
-        this.corsAuthorizers = authorizers;
     }
 
     public boolean isGenericHttpRequestsAllowed() {
@@ -99,7 +91,4 @@ public class CORSConfiguration {
         return this.maxAge;
     }
 
-    public List<Class<? extends CORSPathAuthorizer>> getAuthorizers() {
-        return unmodifiableList(this.corsAuthorizers);
-    }
 }
