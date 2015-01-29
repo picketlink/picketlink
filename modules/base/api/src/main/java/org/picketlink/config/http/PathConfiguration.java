@@ -21,9 +21,7 @@
  */
 package org.picketlink.config.http;
 
-import org.picketlink.http.HttpMethod;
-import org.picketlink.http.authorization.PathAuthorizer;
-import org.picketlink.http.cors.CORSPathAuthorizer;
+import static java.util.Collections.emptyList;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Collections.emptyList;
+import org.picketlink.http.HttpMethod;
+import org.picketlink.http.authorization.PathAuthorizer;
 
 /**
  * @author Pedro Igor
@@ -222,7 +221,6 @@ public class PathConfiguration {
                 boolean allowAnyOrigin = this.corsConfiguration.isAnyOriginAllowed();
                 boolean supportAnyHeader = this.corsConfiguration.isAnyHeaderSupported();
                 long maxAge = this.corsConfiguration.getMaxAge();
-                List<Class<? extends CORSPathAuthorizer>> corsAuthorizers = this.corsConfiguration.getAuthorizers();
 
                 if (Boolean.valueOf(allowGenericHttpRequests) == null) {
                     allowGenericHttpRequests = groupCORSAuthz.isGenericHttpRequestsAllowed();
@@ -252,13 +250,8 @@ public class PathConfiguration {
                     maxAge = groupCORSAuthz.getMaxAge();
                 }
 
-                if (corsAuthorizers == null) {
-                    corsAuthorizers = groupCORSAuthz.getAuthorizers();
-                }
-
                 return new CORSConfiguration(this, allowGenericHttpRequests, allowedOrigins, supportedMethods,
-                        supportedHeaders, exposedHeaders, supportsCredentials, allowAnyOrigin, supportAnyHeader, maxAge,
-                        corsAuthorizers);
+                        supportedHeaders, exposedHeaders, supportsCredentials, allowAnyOrigin, supportAnyHeader, maxAge);
             } else if (groupCORSAuthz != null) {
                 return groupConfiguration.getCORSConfiguration();
             }

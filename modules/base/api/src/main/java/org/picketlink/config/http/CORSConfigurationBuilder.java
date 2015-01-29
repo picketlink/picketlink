@@ -21,13 +21,9 @@
  */
 package org.picketlink.config.http;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import org.picketlink.http.cors.CORSPathAuthorizer;
 
 /**
  * @author Giriraj Sharma
@@ -43,7 +39,6 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
     private boolean allowAnyOrigin;
     private boolean supportAnyHeader;
     private long maxAge;
-    private List<Class<? extends CORSPathAuthorizer>> corsAuthorizers = new ArrayList<Class<? extends CORSPathAuthorizer>>();
 
     CORSConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
@@ -94,14 +89,8 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
         return this;
     }
 
-    public CORSConfigurationBuilder authorizer(Class<? extends CORSPathAuthorizer>... pathCORSAuthorizer) {
-        this.corsAuthorizers.addAll(Arrays.asList(pathCORSAuthorizer));
-        return this;
-    }
-
     CORSConfiguration create(PathConfiguration pathConfiguration) {
         return new CORSConfiguration(pathConfiguration, allowGenericHttpRequests, allowedOrigins, supportedMethods,
-                supportedHeaders, exposedHeaders, supportsCredentials, allowAnyOrigin, supportAnyHeader, maxAge,
-                corsAuthorizers);
+                supportedHeaders, exposedHeaders, supportsCredentials, allowAnyOrigin, supportAnyHeader, maxAge);
     }
 }
