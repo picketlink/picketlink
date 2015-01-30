@@ -21,14 +21,13 @@
  */
 package org.picketlink.http.internal.cors;
 
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import org.jboss.logging.Logger;
+import org.picketlink.config.http.CORSConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.jboss.logging.Logger;
-import org.picketlink.config.http.CORSConfiguration;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Cross-Origin Resource Sharing (CORS) Class.
@@ -90,6 +89,7 @@ public class CORS {
         this.supportedHeaders = corsConfiguration.getSupportedHeaders();
         this.exposedHeaders = corsConfiguration.getExposedHeaders();
         this.maxAge = corsConfiguration.getMaxAge();
+        this.supportsCredentials = corsConfiguration.isCredentialsSupported();
 
     }
 

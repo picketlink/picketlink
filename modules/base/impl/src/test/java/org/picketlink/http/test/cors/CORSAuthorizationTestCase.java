@@ -21,13 +21,6 @@
  */
 package org.picketlink.http.test.cors;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import javax.enterprise.event.Observes;
-
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
@@ -36,26 +29,32 @@ import org.picketlink.http.test.AbstractSecurityFilterTestCase;
 import org.picketlink.http.test.SecurityInitializer;
 import org.picketlink.test.weld.Deployment;
 
+import javax.enterprise.event.Observes;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 /**
  * Tests the CORS requests via SecurityFilter.
  *
  * @author Giriraj Sharma
  */
-@Ignore
 @Deployment(beans = { CORSAuthorizationTestCase.SecurityConfiguration.class, SecurityInitializer.class }, excludeBeansFromPackage = "org.picketlink.http.test")
 public class CORSAuthorizationTestCase extends AbstractSecurityFilterTestCase {
 
     @Test
     public void testActualRequestWithDefaultConfiguration() throws Exception {
-        
+        when(this.request.getServletPath()).thenReturn("/corsAuthorization");
+
         when(this.request.getHeader(CORS.ORIGIN)).thenReturn("https://www.example.org:9000");
         when(this.request.getMethod()).thenReturn("PUT");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
-        
+
         verify(this.response, times(1)).addHeader("Access-Control-Allow-Credentials", "true");
         verify(this.response, times(1)).addHeader("Access-Control-Allow-Origin", "https://www.example.org:9000");
-        
+
     }
 
     public static class SecurityConfiguration {
@@ -70,11 +69,7 @@ public class CORSAuthorizationTestCase extends AbstractSecurityFilterTestCase {
              .supportedHeaders("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization")
              .exposedHeaders()
              .supportsCredentials(true)
-             .maxAge(3600)
-             .authorizeWith()
-                 .role("Manager")
-                 .group("Administrators")
-                 .realm("default");
+             .maxAge(3600);
         }
     }
 

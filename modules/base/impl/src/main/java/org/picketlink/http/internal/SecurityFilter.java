@@ -167,7 +167,7 @@ public class SecurityFilter implements Filter {
             }
 
             pathConfiguration = this.pathMatcher.matches(request);
-            // performCORSAuthorizationIfRequired(pathConfiguration, request, response);
+            performCORSAuthorizationIfRequired(pathConfiguration, request, response);
             performAuthenticationIfRequired(pathConfiguration, identity, request, response);
 
             if (isSecured(pathConfiguration)) {
@@ -377,7 +377,7 @@ public class SecurityFilter implements Filter {
     private void performCORSAuthorizationIfRequired(PathConfiguration pathConfiguration, HttpServletRequest request,
             HttpServletResponse response) {
 
-        if (pathConfiguration.getCORSConfiguration() != null) {
+        if (pathConfiguration != null && pathConfiguration.getCORSConfiguration() != null) {
 
             CORSConfiguration corsConfiguration = pathConfiguration.getCORSConfiguration();
 
