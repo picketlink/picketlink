@@ -28,7 +28,6 @@ import java.util.Set;
  */
 public class CORSConfiguration {
 
-    private final boolean allowGenericHttpRequests;
     private final Set<String> allowedOrigins;
     private final Set<String> supportedMethods;
     private final Set<String> supportedHeaders;
@@ -39,12 +38,11 @@ public class CORSConfiguration {
     private final long maxAge;
     private final PathConfiguration pathConfiguration;
 
-    public CORSConfiguration(PathConfiguration pathConfiguration, boolean allowGenericHttpRequests, Set<String> allowedOrigins,
+    public CORSConfiguration(PathConfiguration pathConfiguration, Set<String> allowedOrigins,
             Set<String> supportedMethods, Set<String> supportedHeaders, Set<String> exposedHeaders,
             boolean supportsCredentials, boolean allowAnyOrigin, boolean supportAnyHeader, long maxAge) {
 
         this.pathConfiguration = pathConfiguration;
-        this.allowGenericHttpRequests = allowGenericHttpRequests;
         this.allowedOrigins = allowedOrigins;
         this.supportedMethods = supportedMethods;
         this.supportedHeaders = supportedHeaders;
@@ -53,10 +51,6 @@ public class CORSConfiguration {
         this.allowAnyOrigin = allowAnyOrigin;
         this.supportAnyHeader = supportAnyHeader;
         this.maxAge = maxAge;
-    }
-
-    public boolean isGenericHttpRequestsAllowed() {
-        return this.allowGenericHttpRequests;
     }
 
     public Set<String> getAllowedOrigins() {
