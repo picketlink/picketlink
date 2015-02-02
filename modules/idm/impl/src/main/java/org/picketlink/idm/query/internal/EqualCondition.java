@@ -21,6 +21,7 @@
  */
 package org.picketlink.idm.query.internal;
 
+import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.Condition;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -44,5 +45,13 @@ public class EqualCondition implements Condition {
 
     public Object getValue() {
         return this.value;
+    }
+
+    @Override
+    public String toString() {
+        return "EqualCondition{" +
+                "parameter=" + ((AttributeParameter) parameter).getName() +
+                ", value=" + value +
+                '}';
     }
 }

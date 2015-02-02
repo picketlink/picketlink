@@ -59,6 +59,7 @@ class PartitionManagerConfiguration {
     private final IdentityConfiguration attributeManagementConfig;
     private final EventBridge eventBridge;
     private final IdGenerator idGenerator;
+    private final DefaultStoreSelector storeSelector;
 
     /**
      * Used for querying chained privileges
@@ -136,6 +137,8 @@ class PartitionManagerConfiguration {
         }
 
         logConfiguration(this.configurations);
+
+        this.storeSelector = new DefaultStoreSelector(this);
     }
 
     private void logConfiguration(final Collection<IdentityConfiguration> configurations) {
@@ -213,5 +216,9 @@ class PartitionManagerConfiguration {
 
     public IdGenerator getIdGenerator() {
         return this.idGenerator;
+    }
+
+    public DefaultStoreSelector getStoreSelector() {
+        return this.storeSelector;
     }
 }

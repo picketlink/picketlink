@@ -46,20 +46,18 @@ public abstract class AbstractAttributedTypeManager<T extends AttributedType> im
 
     private final IdentityContext identityContext;
     private final PartitionManagerConfiguration configuration;
-    private final StoreSelector storeSelector;
 
-    AbstractAttributedTypeManager(StoreSelector storeSelector, PartitionManagerConfiguration configuration, Partition partition) {
-        this.storeSelector = storeSelector;
+    AbstractAttributedTypeManager(PartitionManagerConfiguration configuration, Partition partition) {
         this.configuration = configuration;
         this.identityContext = createIdentityContext(partition, configuration.getEventBridge(), configuration.getIdGenerator());
     }
 
     public AbstractAttributedTypeManager(PartitionManagerConfiguration configuration) {
-        this(new DefaultStoreSelector(configuration), configuration, null);
+        this(configuration, null);
     }
 
     public AbstractAttributedTypeManager(DefaultPartitionManager partitionManager) {
-        this(partitionManager.getStoreSelector(), partitionManager.getConfiguration(), null);
+        this(partitionManager.getConfiguration(), null);
     }
 
     @Override
@@ -218,11 +216,7 @@ public abstract class AbstractAttributedTypeManager<T extends AttributedType> im
     }
 
     public  StoreSelector getStoreSelector() {
-        if (this.storeSelector == null) {
-            throw MESSAGES.nullArgument("storeSelector");
-        }
-
-        return this.storeSelector;
+        return this.configuration.getStoreSelector();
     }
 
     public  IdentityContext getIdentityContext() {

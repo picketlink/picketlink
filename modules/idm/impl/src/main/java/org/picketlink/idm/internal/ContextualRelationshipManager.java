@@ -46,7 +46,7 @@ public class ContextualRelationshipManager extends AbstractAttributedTypeManager
     private final PartitionManager partitionManager;
 
     public ContextualRelationshipManager(DefaultPartitionManager partitionManager) {
-        super(partitionManager.getStoreSelector(), partitionManager.getConfiguration(), null);
+        super(partitionManager.getConfiguration(), null);
         this.partitionManager = partitionManager;
     }
 

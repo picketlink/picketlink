@@ -85,8 +85,8 @@ public class DefaultStoreSelector implements StoreSelector {
      */
     private final Map<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>> stores;
 
-    private final Map<String, Map<Class<? extends IdentityType>, Set<IdentityStoreConfiguration>>> identityQueryStoresCache = new HashMap<String, Map<Class<? extends IdentityType>, Set<IdentityStoreConfiguration>>>();
-    private final Map<String, Map<Class<?>, IdentityStoreConfiguration>> credentialStoresCache = new HashMap<String, Map<Class<?>, IdentityStoreConfiguration>>();
+    private final Map<String, Map<Class<? extends IdentityType>, Set<IdentityStoreConfiguration>>> identityQueryStoresCache = new ConcurrentHashMap<String, Map<Class<? extends IdentityType>, Set<IdentityStoreConfiguration>>>();
+    private final Map<String, Map<Class<?>, IdentityStoreConfiguration>> credentialStoresCache = new ConcurrentHashMap<String, Map<Class<?>, IdentityStoreConfiguration>>();
 
     public DefaultStoreSelector(PartitionManagerConfiguration configuration) {
         this.configuration = configuration;
@@ -147,7 +147,6 @@ public class DefaultStoreSelector implements StoreSelector {
 
         cachedStoresForType = new HashMap<Class<? extends IdentityType>, Set<IdentityStoreConfiguration>>();
         cachedStoresForType.put(identityType, identityStoresConfig);
-        this.identityQueryStoresCache.put(context.getPartition().getName(), cachedStoresForType);
 
         for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
             if (storeConfig.supportsType(identityType, read)) {
@@ -159,6 +158,8 @@ public class DefaultStoreSelector implements StoreSelector {
         if (identityStores.isEmpty()) {
             throw MESSAGES.attributedTypeUnsupportedOperation(identityType, read, identityType, read);
         }
+
+        this.identityQueryStoresCache.put(context.getPartition().getName(), cachedStoresForType);
 
         return identityStores;
     }

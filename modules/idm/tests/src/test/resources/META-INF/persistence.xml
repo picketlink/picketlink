@@ -247,7 +247,7 @@
       <property name="eclipselink.logging.level" value="INFO" />
     </properties>
   </persistence-unit>
-  
+
   <persistence-unit name="shanes-test-suite-scenario2-pu" transaction-type="RESOURCE_LOCAL">
     <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.IdentityObject</class>
     <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.IdentityObjectAttribute</class>
@@ -341,7 +341,7 @@
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
-			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.show_sql" value="false" />
             <property name="hibernate.format_sql" value="true"/>
 
             <!-- EclipseLink Properties-->

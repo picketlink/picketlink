@@ -75,7 +75,7 @@ public class ContextualIdentityManager extends AbstractAttributedTypeManager<Ide
 
     public ContextualIdentityManager(Partition partition,
                                      DefaultPartitionManager partitionManager) {
-        super(partitionManager.getStoreSelector(), partitionManager.getConfiguration(), partition);
+        super(partitionManager.getConfiguration(), partition);
 
         this.partitionManager = partitionManager;
 
