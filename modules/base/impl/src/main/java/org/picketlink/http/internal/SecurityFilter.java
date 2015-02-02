@@ -391,11 +391,8 @@ public class SecurityFilter implements Filter {
                 } else if (type.equals(CORSRequestType.PREFLIGHT)) {
                     // Preflight CORS request
                     cors.handlePreflightRequest(corsConfiguration, request, response);
-                } else if (corsConfiguration.isGenericHttpRequestsAllowed()) {
-                    // Not a CORS request, allow it through
                 } else {
-                    // Generic HTTP requests denied
-                    throw new RuntimeException("Generic HTTP requests not allowed");
+                    // Not a CORS request, allow it through
                 }
             }
         }

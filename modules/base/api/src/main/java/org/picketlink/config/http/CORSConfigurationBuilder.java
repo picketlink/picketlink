@@ -30,7 +30,6 @@ import java.util.Set;
  */
 public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
 
-    private boolean allowGenericHttpRequests;
     private Set<String> allowedOrigins;
     private Set<String> supportedMethods;
     private Set<String> supportedHeaders;
@@ -42,11 +41,6 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
 
     CORSConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
-    }
-
-    public CORSConfigurationBuilder allowedGenericHttpRequests(boolean isGenericHttpRequestsAllowed) {
-        this.allowGenericHttpRequests = isGenericHttpRequestsAllowed;
-        return this;
     }
 
     public CORSConfigurationBuilder allowedOrigins(String... allowedOrigins) {
@@ -90,7 +84,7 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
     }
 
     CORSConfiguration create(PathConfiguration pathConfiguration) {
-        return new CORSConfiguration(pathConfiguration, allowGenericHttpRequests, allowedOrigins, supportedMethods,
+        return new CORSConfiguration(pathConfiguration, allowedOrigins, supportedMethods,
                 supportedHeaders, exposedHeaders, supportsCredentials, allowAnyOrigin, supportAnyHeader, maxAge);
     }
 }

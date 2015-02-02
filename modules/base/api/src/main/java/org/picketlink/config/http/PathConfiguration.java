@@ -212,7 +212,6 @@ public class PathConfiguration {
             CORSConfiguration groupCORSAuthz = groupConfiguration.getCORSConfiguration();
 
             if (this.corsConfiguration != null && groupCORSAuthz != null) {
-                boolean allowGenericHttpRequests = this.corsConfiguration.isGenericHttpRequestsAllowed();
                 Set<String> allowedOrigins = this.corsConfiguration.getAllowedOrigins();
                 Set<String> supportedMethods = this.corsConfiguration.getSupportedMethods();
                 Set<String> supportedHeaders = this.corsConfiguration.getSupportedHeaders();
@@ -221,10 +220,6 @@ public class PathConfiguration {
                 boolean allowAnyOrigin = this.corsConfiguration.isAnyOriginAllowed();
                 boolean supportAnyHeader = this.corsConfiguration.isAnyHeaderSupported();
                 long maxAge = this.corsConfiguration.getMaxAge();
-
-                if (Boolean.valueOf(allowGenericHttpRequests) == null) {
-                    allowGenericHttpRequests = groupCORSAuthz.isGenericHttpRequestsAllowed();
-                }
 
                 if (allowedOrigins == null) {
                     allowedOrigins = groupCORSAuthz.getAllowedOrigins();
@@ -250,7 +245,7 @@ public class PathConfiguration {
                     maxAge = groupCORSAuthz.getMaxAge();
                 }
 
-                return new CORSConfiguration(this, allowGenericHttpRequests, allowedOrigins, supportedMethods,
+                return new CORSConfiguration(this, allowedOrigins, supportedMethods,
                         supportedHeaders, exposedHeaders, supportsCredentials, allowAnyOrigin, supportAnyHeader, maxAge);
             } else if (groupCORSAuthz != null) {
                 return groupConfiguration.getCORSConfiguration();
