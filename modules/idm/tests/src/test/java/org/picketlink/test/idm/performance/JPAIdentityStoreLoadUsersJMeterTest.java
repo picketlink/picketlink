@@ -103,7 +103,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest {
 
             RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 5; i++) {
                 Role role = new Role(loginName + i);
 
                 identityManager.add(role);
@@ -112,7 +112,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest {
 
             Group group = null;
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 5; i++) {
                 if (group == null) {
                     group = new Group(loginName + i);
                 } else {
@@ -124,7 +124,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest {
 
             BasicModel.addToGroup(relationshipManager, user, group);
 
-            for (int i = 0;i < 20;i++) {
+            for (int i = 0;i < 5;i++) {
                 user.setAttribute(new Attribute("Attribute " + user.getLoginName() + i, "Value " + i));
             }
 
