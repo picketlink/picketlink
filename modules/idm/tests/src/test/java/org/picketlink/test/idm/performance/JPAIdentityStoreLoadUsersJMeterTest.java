@@ -22,16 +22,12 @@
 
 package org.picketlink.test.idm.performance;
 
-import org.apache.jmeter.config.Arguments;
-import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
-import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
-import org.apache.jmeter.samplers.SampleResult;
-import org.apache.jmeter.threads.JMeterContextService;
-import org.apache.jmeter.threads.JMeterVariables;
+import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
@@ -59,14 +55,15 @@ import org.picketlink.test.idm.util.JPAContextInitializer;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.util.UUID;
 
 /**
  * @author Pedro Silva
  *
  */
-public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClient {
+public class JPAIdentityStoreLoadUsersJMeterTest {
 
-    private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
+    private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-identity-store-performance-test-pu");
     private static PartitionManager partitionManager = null;
     private static final ThreadLocal<EntityManager> entityManager = new ThreadLocal<EntityManager>();
 
@@ -89,41 +86,9 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         entityManager.get().getTransaction().begin();
     }
 
-    @Override
-    public Arguments getDefaultParameters() {
-        Arguments arguments = new Arguments();
-
-        arguments.addArgument("loginName", "Sample User");
-
-        return arguments;
-    }
-
-    @Override
-    public void setupTest(JavaSamplerContext context) {
-
-    }
-
-    @Override
-    public void teardownTest(JavaSamplerContext context) {
-    }
-
-    @Override
-    public SampleResult runTest(JavaSamplerContext context) {
-        SampleResult result = new SampleResult();
-
-        result.sampleStart();
-
-        boolean success = true;
-
-        String loginName = context.getParameter("loginName");
-
-        if (loginName == null) {
-            loginName = "Sample User";
-        }
-
-        JMeterVariables vars = JMeterContextService.getContext().getVariables();
-
-        vars.put("loginName", loginName);
+    @Test
+    public void runTest() {
+        String loginName = "Sample User " + UUID.randomUUID().toString();
 
         try {
             initializeEntityManager();
@@ -134,17 +99,29 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
             identityManager.add(user);
 
-            Role role = new Role(loginName);
-
-            identityManager.add(role);
-
-            Group group = new Group(loginName);
-
-            identityManager.add(group);
+            identityManager.updateCredential(user, new Password(loginName));
 
             RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
 
-            BasicModel.grantRole(relationshipManager, user, role);
+            for (int i = 0; i < 10; i++) {
+                Role role = new Role(loginName + i);
+
+                identityManager.add(role);
+                BasicModel.grantRole(relationshipManager, user, role);
+            }
+
+            Group group = null;
+
+            for (int i = 0; i < 10; i++) {
+                if (group == null) {
+                    group = new Group(loginName + i);
+                } else {
+                    group = new Group(loginName + i, group);
+                }
+
+                identityManager.add(group);
+            }
+
             BasicModel.addToGroup(relationshipManager, user, group);
 
             for (int i = 0;i < 20;i++) {
@@ -152,15 +129,9 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
             }
 
             identityManager.update(user);
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
-            result.sampleEnd();
-            result.setSuccessful(success);
             closeEntityManager();
         }
-
-        return result;
     }
 
     private static PartitionManager createPartitionManager() {
