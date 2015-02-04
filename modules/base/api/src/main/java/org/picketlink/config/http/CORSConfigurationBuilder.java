@@ -73,7 +73,7 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
         return this;
     }
 
-    public CORSConfigurationBuilder allowAnyHeader(boolean isAnyHeaderSupported) {
+    public CORSConfigurationBuilder supportAnyHeader(boolean isAnyHeaderSupported) {
         this.supportAnyHeader = isAnyHeaderSupported;
         return this;
     }

@@ -21,8 +21,15 @@
  */
 package org.picketlink.http.test.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
 import org.picketlink.config.http.AuthenticationConfiguration;
+import org.picketlink.config.http.AuthorizationConfiguration;
 import org.picketlink.config.http.BasicAuthenticationConfiguration;
 import org.picketlink.config.http.DigestAuthenticationConfiguration;
 import org.picketlink.config.http.FormAuthenticationConfiguration;
@@ -31,12 +38,6 @@ import org.picketlink.config.http.PathConfiguration;
 import org.picketlink.config.http.TokenAuthenticationConfiguration;
 import org.picketlink.config.http.X509AuthenticationConfiguration;
 import org.picketlink.http.internal.HttpSecurityAnnotationsParser;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Giriraj Sharma
@@ -52,7 +53,32 @@ public class HttpSecurityAnnotationsTestCase {
         assertEquals(2, configuration.getGroups().size());
 
         PathConfiguration pathConfiguration = configuration.getPaths().values().iterator().next().get(0);
+        assertEquals(configuration.getPaths().values().size(), 8);
         assertEquals("/formProtectedUri/*", pathConfiguration.getUri());
+        
+        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getAuthenticationConfiguration();
+        assertTrue(FormAuthenticationConfiguration.class.isInstance(authenticationConfiguration.getAuthenticationSchemeConfiguration()));
+        
+        AuthorizationConfiguration authorizationConfiguration = pathConfiguration.getAuthorizationConfiguration();
+        String roles[] = authorizationConfiguration.getAllowedRoles();
+        assertEquals(roles.length, 2);
+        assertEquals(roles[0], "Role A");
+        assertEquals(roles[1], "Role B");
+        
+        String realms[] = authorizationConfiguration.getAllowedRealms();
+        assertEquals(realms.length, 2);
+        assertEquals(realms[0], "Realm A");
+        assertEquals(realms[1], "Realm B");
+        
+        String groups[] = authorizationConfiguration.getAllowedGroups();
+        assertEquals(groups.length, 2);
+        assertEquals(groups[0], "Group A");
+        assertEquals(groups[1], "Group B");
+        
+        String expressions[] = authorizationConfiguration.getExpressions();
+        assertEquals(expressions.length, 1);
+        assertEquals(expressions[0], "#{identity.isLoggedIn()}");
+        
     }
 
     @Test
@@ -62,6 +88,14 @@ public class HttpSecurityAnnotationsTestCase {
 
         assertEquals(2, configuration.getPaths().size());
         assertEquals(2, configuration.getGroups().size());
+        
+        PathConfiguration pathConfiguration = configuration.getPaths().values().iterator().next().get(0);
+        assertEquals(configuration.getPaths().values().size(), 2);
+        assertEquals("REST Service Group A", pathConfiguration.getGroupName());
+        
+        AuthenticationConfiguration authenticationConfiguration = pathConfiguration.getAuthenticationConfiguration();
+        assertTrue(FormAuthenticationConfiguration.class.isInstance(authenticationConfiguration.getAuthenticationSchemeConfiguration()));
+        
     }
     
     @Test

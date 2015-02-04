@@ -28,6 +28,7 @@ import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.config.http.AuthenticationConfigurationBuilder;
 import org.picketlink.config.http.AuthorizationConfigurationBuilder;
 import org.picketlink.config.http.BasicAuthenticationConfigurationBuilder;
+import org.picketlink.config.http.CORSConfigurationBuilder;
 import org.picketlink.config.http.DigestAuthenticationConfigurationBuilder;
 import org.picketlink.config.http.FormAuthenticationConfigurationBuilder;
 import org.picketlink.config.http.HttpSecurityConfigurationChildBuilder;
@@ -35,18 +36,27 @@ import org.picketlink.config.http.PathConfigurationBuilder;
 import org.picketlink.config.http.TokenAuthenticationConfigurationBuilder;
 import org.picketlink.config.http.X509AuthenticationConfigurationBuilder;
 import org.picketlink.config.http.annotations.AllPaths;
+import org.picketlink.config.http.annotations.AllowAnyOrigin;
 import org.picketlink.config.http.annotations.AllowedGroups;
+import org.picketlink.config.http.annotations.AllowedOrigins;
 import org.picketlink.config.http.annotations.AllowedRealms;
 import org.picketlink.config.http.annotations.AllowedRoles;
 import org.picketlink.config.http.annotations.Authc;
 import org.picketlink.config.http.annotations.Authz;
 import org.picketlink.config.http.annotations.Basic;
+import org.picketlink.config.http.annotations.Cors;
 import org.picketlink.config.http.annotations.Digest;
+import org.picketlink.config.http.annotations.ExposedHeaders;
 import org.picketlink.config.http.annotations.Expressions;
 import org.picketlink.config.http.annotations.Form;
+import org.picketlink.config.http.annotations.MaxAge;
 import org.picketlink.config.http.annotations.Path;
 import org.picketlink.config.http.annotations.PathGroup;
 import org.picketlink.config.http.annotations.Restrictive;
+import org.picketlink.config.http.annotations.SupportAnyHeader;
+import org.picketlink.config.http.annotations.SupportedHeaders;
+import org.picketlink.config.http.annotations.SupportedMethods;
+import org.picketlink.config.http.annotations.SupportsCredentials;
 import org.picketlink.config.http.annotations.Token;
 import org.picketlink.config.http.annotations.X509;
 
@@ -58,6 +68,7 @@ public class HttpSecurityAnnotationsParser {
     private SecurityConfigurationBuilder builder = new SecurityConfigurationBuilder();
     private HttpSecurityConfigurationChildBuilder httpSecurityBuilder = builder.http();
     private PathConfigurationBuilder pathConfigurationBuilder;
+    private CORSConfigurationBuilder corsConfigurationBuilder;
     private AuthenticationConfigurationBuilder authenticationConfigurationBuilder;
     private FormAuthenticationConfigurationBuilder formAuthenticationConfigurationBuilder;
     private BasicAuthenticationConfigurationBuilder basicAuthenticationConfigurationBuilder;
@@ -84,11 +95,7 @@ public class HttpSecurityAnnotationsParser {
                     this.httpSecurityBuilder = this.httpSecurityBuilder.restrictive();
 
                 } else if (a.annotationType() == AllPaths.class) {
-                    if (this.authorizationConfigurationBuilder != null) {
-                        this.pathConfigurationBuilder = this.authorizationConfigurationBuilder.allPaths();
-                    } else {
-                        this.pathConfigurationBuilder = this.httpSecurityBuilder.allPaths();
-                    }
+                    this.pathConfigurationBuilder = this.httpSecurityBuilder.allPaths();
 
                 } else if (a.annotationType() == Path.class) {
                     Path path = (Path) a;
@@ -100,9 +107,13 @@ public class HttpSecurityAnnotationsParser {
                             this.pathConfigurationBuilder = this.pathConfigurationBuilder.forPath(pathName, pathGroup);
                         } else if (this.authorizationConfigurationBuilder != null) {
                             this.pathConfigurationBuilder = this.authorizationConfigurationBuilder.forPath(pathName, pathGroup);
-                        } else if (previousAnnotation == Form.class || previousAnnotation == Basic.class || previousAnnotation == Digest.class
-                            || previousAnnotation == Token.class || previousAnnotation == X509.class) {
-                            this.pathConfigurationBuilder = SetAuthenticationPathNameAndGroup(previousAnnotation, pathName, pathGroup);
+                        } else if (previousAnnotation == Form.class || previousAnnotation == Basic.class
+                                || previousAnnotation == Digest.class || previousAnnotation == Token.class
+                                || previousAnnotation == X509.class) {
+                            this.pathConfigurationBuilder = SetAuthenticationPathNameAndGroup(previousAnnotation, pathName,
+                                    pathGroup);
+                        } else if (this.corsConfigurationBuilder != null) {
+                            this.pathConfigurationBuilder = this.corsConfigurationBuilder.forPath(pathName, pathGroup);
                         } else {
                             this.pathConfigurationBuilder = this.httpSecurityBuilder.forPath(pathName, pathGroup);
                         }
@@ -111,9 +122,12 @@ public class HttpSecurityAnnotationsParser {
                             this.pathConfigurationBuilder = this.pathConfigurationBuilder.forPath(pathName);
                         } else if (this.authorizationConfigurationBuilder != null) {
                             this.pathConfigurationBuilder = this.authorizationConfigurationBuilder.forPath(pathName);
-                        } else if (previousAnnotation == Form.class || previousAnnotation == Basic.class || previousAnnotation == Digest.class
-                            || previousAnnotation == Token.class || previousAnnotation == X509.class) {
+                        } else if (previousAnnotation == Form.class || previousAnnotation == Basic.class
+                                || previousAnnotation == Digest.class || previousAnnotation == Token.class
+                                || previousAnnotation == X509.class) {
                             this.pathConfigurationBuilder = SetAuthenticationPathName(previousAnnotation, pathName);
+                        } else if (this.corsConfigurationBuilder != null) {
+                            this.pathConfigurationBuilder = this.corsConfigurationBuilder.forPath(pathName, pathGroup);
                         } else {
                             this.pathConfigurationBuilder = this.httpSecurityBuilder.forPath(pathName);
                         }
@@ -124,17 +138,60 @@ public class HttpSecurityAnnotationsParser {
                     String groupName = pathGroup.pathGroupName();
 
                     if (groupName != null && !groupName.isEmpty()) {
-                        if (previousAnnotation == newAnnotation) {
-                            this.pathConfigurationBuilder = this.pathConfigurationBuilder.forPath(groupName);
-                        } else if (this.authorizationConfigurationBuilder != null) {
-                            this.pathConfigurationBuilder = this.authorizationConfigurationBuilder.forGroup(groupName);
-                        } else {
-                            this.pathConfigurationBuilder = this.httpSecurityBuilder.forGroup(groupName);
-                        }
+                        this.pathConfigurationBuilder = this.httpSecurityBuilder.forGroup(groupName);
                     }
-                }
-                else if (a.annotationType() == Authc.class) {
-                    this.authenticationConfigurationBuilder = this.pathConfigurationBuilder.authenticateWith();
+
+                } else if (a.annotationType() == Cors.class) {
+                    this.corsConfigurationBuilder = this.pathConfigurationBuilder.cors();
+
+                } else if (a.annotationType() == AllowedOrigins.class) {
+                    AllowedOrigins allowedOrigins = (AllowedOrigins) a;
+                    String[] origins = allowedOrigins.origins();
+                    if (origins != null && origins.length > 0) {
+                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowedOrigins(origins);
+                    }
+
+                } else if (a.annotationType() == SupportedMethods.class) {
+                    SupportedMethods supportedMethods = (SupportedMethods) a;
+                    String[] methods = supportedMethods.methods();
+                    if (methods != null && methods.length > 0) {
+                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.supportedMethods(methods);
+                    }
+
+                } else if (a.annotationType() == SupportedHeaders.class) {
+                    SupportedHeaders supportedHeaders = (SupportedHeaders) a;
+                    String[] headers = supportedHeaders.headers();
+                    if (headers != null && headers.length > 0) {
+                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.supportedHeaders(headers);
+                    }
+
+                } else if (a.annotationType() == ExposedHeaders.class) {
+                    ExposedHeaders exposedHeaders = (ExposedHeaders) a;
+                    String[] headers = exposedHeaders.headers();
+                    if (headers != null && headers.length > 0) {
+                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.exposedHeaders(headers);
+                    }
+
+                } else if (a.annotationType() == SupportsCredentials.class) {
+                    this.corsConfigurationBuilder = this.corsConfigurationBuilder.supportsCredentials(true);
+
+                } else if (a.annotationType() == AllowAnyOrigin.class) {
+                    this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowAnyOrigin(true);
+
+                } else if (a.annotationType() == SupportAnyHeader.class) {
+                    this.corsConfigurationBuilder = this.corsConfigurationBuilder.supportAnyHeader(true);
+
+                } else if (a.annotationType() == MaxAge.class) {
+                    MaxAge maxAge = (MaxAge) a;
+                    long age = maxAge.age();
+                    this.corsConfigurationBuilder = this.corsConfigurationBuilder.maxAge(age);
+
+                } else if (a.annotationType() == Authc.class) {
+                    if (this.corsConfigurationBuilder != null) {
+                        this.authenticationConfigurationBuilder = this.corsConfigurationBuilder.authenticateWith();
+                    } else {
+                        this.authenticationConfigurationBuilder = this.pathConfigurationBuilder.authenticateWith();
+                    }
 
                 } else if (a.annotationType() == Form.class) {
                     this.formAuthenticationConfigurationBuilder = this.authenticationConfigurationBuilder.form();
@@ -145,16 +202,16 @@ public class HttpSecurityAnnotationsParser {
                     String errorPage = form.errorPage();
 
                     if (loginPage != null && !loginPage.isEmpty()) {
-                        this.formAuthenticationConfigurationBuilder =
-                            this.formAuthenticationConfigurationBuilder.loginPage(loginPage);
+                        this.formAuthenticationConfigurationBuilder = this.formAuthenticationConfigurationBuilder
+                                .loginPage(loginPage);
                     }
                     if (errorPage != null && !errorPage.isEmpty()) {
-                        this.formAuthenticationConfigurationBuilder =
-                            this.formAuthenticationConfigurationBuilder.errorPage(errorPage);
+                        this.formAuthenticationConfigurationBuilder = this.formAuthenticationConfigurationBuilder
+                                .errorPage(errorPage);
                     }
                     if (restoreOriginalRequest != null && restoreOriginalRequest.equals("yes")) {
-                        this.formAuthenticationConfigurationBuilder =
-                            this.formAuthenticationConfigurationBuilder.restoreOriginalRequest();
+                        this.formAuthenticationConfigurationBuilder = this.formAuthenticationConfigurationBuilder
+                                .restoreOriginalRequest();
                     }
 
                 } else if (a.annotationType() == Basic.class) {
@@ -162,8 +219,8 @@ public class HttpSecurityAnnotationsParser {
                     Basic basic = (Basic) a;
                     String realmName = basic.realmName();
                     if (realmName != null && !realmName.isEmpty()) {
-                        this.basicAuthenticationConfigurationBuilder =
-                            this.basicAuthenticationConfigurationBuilder.realmName(realmName);
+                        this.basicAuthenticationConfigurationBuilder = this.basicAuthenticationConfigurationBuilder
+                                .realmName(realmName);
                     }
 
                 } else if (a.annotationType() == Digest.class) {
@@ -171,8 +228,8 @@ public class HttpSecurityAnnotationsParser {
                     Digest digest = (Digest) a;
                     String realmName = digest.realmName();
                     if (realmName != null && !realmName.isEmpty()) {
-                        this.digestAuthenticationConfigurationBuilder =
-                            this.digestAuthenticationConfigurationBuilder.realmName(realmName);
+                        this.digestAuthenticationConfigurationBuilder = this.digestAuthenticationConfigurationBuilder
+                                .realmName(realmName);
                     }
 
                 } else if (a.annotationType() == X509.class) {
@@ -180,18 +237,15 @@ public class HttpSecurityAnnotationsParser {
                     X509 x509 = (X509) a;
                     String subjectRegex = x509.subjectRegex();
                     if (subjectRegex != null && !subjectRegex.isEmpty()) {
-                        this.x509AuthenticationConfigurationBuilder =
-                            this.x509AuthenticationConfigurationBuilder.subjectRegex(subjectRegex);
+                        this.x509AuthenticationConfigurationBuilder = this.x509AuthenticationConfigurationBuilder
+                                .subjectRegex(subjectRegex);
                     }
 
                 } else if (a.annotationType() == Token.class) {
                     this.tokenAuthenticationConfigurationBuilder = this.authenticationConfigurationBuilder.token();
 
                 } else if (a.annotationType() == Authz.class) {
-                    if (this.authenticationConfigurationBuilder == null) {
-                        this.authorizationConfigurationBuilder = this.pathConfigurationBuilder.authorizeWith();
-
-                    } else if (this.formAuthenticationConfigurationBuilder != null) {
+                    if (this.formAuthenticationConfigurationBuilder != null) {
                         this.authorizationConfigurationBuilder = this.formAuthenticationConfigurationBuilder.authorizeWith();
 
                     } else if (this.digestAuthenticationConfigurationBuilder != null) {
@@ -205,6 +259,12 @@ public class HttpSecurityAnnotationsParser {
 
                     } else if (this.x509AuthenticationConfigurationBuilder != null) {
                         this.authorizationConfigurationBuilder = this.x509AuthenticationConfigurationBuilder.authorizeWith();
+
+                    } else if (this.corsConfigurationBuilder != null) {
+                        this.authorizationConfigurationBuilder = this.corsConfigurationBuilder.authorizeWith();
+
+                    } else {
+                        this.authorizationConfigurationBuilder = this.pathConfigurationBuilder.authorizeWith();
                     }
 
                 } else if (a.annotationType() == AllowedRoles.class) {
@@ -232,8 +292,7 @@ public class HttpSecurityAnnotationsParser {
                     Expressions exp = (Expressions) a;
                     String[] expressions = exp.expressions();
                     if (expressions != null && expressions.length > 0) {
-                        this.authorizationConfigurationBuilder =
-                            this.authorizationConfigurationBuilder.expression(expressions);
+                        this.authorizationConfigurationBuilder = this.authorizationConfigurationBuilder.expression(expressions);
                     }
                 }
             }
@@ -256,7 +315,8 @@ public class HttpSecurityAnnotationsParser {
         return this.pathConfigurationBuilder;
     }
 
-    private PathConfigurationBuilder SetAuthenticationPathNameAndGroup(Class<? extends Annotation> previousAnnotation, String pathName, String pathGroup) {
+    private PathConfigurationBuilder SetAuthenticationPathNameAndGroup(Class<? extends Annotation> previousAnnotation,
+            String pathName, String pathGroup) {
         if (previousAnnotation == Form.class) {
             this.pathConfigurationBuilder = this.formAuthenticationConfigurationBuilder.forPath(pathName, pathGroup);
         } else if (previousAnnotation == Digest.class) {
