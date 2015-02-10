@@ -21,7 +21,8 @@
  */
 package org.picketlink.config.http;
 
-import static java.util.Collections.emptyList;
+import org.picketlink.http.HttpMethod;
+import org.picketlink.http.authorization.PathAuthorizer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,8 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.http.HttpMethod;
-import org.picketlink.http.authorization.PathAuthorizer;
+import static java.util.Collections.emptyList;
 
 /**
  * @author Pedro Igor
@@ -213,40 +213,41 @@ public class PathConfiguration {
 
             if (this.corsConfiguration != null && groupCORSAuthz != null) {
                 Set<String> allowedOrigins = this.corsConfiguration.getAllowedOrigins();
-                Set<String> supportedMethods = this.corsConfiguration.getSupportedMethods();
-                Set<String> supportedHeaders = this.corsConfiguration.getSupportedHeaders();
+                Set<String> allowedMethods = this.corsConfiguration.getAllowedMethods();
+                Set<String> allowedHeaders = this.corsConfiguration.getAllowedHeaders();
                 Set<String> exposedHeaders = this.corsConfiguration.getExposedHeaders();
-                boolean supportsCredentials = this.corsConfiguration.isCredentialsSupported();
-                boolean allowAnyOrigin = this.corsConfiguration.isAnyOriginAllowed();
-                boolean supportAnyHeader = this.corsConfiguration.isAnyHeaderSupported();
+                boolean allowCredentials = this.corsConfiguration.isAllowCredentials();
+                boolean allowAnyOrigin = this.corsConfiguration.isAllowAnyOrigin();
+                boolean allowAnyHeader = this.corsConfiguration.isAllowAnyHeader();
+                boolean allowAnyMethod = this.corsConfiguration.isAllowAnyMethod();
                 long maxAge = this.corsConfiguration.getMaxAge();
 
                 if (allowedOrigins == null) {
                     allowedOrigins = groupCORSAuthz.getAllowedOrigins();
                 }
 
-                if (supportedMethods == null) {
-                    supportedMethods = groupCORSAuthz.getSupportedMethods();
+                if (allowedMethods == null) {
+                    allowedMethods = groupCORSAuthz.getAllowedMethods();
                 }
 
-                if (supportedHeaders == null) {
-                    supportedHeaders = groupCORSAuthz.getSupportedHeaders();
+                if (allowedHeaders == null) {
+                    allowedHeaders = groupCORSAuthz.getAllowedHeaders();
                 }
 
                 if (exposedHeaders == null) {
                     exposedHeaders = groupCORSAuthz.getExposedHeaders();
                 }
 
-                if (Boolean.valueOf(supportsCredentials) == null) {
-                    supportsCredentials = groupCORSAuthz.isCredentialsSupported();
+                if (Boolean.valueOf(allowCredentials) == null) {
+                    allowCredentials = groupCORSAuthz.isAllowCredentials();
                 }
 
                 if (Long.valueOf(maxAge) == null) {
                     maxAge = groupCORSAuthz.getMaxAge();
                 }
 
-                return new CORSConfiguration(this, allowedOrigins, supportedMethods,
-                        supportedHeaders, exposedHeaders, supportsCredentials, allowAnyOrigin, supportAnyHeader, maxAge);
+                return new CORSConfiguration(this, allowedOrigins, allowedMethods,
+                        allowedHeaders, exposedHeaders, allowCredentials, allowAnyOrigin, allowAnyHeader, allowAnyMethod, maxAge);
             } else if (groupCORSAuthz != null) {
                 return groupConfiguration.getCORSConfiguration();
             }

@@ -231,11 +231,11 @@ public class CORSAuthorizationTestCase extends AbstractSecurityFilterTestCase {
             SecurityConfigurationBuilder builder = event.getBuilder();
             builder.http().forPath("/corsAuthorization")
             .cors()
-            .allowedOrigins("http://www.example.org:9000", "http://www.example.com:8008")
-            .supportedMethods("GET", "PUT", "POST", "DELETE", "OPTIONS")
-            .supportedHeaders("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization")
+            .allowOrigins("http://www.example.org:9000", "http://www.example.com:8008")
+            .allowMethods("GET", "PUT", "POST", "DELETE", "OPTIONS")
+            .allowHeaders("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization")
             .exposedHeaders("Origin", "Accept")
-            .supportsCredentials(true).maxAge(3600);
+            .allowCredentials(true).maxAge(3600);
         }
     }
 

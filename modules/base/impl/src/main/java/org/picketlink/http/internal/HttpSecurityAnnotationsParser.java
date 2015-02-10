@@ -148,21 +148,21 @@ public class HttpSecurityAnnotationsParser {
                     AllowedOrigins allowedOrigins = (AllowedOrigins) a;
                     String[] origins = allowedOrigins.origins();
                     if (origins != null && origins.length > 0) {
-                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowedOrigins(origins);
+                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowOrigins(origins);
                     }
 
                 } else if (a.annotationType() == SupportedMethods.class) {
                     SupportedMethods supportedMethods = (SupportedMethods) a;
                     String[] methods = supportedMethods.methods();
                     if (methods != null && methods.length > 0) {
-                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.supportedMethods(methods);
+                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowMethods(methods);
                     }
 
                 } else if (a.annotationType() == SupportedHeaders.class) {
                     SupportedHeaders supportedHeaders = (SupportedHeaders) a;
                     String[] headers = supportedHeaders.headers();
                     if (headers != null && headers.length > 0) {
-                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.supportedHeaders(headers);
+                        this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowHeaders(headers);
                     }
 
                 } else if (a.annotationType() == ExposedHeaders.class) {
@@ -173,13 +173,13 @@ public class HttpSecurityAnnotationsParser {
                     }
 
                 } else if (a.annotationType() == SupportsCredentials.class) {
-                    this.corsConfigurationBuilder = this.corsConfigurationBuilder.supportsCredentials(true);
+                    this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowCredentials(true);
 
                 } else if (a.annotationType() == AllowAnyOrigin.class) {
                     this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowAnyOrigin(true);
 
                 } else if (a.annotationType() == SupportAnyHeader.class) {
-                    this.corsConfigurationBuilder = this.corsConfigurationBuilder.supportAnyHeader(true);
+                    this.corsConfigurationBuilder = this.corsConfigurationBuilder.allowAnyHeader(true);
 
                 } else if (a.annotationType() == MaxAge.class) {
                     MaxAge maxAge = (MaxAge) a;

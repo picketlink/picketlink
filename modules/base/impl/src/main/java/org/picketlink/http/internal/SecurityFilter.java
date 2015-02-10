@@ -390,14 +390,13 @@ public class SecurityFilter implements Filter {
         }
 
         CORSRequestType type = CORSRequestType.detect(request);
-        CORS cors = new CORS(corsConfiguration);
 
         if (type.equals(CORSRequestType.ACTUAL)) {
             // Simple / actual CORS request
-            cors.handleActualRequest(corsConfiguration, request, response);
+            CORS.handleActualRequest(corsConfiguration, request, response);
         } else if (type.equals(CORSRequestType.PREFLIGHT)) {
             // Preflight CORS request
-            cors.handlePreflightRequest(corsConfiguration, request, response);
+            CORS.handlePreflightRequest(corsConfiguration, request, response);
             return false;
         }
 
