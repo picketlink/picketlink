@@ -60,6 +60,12 @@ import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.w3c.dom.Document;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -346,7 +352,34 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                 try {
                     URL participantURL = new URL(partitipant);
+
                     urlConnection = (HttpURLConnection) participantURL.openConnection();
+
+                    if (participantURL.getProtocol().contains("https")) {
+                        try {
+                            HttpsURLConnection https = (HttpsURLConnection) urlConnection;
+
+                            SSLContext sslContext = SSLContext.getInstance( "TLS");
+
+                            sslContext.init(null, new TrustManager[] {
+                                    new X509TrustManager()                            {
+                                        public java.security.cert.X509Certificate[] getAcceptedIssuers()  { return null; }
+                                        public void checkClientTrusted( java.security.cert.X509Certificate[] certs, String authType)  {}
+                                        public void checkServerTrusted( java.security.cert.X509Certificate[] certs, String authType)  {}
+                                    }
+                            }, null);
+
+                            https.setSSLSocketFactory(sslContext.getSocketFactory());
+                            https.setDefaultHostnameVerifier(
+                                    new HostnameVerifier() {
+                                        public boolean verify(String hostname, SSLSession session) {
+                                            return true;
+                                        }
+                                    });
+                        } catch( Exception e) {
+                            throw new ProcessingException("Error while preparing HTTPS connection during back channel logout.", e);
+                        }
+                    }
 
                     urlConnection.setRequestMethod("POST");
                     urlConnection.setDoOutput(true);
@@ -371,6 +404,10 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                         .append(BACK_CHANNEL_LOGOUT);
 
                     urlConnection.setRequestProperty("Content-Length", Integer.toString(parameterBuilder.length()));
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Sending back channel logout request to [" + partitipant + "]. Logout request is [ " + DocumentUtil.asString(logoutRequestDocument) + "].");
+                    }
 
                     DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
 
