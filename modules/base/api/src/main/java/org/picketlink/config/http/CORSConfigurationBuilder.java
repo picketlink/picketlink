@@ -30,41 +30,42 @@ import java.util.Set;
  */
 public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
 
-    private Set<String> allowedOrigins;
-    private Set<String> supportedMethods;
-    private Set<String> supportedHeaders;
-    private Set<String> exposedHeaders;
-    private boolean supportsCredentials;
+    private Set<String> allowedOrigins = new HashSet<String>();
+    private Set<String> allowedMethods = new HashSet<String>();;
+    private Set<String> allowedHeaders = new HashSet<String>();;
+    private Set<String> exposedHeaders = new HashSet<String>();;
+    private boolean allowCredentials;
     private boolean allowAnyOrigin;
-    private boolean supportAnyHeader;
+    private boolean allowAnyHeader;
     private long maxAge;
+    private boolean allowAnyMethod;
 
     CORSConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
     }
 
-    public CORSConfigurationBuilder allowedOrigins(String... allowedOrigins) {
-        this.allowedOrigins = new HashSet<String>(Arrays.asList(allowedOrigins));
+    public CORSConfigurationBuilder allowOrigins(String... allowedOrigins) {
+        this.allowedOrigins.addAll(Arrays.asList(allowedOrigins));
         return this;
     }
 
-    public CORSConfigurationBuilder supportedMethods(String... supportedMethods) {
-        this.supportedMethods = new HashSet<String>(Arrays.asList(supportedMethods));
+    public CORSConfigurationBuilder allowMethods(String... supportedMethods) {
+        this.allowedMethods.addAll(Arrays.asList(supportedMethods));
         return this;
     }
 
-    public CORSConfigurationBuilder supportedHeaders(String... supportedHeaders) {
-        this.supportedHeaders = new HashSet<String>(Arrays.asList(supportedHeaders));
+    public CORSConfigurationBuilder allowHeaders(String... supportedHeaders) {
+        this.allowedHeaders.addAll(Arrays.asList(supportedHeaders));
         return this;
     }
 
     public CORSConfigurationBuilder exposedHeaders(String... exposedHeaders) {
-        this.exposedHeaders = new HashSet<String>(Arrays.asList(exposedHeaders));
+        this.exposedHeaders.addAll(Arrays.asList(exposedHeaders));
         return this;
     }
 
-    public CORSConfigurationBuilder supportsCredentials(boolean isCredentialsSupported) {
-        this.supportsCredentials = isCredentialsSupported;
+    public CORSConfigurationBuilder allowCredentials(boolean isCredentialsSupported) {
+        this.allowCredentials = isCredentialsSupported;
         return this;
     }
 
@@ -73,8 +74,21 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
         return this;
     }
 
-    public CORSConfigurationBuilder supportAnyHeader(boolean isAnyHeaderSupported) {
-        this.supportAnyHeader = isAnyHeaderSupported;
+    public CORSConfigurationBuilder allowAnyHeader(boolean isAnyHeaderSupported) {
+        this.allowAnyHeader = isAnyHeaderSupported;
+        return this;
+    }
+
+    public CORSConfigurationBuilder allowAnyMethod(boolean isAnyMethodSupported) {
+        this.allowAnyMethod = isAnyMethodSupported;
+        return this;
+    }
+
+    public CORSConfigurationBuilder allowAll() {
+        allowAnyHeader(true);
+        allowAnyMethod(true);
+        allowAnyOrigin(true);
+        allowCredentials(true);
         return this;
     }
 
@@ -84,7 +98,7 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
     }
 
     CORSConfiguration create(PathConfiguration pathConfiguration) {
-        return new CORSConfiguration(pathConfiguration, allowedOrigins, supportedMethods,
-                supportedHeaders, exposedHeaders, supportsCredentials, allowAnyOrigin, supportAnyHeader, maxAge);
+        return new CORSConfiguration(pathConfiguration, allowedOrigins, allowedMethods,
+                allowedHeaders, exposedHeaders, allowCredentials, allowAnyOrigin, allowAnyHeader, this.allowAnyMethod, maxAge);
     }
 }

@@ -21,13 +21,14 @@
  */
 package org.picketlink.http.internal.cors;
 
-import org.jboss.logging.Logger;
 import org.picketlink.config.http.CORSConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static org.picketlink.log.BaseLog.HTTP_LOGGER;
 
 /**
  * Cross-Origin Resource Sharing (CORS) Class.
@@ -41,24 +42,21 @@ import java.util.concurrent.TimeUnit;
  *
  * <ul>
  * <li>cors.allowOrigin {"*"|origin-list} defaults to {@code *}.
- * <li>cors.supportedMethods {method-list} defaults to {@code "GET, POST, HEAD, OPTIONS"}.
- * <li>cors.supportedHeaders {"*"|header-list} defaults to {@code *}.
+ * <li>cors.allowMethods {method-list} defaults to {@code "GET, POST, HEAD, OPTIONS"}.
+ * <li>cors.allowHeaders {"*"|header-list} defaults to {@code *}.
  * <li>cors.exposedHeaders {header-list} defaults to empty list.
- * <li>cors.supportsCredentials {true|false} defaults to {@code true}.
+ * <li>cors.allowCredentials {true|false} defaults to {@code true}.
  * <li>cors.maxAge {int} defaults to {@code -1} (unspecified).
  * </ul>
  *
  * @author Giriraj Sharma
  */
 public class CORS {
-    protected static final Logger logger = Logger.getLogger(CORS.class);
-
     public static final String ORIGIN = "Origin";
     public static final String HOST = "Host";
 
     public static final long DEFAULT_MAX_AGE = TimeUnit.HOURS.toSeconds(1);
     public static final String DEFAULT_ALLOW_METHODS = "GET, POST, HEAD, OPTIONS";
-    public static final String DEFAULT_ALLOW_HEADERS = "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers";
 
     public static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";
     public static final String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers";
@@ -72,60 +70,48 @@ public class CORS {
 
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN_WILDCARD = "*";
 
-    private Set<String> allowedOrigins;
-    private Set<String> supportedMethods;
-    private Set<String> supportedHeaders;
-    private Set<String> exposedHeaders;
-
-    private long maxAge;
-    private boolean allowAnyOrigin;
-    private boolean supportAnyHeader;
-    private boolean supportsCredentials;
-
-    public CORS(CORSConfiguration corsConfiguration) {
-        this.allowedOrigins = corsConfiguration.getAllowedOrigins();
-        this.supportedMethods = corsConfiguration.getSupportedMethods();
-        this.supportedHeaders = corsConfiguration.getSupportedHeaders();
-        this.exposedHeaders = corsConfiguration.getExposedHeaders();
-        this.maxAge = corsConfiguration.getMaxAge();
-        this.supportsCredentials = corsConfiguration.isCredentialsSupported();
-        this.allowAnyOrigin = corsConfiguration.isAnyOriginAllowed();
-        this.supportAnyHeader = corsConfiguration.isAnyHeaderSupported();
-
-    }
-
-    public void handleActualRequest(CORSConfiguration corsConfiguration, HttpServletRequest request,
+    public static void handleActualRequest(CORSConfiguration corsConfiguration, HttpServletRequest request,
             HttpServletResponse response) {
+        HTTP_LOGGER.debugf("Processing CORS Actual Request to path [%s].", request.getRequestURI());
 
         final String requestOrigin = request.getHeader(ORIGIN);
 
         if (requestOrigin == null) {
-            logger.debug("CORS origin header is null");
+            HTTP_LOGGER.debug("CORS origin header is null");
             throw new RuntimeException("CORS origin header is null");
         }
 
+        Set<String> allowedOrigins = corsConfiguration.getAllowedOrigins();
+
         if (allowedOrigins == null
-                || (!allowedOrigins.contains(requestOrigin) && !allowedOrigins.contains(ACCESS_CONTROL_ALLOW_ORIGIN_WILDCARD) && !allowAnyOrigin)) {
-            logger.debug("CORS origin denied " + requestOrigin);
+                || (!allowedOrigins.contains(requestOrigin) && !allowedOrigins.contains(ACCESS_CONTROL_ALLOW_ORIGIN_WILDCARD)
+                    && !corsConfiguration.isAllowAnyOrigin())) {
+            HTTP_LOGGER.debug("CORS origin denied " + requestOrigin);
             throw new RuntimeException("CORS origin denied " + requestOrigin);
         }
 
-        final String method = request.getMethod().toUpperCase();
-        if (!supportedMethods.contains(method)) {
-            logger.debug("Unsupported HTTP method " + method);
-            throw new RuntimeException("Unsupported HTTP method " + method);
+        if (!corsConfiguration.isAllowAnyMethod()) {
+            final String method = request.getMethod().toUpperCase();
+            Set<String> allowedMethods = corsConfiguration.getAllowedMethods();
+
+            if (!allowedMethods.contains(method)) {
+                HTTP_LOGGER.debug("Unsupported HTTP method " + method);
+                throw new RuntimeException("Unsupported HTTP method " + method);
+            }
         }
 
-        if (supportsCredentials) {
+        if (corsConfiguration.isAllowCredentials()) {
             response.addHeader(ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
             response.addHeader(ACCESS_CONTROL_ALLOW_ORIGIN, requestOrigin);
         } else {
-            if (allowAnyOrigin) {
+            if (corsConfiguration.isAllowAnyOrigin()) {
                 response.addHeader(ACCESS_CONTROL_ALLOW_ORIGIN, ACCESS_CONTROL_ALLOW_ORIGIN_WILDCARD);
             } else {
                 response.addHeader(ACCESS_CONTROL_ALLOW_ORIGIN, requestOrigin);
             }
         }
+
+        Set<String> exposedHeaders = corsConfiguration.getExposedHeaders();
 
         if (exposedHeaders != null && !exposedHeaders.isEmpty()) {
             response.addHeader(ACCESS_CONTROL_EXPOSE_HEADERS, CorsUtil.join(exposedHeaders));
@@ -133,29 +119,45 @@ public class CORS {
 
     }
 
-    public void handlePreflightRequest(CORSConfiguration corsConfiguration, HttpServletRequest request,
+    public static void handlePreflightRequest(CORSConfiguration corsConfiguration, HttpServletRequest request,
             HttpServletResponse response) {
+        HTTP_LOGGER.debugf("Processing CORS Preflight Request to path [%s].", request.getRequestURI());
 
         final String requestOrigin = request.getHeader(ORIGIN);
 
         if (requestOrigin == null) {
-            logger.debug("CORS origin header is null");
+            HTTP_LOGGER.debug("CORS origin header is null");
             throw new RuntimeException("CORS origin header is null");
         }
 
-        if (allowedOrigins == null
-                || (!allowedOrigins.contains(requestOrigin) && !allowedOrigins.contains(ACCESS_CONTROL_ALLOW_ORIGIN_WILDCARD) && !allowAnyOrigin)) {
-            logger.debug("CORS origin denied " + requestOrigin);
-            throw new RuntimeException("CORS origin denied " + requestOrigin);
+        boolean allowAnyOrigin = corsConfiguration.isAllowAnyOrigin();
+
+        if (!allowAnyOrigin) {
+            Set<String> allowedOrigins = corsConfiguration.getAllowedOrigins();
+
+            if (allowedOrigins == null
+                    || (!allowedOrigins.contains(requestOrigin) && !allowedOrigins.contains(ACCESS_CONTROL_ALLOW_ORIGIN_WILDCARD) && !allowAnyOrigin)) {
+                HTTP_LOGGER.debug("CORS origin denied " + requestOrigin);
+                throw new RuntimeException("CORS origin denied " + requestOrigin);
+            }
         }
 
-        final String requestMethodHeader = request.getHeader(ACCESS_CONTROL_REQUEST_METHOD);
-        if (requestMethodHeader == null) {
-            logger.debug("Invalid preflight CORS request: Missing Access-Control-Request-Method header");
-            throw new RuntimeException("Invalid preflight CORS request: Missing Access-Control-Request-Method header");
-        }
+        Set<String> allowedMethods = corsConfiguration.getAllowedMethods();
 
-        String requestedMethod = requestMethodHeader.toUpperCase();
+        if (!corsConfiguration.isAllowAnyMethod()) {
+            String requestMethodHeader = request.getHeader(ACCESS_CONTROL_REQUEST_METHOD);
+            String requestedMethod = requestMethodHeader.toUpperCase();
+
+            if (!allowedMethods.contains(requestedMethod)) {
+                HTTP_LOGGER.debug("Unsupported HTTP access control request method " + requestedMethod);
+                throw new RuntimeException("Unsupported HTTP access control request method " + requestedMethod);
+            }
+
+            if (requestMethodHeader == null) {
+                HTTP_LOGGER.debug("Invalid preflight CORS request: Missing Access-Control-Request-Method header");
+                throw new RuntimeException("Invalid preflight CORS request: Missing Access-Control-Request-Method header");
+            }
+        }
 
         // Parse the requested author (custom) headers
         final String rawRequestHeadersString = request.getHeader(ACCESS_CONTROL_REQUEST_HEADERS);
@@ -167,27 +169,24 @@ public class CORS {
                 requestHeaders[i] = CorsUtil.formatCanonical(requestHeaderValues[i]);
             } catch (IllegalArgumentException e) {
                 // Invalid header name
-                logger.debug("Invalid preflight CORS request: Bad request header value " + requestHeaderValues[i]);
+                HTTP_LOGGER.debug("Invalid preflight CORS request: Bad request header value " + requestHeaderValues[i]);
                 throw new RuntimeException("Invalid preflight CORS request: Bad request header value " + requestHeaderValues[i]);
             }
         }
 
-        if (!supportedMethods.contains(requestedMethod)) {
-            logger.debug("Unsupported HTTP access control request method " + requestedMethod);
-            throw new RuntimeException("Unsupported HTTP access control request method " + requestedMethod);
-        }
-
         // Author request headers check
-        if (!supportAnyHeader) {
+        Set<String> allowedHeaders = corsConfiguration.getAllowedHeaders();
+
+        if (!corsConfiguration.isAllowAnyHeader()) {
             for (String requestHeader : requestHeaders) {
-                if (!supportedHeaders.contains(requestHeader)) {
-                    logger.debug("Unsupported HTTP access control request header " + requestHeader);
+                if (!allowedHeaders.contains(requestHeader)) {
+                    HTTP_LOGGER.debug("Unsupported HTTP access control request header " + requestHeader);
                     throw new RuntimeException("Unsupported HTTP access control request header " + requestHeader);
                 }
             }
         }
 
-        if (supportsCredentials) {
+        if (corsConfiguration.isAllowCredentials()) {
             response.addHeader(ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
             response.addHeader(ACCESS_CONTROL_ALLOW_ORIGIN, requestOrigin);
         } else {
@@ -198,22 +197,24 @@ public class CORS {
             }
         }
 
+        long maxAge = corsConfiguration.getMaxAge();
+
         if (Long.valueOf(maxAge) != null && maxAge > 0) {
             response.addHeader(ACCESS_CONTROL_MAX_AGE, String.valueOf(maxAge));
         } else {
             response.addHeader(ACCESS_CONTROL_MAX_AGE, String.valueOf(DEFAULT_MAX_AGE));
         }
 
-        if (supportedMethods != null) {
-            response.addHeader(ACCESS_CONTROL_ALLOW_METHODS, CorsUtil.join(supportedMethods));
+        if (allowedMethods != null && !allowedMethods.isEmpty()) {
+            response.addHeader(ACCESS_CONTROL_ALLOW_METHODS, CorsUtil.join(allowedMethods));
         } else {
             response.addHeader(ACCESS_CONTROL_ALLOW_METHODS, DEFAULT_ALLOW_METHODS);
         }
 
-        if (supportAnyHeader && rawRequestHeadersString != null) {
+        if (corsConfiguration.isAllowAnyHeader() && rawRequestHeadersString != null) {
             response.addHeader(ACCESS_CONTROL_ALLOW_HEADERS, rawRequestHeadersString);
-        } else if (supportedHeaders != null && !supportedHeaders.isEmpty()) {
-            response.addHeader(ACCESS_CONTROL_ALLOW_HEADERS, CorsUtil.join(supportedHeaders));
+        } else if (allowedHeaders != null && !allowedHeaders.isEmpty()) {
+            response.addHeader(ACCESS_CONTROL_ALLOW_HEADERS, CorsUtil.join(allowedHeaders));
         }
 
     }

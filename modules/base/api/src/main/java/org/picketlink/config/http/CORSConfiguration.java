@@ -29,27 +29,29 @@ import java.util.Set;
 public class CORSConfiguration {
 
     private final Set<String> allowedOrigins;
-    private final Set<String> supportedMethods;
-    private final Set<String> supportedHeaders;
+    private final Set<String> allowedMethods;
+    private final Set<String> allowedHeaders;
     private final Set<String> exposedHeaders;
-    private final boolean supportsCredentials;
+    private final boolean allowCredentials;
     private final boolean allowAnyOrigin;
-    private final boolean supportAnyHeader;
+    private final boolean allowAnyHeader;
     private final long maxAge;
     private final PathConfiguration pathConfiguration;
+    private final boolean allowAnyMethod;
 
     public CORSConfiguration(PathConfiguration pathConfiguration, Set<String> allowedOrigins,
-            Set<String> supportedMethods, Set<String> supportedHeaders, Set<String> exposedHeaders,
-            boolean supportsCredentials, boolean allowAnyOrigin, boolean supportAnyHeader, long maxAge) {
+                             Set<String> allowedMethods, Set<String> allowedHeaders, Set<String> exposedHeaders,
+                             boolean allowCredentials, boolean allowAnyOrigin, boolean allowAnyHeader, boolean allowAnyMethod, long maxAge) {
 
         this.pathConfiguration = pathConfiguration;
         this.allowedOrigins = allowedOrigins;
-        this.supportedMethods = supportedMethods;
-        this.supportedHeaders = supportedHeaders;
+        this.allowedMethods = allowedMethods;
+        this.allowedHeaders = allowedHeaders;
         this.exposedHeaders = exposedHeaders;
-        this.supportsCredentials = supportsCredentials;
+        this.allowCredentials = allowCredentials;
         this.allowAnyOrigin = allowAnyOrigin;
-        this.supportAnyHeader = supportAnyHeader;
+        this.allowAnyHeader = allowAnyHeader;
+        this.allowAnyMethod = allowAnyMethod;
         this.maxAge = maxAge;
     }
 
@@ -57,28 +59,32 @@ public class CORSConfiguration {
         return this.allowedOrigins;
     }
 
-    public Set<String> getSupportedMethods() {
-        return this.supportedMethods;
+    public Set<String> getAllowedMethods() {
+        return this.allowedMethods;
     }
 
-    public Set<String> getSupportedHeaders() {
-        return this.supportedHeaders;
+    public Set<String> getAllowedHeaders() {
+        return this.allowedHeaders;
     }
 
     public Set<String> getExposedHeaders() {
         return this.exposedHeaders;
     }
 
-    public boolean isCredentialsSupported() {
-        return this.supportsCredentials;
+    public boolean isAllowCredentials() {
+        return this.allowCredentials;
     }
 
-    public boolean isAnyOriginAllowed() {
+    public boolean isAllowAnyOrigin() {
         return this.allowAnyOrigin;
     }
 
-    public boolean isAnyHeaderSupported() {
-        return this.supportAnyHeader;
+    public boolean isAllowAnyHeader() {
+        return this.allowAnyHeader;
+    }
+
+    public boolean isAllowAnyMethod() {
+        return this.allowAnyMethod;
     }
 
     public long getMaxAge() {

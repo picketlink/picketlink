@@ -74,7 +74,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -167,7 +166,11 @@ public class SecurityFilter implements Filter {
             }
 
             pathConfiguration = this.pathMatcher.matches(request);
-            performCORSAuthorizationIfRequired(pathConfiguration, request, response);
+
+            if (!performCORSAuthorizationIfRequired(pathConfiguration, request, response)) {
+                return;
+            }
+
             performAuthenticationIfRequired(pathConfiguration, identity, request, response);
 
             if (isSecured(pathConfiguration)) {
@@ -374,28 +377,30 @@ public class SecurityFilter implements Filter {
         }
     }
 
-    private void performCORSAuthorizationIfRequired(PathConfiguration pathConfiguration, HttpServletRequest request,
+    private boolean performCORSAuthorizationIfRequired(PathConfiguration pathConfiguration, HttpServletRequest request,
             HttpServletResponse response) {
-
-        if (pathConfiguration != null && pathConfiguration.getCORSConfiguration() != null) {
-
-            CORSConfiguration corsConfiguration = pathConfiguration.getCORSConfiguration();
-
-            if (corsConfiguration.getAllowedOrigins() != null && corsConfiguration.getAllowedOrigins().size() != 0) {
-
-                CORSRequestType type = CORSRequestType.detect(request);
-                CORS cors = new CORS(corsConfiguration);
-                if (type.equals(CORSRequestType.ACTUAL)) {
-                    // Simple / actual CORS request
-                    cors.handleActualRequest(corsConfiguration, request, response);
-                } else if (type.equals(CORSRequestType.PREFLIGHT)) {
-                    // Preflight CORS request
-                    cors.handlePreflightRequest(corsConfiguration, request, response);
-                } else {
-                    // Not a CORS request, allow it through
-                }
-            }
+        if (pathConfiguration == null) {
+            return true;
         }
+
+        CORSConfiguration corsConfiguration = pathConfiguration.getCORSConfiguration();
+
+        if (corsConfiguration == null) {
+            return true;
+        }
+
+        CORSRequestType type = CORSRequestType.detect(request);
+
+        if (type.equals(CORSRequestType.ACTUAL)) {
+            // Simple / actual CORS request
+            CORS.handleActualRequest(corsConfiguration, request, response);
+        } else if (type.equals(CORSRequestType.PREFLIGHT)) {
+            // Preflight CORS request
+            CORS.handlePreflightRequest(corsConfiguration, request, response);
+            return false;
+        }
+
+        return true;
     }
 
     private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, Identity identity,

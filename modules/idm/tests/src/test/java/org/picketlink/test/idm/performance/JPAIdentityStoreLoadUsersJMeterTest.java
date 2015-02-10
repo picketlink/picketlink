@@ -22,6 +22,7 @@
 
 package org.picketlink.test.idm.performance;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -61,6 +62,7 @@ import java.util.UUID;
  * @author Pedro Silva
  *
  */
+@Ignore
 public class JPAIdentityStoreLoadUsersJMeterTest {
 
     private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-identity-store-performance-test-pu");
