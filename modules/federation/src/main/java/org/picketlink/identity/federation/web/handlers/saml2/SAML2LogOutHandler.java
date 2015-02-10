@@ -372,6 +372,10 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                     urlConnection.setRequestProperty("Content-Length", Integer.toString(parameterBuilder.length()));
 
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Sending back channel logout request to [" + partitipant + "]. Logout request is [ " + DocumentUtil.asString(logoutRequestDocument) + "].");
+                    }
+
                     DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
 
                     wr.writeBytes(parameterBuilder.toString());
