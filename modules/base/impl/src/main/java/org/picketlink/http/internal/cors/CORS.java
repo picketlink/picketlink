@@ -21,13 +21,14 @@
  */
 package org.picketlink.http.internal.cors;
 
-import org.jboss.logging.Logger;
 import org.picketlink.config.http.CORSConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static org.picketlink.log.BaseLog.HTTP_LOGGER;
 
 /**
  * Cross-Origin Resource Sharing (CORS) Class.
@@ -51,8 +52,6 @@ import java.util.concurrent.TimeUnit;
  * @author Giriraj Sharma
  */
 public class CORS {
-    protected static final Logger logger = Logger.getLogger(CORS.class);
-
     public static final String ORIGIN = "Origin";
     public static final String HOST = "Host";
 
@@ -96,23 +95,24 @@ public class CORS {
 
     public void handleActualRequest(CORSConfiguration corsConfiguration, HttpServletRequest request,
             HttpServletResponse response) {
+        HTTP_LOGGER.debugf("Processing CORS Actual Request to path [%s].", request.getRequestURI());
 
         final String requestOrigin = request.getHeader(ORIGIN);
 
         if (requestOrigin == null) {
-            logger.debug("CORS origin header is null");
+            HTTP_LOGGER.debug("CORS origin header is null");
             throw new RuntimeException("CORS origin header is null");
         }
 
         if (allowedOrigins == null
                 || (!allowedOrigins.contains(requestOrigin) && !allowedOrigins.contains(ACCESS_CONTROL_ALLOW_ORIGIN_WILDCARD) && !allowAnyOrigin)) {
-            logger.debug("CORS origin denied " + requestOrigin);
+            HTTP_LOGGER.debug("CORS origin denied " + requestOrigin);
             throw new RuntimeException("CORS origin denied " + requestOrigin);
         }
 
         final String method = request.getMethod().toUpperCase();
         if (!supportedMethods.contains(method)) {
-            logger.debug("Unsupported HTTP method " + method);
+            HTTP_LOGGER.debug("Unsupported HTTP method " + method);
             throw new RuntimeException("Unsupported HTTP method " + method);
         }
 
@@ -135,23 +135,24 @@ public class CORS {
 
     public void handlePreflightRequest(CORSConfiguration corsConfiguration, HttpServletRequest request,
             HttpServletResponse response) {
+        HTTP_LOGGER.debugf("Processing CORS Preflight Request to path [%s].", request.getRequestURI());
 
         final String requestOrigin = request.getHeader(ORIGIN);
 
         if (requestOrigin == null) {
-            logger.debug("CORS origin header is null");
+            HTTP_LOGGER.debug("CORS origin header is null");
             throw new RuntimeException("CORS origin header is null");
         }
 
         if (allowedOrigins == null
                 || (!allowedOrigins.contains(requestOrigin) && !allowedOrigins.contains(ACCESS_CONTROL_ALLOW_ORIGIN_WILDCARD) && !allowAnyOrigin)) {
-            logger.debug("CORS origin denied " + requestOrigin);
+            HTTP_LOGGER.debug("CORS origin denied " + requestOrigin);
             throw new RuntimeException("CORS origin denied " + requestOrigin);
         }
 
         final String requestMethodHeader = request.getHeader(ACCESS_CONTROL_REQUEST_METHOD);
         if (requestMethodHeader == null) {
-            logger.debug("Invalid preflight CORS request: Missing Access-Control-Request-Method header");
+            HTTP_LOGGER.debug("Invalid preflight CORS request: Missing Access-Control-Request-Method header");
             throw new RuntimeException("Invalid preflight CORS request: Missing Access-Control-Request-Method header");
         }
 
@@ -167,13 +168,13 @@ public class CORS {
                 requestHeaders[i] = CorsUtil.formatCanonical(requestHeaderValues[i]);
             } catch (IllegalArgumentException e) {
                 // Invalid header name
-                logger.debug("Invalid preflight CORS request: Bad request header value " + requestHeaderValues[i]);
+                HTTP_LOGGER.debug("Invalid preflight CORS request: Bad request header value " + requestHeaderValues[i]);
                 throw new RuntimeException("Invalid preflight CORS request: Bad request header value " + requestHeaderValues[i]);
             }
         }
 
         if (!supportedMethods.contains(requestedMethod)) {
-            logger.debug("Unsupported HTTP access control request method " + requestedMethod);
+            HTTP_LOGGER.debug("Unsupported HTTP access control request method " + requestedMethod);
             throw new RuntimeException("Unsupported HTTP access control request method " + requestedMethod);
         }
 
@@ -181,7 +182,7 @@ public class CORS {
         if (!supportAnyHeader) {
             for (String requestHeader : requestHeaders) {
                 if (!supportedHeaders.contains(requestHeader)) {
-                    logger.debug("Unsupported HTTP access control request header " + requestHeader);
+                    HTTP_LOGGER.debug("Unsupported HTTP access control request header " + requestHeader);
                     throw new RuntimeException("Unsupported HTTP access control request header " + requestHeader);
                 }
             }

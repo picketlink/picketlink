@@ -30,10 +30,10 @@ import java.util.Set;
  */
 public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
 
-    private Set<String> allowedOrigins;
-    private Set<String> supportedMethods;
-    private Set<String> supportedHeaders;
-    private Set<String> exposedHeaders;
+    private Set<String> allowedOrigins = new HashSet<String>();
+    private Set<String> supportedMethods = new HashSet<String>();;
+    private Set<String> supportedHeaders = new HashSet<String>();;
+    private Set<String> exposedHeaders = new HashSet<String>();;
     private boolean supportsCredentials;
     private boolean allowAnyOrigin;
     private boolean supportAnyHeader;
@@ -44,22 +44,22 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
     }
 
     public CORSConfigurationBuilder allowedOrigins(String... allowedOrigins) {
-        this.allowedOrigins = new HashSet<String>(Arrays.asList(allowedOrigins));
+        this.allowedOrigins.addAll(Arrays.asList(allowedOrigins));
         return this;
     }
 
     public CORSConfigurationBuilder supportedMethods(String... supportedMethods) {
-        this.supportedMethods = new HashSet<String>(Arrays.asList(supportedMethods));
+        this.supportedMethods.addAll(Arrays.asList(supportedMethods));
         return this;
     }
 
     public CORSConfigurationBuilder supportedHeaders(String... supportedHeaders) {
-        this.supportedHeaders = new HashSet<String>(Arrays.asList(supportedHeaders));
+        this.supportedHeaders.addAll(Arrays.asList(supportedHeaders));
         return this;
     }
 
     public CORSConfigurationBuilder exposedHeaders(String... exposedHeaders) {
-        this.exposedHeaders = new HashSet<String>(Arrays.asList(exposedHeaders));
+        this.exposedHeaders.addAll(Arrays.asList(exposedHeaders));
         return this;
     }
 
