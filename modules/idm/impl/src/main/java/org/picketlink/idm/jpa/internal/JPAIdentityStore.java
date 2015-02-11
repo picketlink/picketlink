@@ -884,6 +884,7 @@ public class JPAIdentityStore
             }
 
             entityManager.persist(attributeEntity);
+            entityManager.flush();
         }
     }
 
@@ -906,6 +907,7 @@ public class JPAIdentityStore
         }
 
         entityManager.persist(newCredential);
+        entityManager.flush();
     }
 
     @Override
@@ -940,6 +942,8 @@ public class JPAIdentityStore
         for (Object credential : credentials) {
             entityManager.remove(credential);
         }
+
+        entityManager.flush();
     }
 
     public Object getOwnerEntity(final AttributedType attributedType, final Property ownerProperty,
