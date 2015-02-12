@@ -185,7 +185,7 @@ public class DefaultAuthorizationManager {
         }
 
         if (annotation == null) {
-            throw new IllegalArgumentException("No annotation [" + annotationType + " found in type [" + unproxiedClass + "] or method [" + invocationContextMethod + ".");
+            throw new IllegalArgumentException("No annotation [" + annotationType + "] found in type [" + unproxiedClass + "] or method [" + invocationContextMethod + ".");
         }
 
         return annotation;

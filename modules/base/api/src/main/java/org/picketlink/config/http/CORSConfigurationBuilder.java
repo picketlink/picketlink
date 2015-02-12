@@ -44,46 +44,100 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
         super(parentBuilder);
     }
 
+    /**
+     * <p>Use this method to specify the origins allowed to access a specific path.</p>
+     *
+     * @param allowedOrigins A single string or an array of allowed origins.
+     * @return
+     */
     public CORSConfigurationBuilder allowOrigins(String... allowedOrigins) {
         this.allowedOrigins.addAll(Arrays.asList(allowedOrigins));
         return this;
     }
 
-    public CORSConfigurationBuilder allowMethods(String... supportedMethods) {
-        this.allowedMethods.addAll(Arrays.asList(supportedMethods));
+    /**
+     * <p>Use this method to specify the HTTP methods allowed to access a specific path.</p>
+     *
+     * @param allowedMethods A single string or an array of HTTP methods.
+     * @return
+     */
+    public CORSConfigurationBuilder allowMethods(String... allowedMethods) {
+        this.allowedMethods.addAll(Arrays.asList(allowedMethods));
         return this;
     }
 
-    public CORSConfigurationBuilder allowHeaders(String... supportedHeaders) {
-        this.allowedHeaders.addAll(Arrays.asList(supportedHeaders));
+    /**
+     * <p>Use this method to specify the HTTP headers allowed to access a specific path.</p>
+     *
+     * @param allowedHeaders A single string or an array of HTTP headers.
+     * @return
+     */
+    public CORSConfigurationBuilder allowHeaders(String... allowedHeaders) {
+        this.allowedHeaders.addAll(Arrays.asList(allowedHeaders));
         return this;
     }
 
+    /**
+     * <p>Use this method to specify which HTTP headers must be exposed to clients (eg.: XMLHttpRequest)
+     * in addition to the default ones, as defined by the specification.</p>
+     *
+     * @param exposedHeaders A single string or an array of HTTP headers.
+     * @return
+     */
     public CORSConfigurationBuilder exposedHeaders(String... exposedHeaders) {
         this.exposedHeaders.addAll(Arrays.asList(exposedHeaders));
         return this;
     }
 
-    public CORSConfigurationBuilder allowCredentials(boolean isCredentialsSupported) {
-        this.allowCredentials = isCredentialsSupported;
+    /**
+     * <p>Use this method to indicate that the actual request can include user credentials.</p>
+     *
+     * @param allowCredentials True if credentials are allowed. Otherwise, set to false. Defaults to false.
+     * @return
+     */
+    public CORSConfigurationBuilder allowCredentials(boolean allowCredentials) {
+        this.allowCredentials = allowCredentials;
         return this;
     }
 
-    public CORSConfigurationBuilder allowAnyOrigin(boolean isAnyOriginAllowed) {
-        this.allowAnyOrigin = isAnyOriginAllowed;
+    /**
+     * <p>Use this method to indicate that any origin is allowed to access a specific path.</p>
+     *
+     * @param allowAnyOrigin Defaults to false.
+     * @return
+     */
+    public CORSConfigurationBuilder allowAnyOrigin(boolean allowAnyOrigin) {
+        this.allowAnyOrigin = allowAnyOrigin;
         return this;
     }
 
-    public CORSConfigurationBuilder allowAnyHeader(boolean isAnyHeaderSupported) {
-        this.allowAnyHeader = isAnyHeaderSupported;
+    /**
+     * <p>Use this method to indicate that any HTTP header is allowed for a specific path.</p>
+     *
+     * @param allowAnyHeader Defaults to false.
+     * @return
+     */
+    public CORSConfigurationBuilder allowAnyHeader(boolean allowAnyHeader) {
+        this.allowAnyHeader = allowAnyHeader;
         return this;
     }
 
-    public CORSConfigurationBuilder allowAnyMethod(boolean isAnyMethodSupported) {
-        this.allowAnyMethod = isAnyMethodSupported;
+    /**
+     * <p>Use this method to indicate that any HTTP method is allowed for a specific path.</p>
+     *
+     * @param allowAnyMethod Defaults to false.
+     * @return
+     */
+    public CORSConfigurationBuilder allowAnyMethod(boolean allowAnyMethod) {
+        this.allowAnyMethod = allowAnyMethod;
         return this;
     }
 
+    /**
+     * <p>Convenience method to still use CORS but disable validations by allowing everything.</p>
+     *
+     * @return
+     */
     public CORSConfigurationBuilder allowAll() {
         allowAnyHeader(true);
         allowAnyMethod(true);
@@ -92,6 +146,12 @@ public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuil
         return this;
     }
 
+    /**
+     * <p>Use this method to indicate indicates how long the results of a preflight request can be cached.</p>
+     *
+     * @param maxAge An interget number of seconds.
+     * @return
+     */
     public CORSConfigurationBuilder maxAge(long maxAge) {
         this.maxAge = maxAge;
         return this;
