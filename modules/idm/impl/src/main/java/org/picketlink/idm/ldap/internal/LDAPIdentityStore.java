@@ -333,14 +333,14 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 String baseDN = getBaseDN(relatedTypeConfig);
 
                 if (LDAP_STORE_LOGGER.isTraceEnabled()) {
-                    LDAP_STORE_LOGGER.tracef("Search relationships for type [%s] using filter [%] and baseDN [%s]", relationshipClass, filter.toString(), baseDN);
+                    LDAP_STORE_LOGGER.tracef("Search relationships for type [%s] using filter [%s] and baseDN [%s]", relationshipClass, filter.toString(), baseDN);
                 }
 
                 List<SearchResult> search = this.operationManager.search(baseDN, filter.toString(), relatedTypeConfig);
 
                 for (SearchResult entry : search) {
                     if (LDAP_STORE_LOGGER.isTraceEnabled()) {
-                        LDAP_STORE_LOGGER.tracef("Found entry [%s] for relationship ", entry.getNameInNamespace(), relationshipClass);
+                        LDAP_STORE_LOGGER.tracef("Found entry [%s] for relationship type [%s].", entry.getNameInNamespace(), relationshipClass);
                     }
 
                     Attributes ownerAttributes = entry.getAttributes();
@@ -362,7 +362,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                                 if (LDAP_STORE_LOGGER.isTraceEnabled()) {
                                     LDAP_STORE_LOGGER
-                                        .tracef("Processing relationship [%s] from attribute [%s] with attributeValue [%s]", relationshipClass, attributeName, attributeValue);
+                                        .tracef("Processing relationship [%s] from attribute [%s] with attributeValue [%s].", relationshipClass, attributeName, attributeValue);
                                 }
 
                                 if (!isNullOrEmpty(attributeValue.trim())) {
@@ -399,7 +399,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                                             if (LDAP_STORE_LOGGER.isTraceEnabled()) {
                                                 LDAP_STORE_LOGGER
-                                                    .tracef("Relationship [%s] created from attribute [%s] with attributeValue [%s]", relationshipClass, attributeName, attributeValue);
+                                                    .tracef("Relationship [%s] created from attribute [%s] with attributeValue [%s].", relationshipClass, attributeName, attributeValue);
                                             }
 
                                             results.add(relationship);
