@@ -296,7 +296,13 @@ public class AssertionUtil {
             XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
 
-            logger.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
+            if (notBefore != null) {
+                logger.trace("Assertion: " + assertion.getID() + " ::Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat());
+            }
+
+            if (notOnOrAfter != null) {
+                logger.trace("Assertion: " + assertion.getID() + " ::Now=" + now.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
+            }
 
             expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
 

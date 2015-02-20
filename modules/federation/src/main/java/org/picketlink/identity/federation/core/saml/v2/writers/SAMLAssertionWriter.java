@@ -103,8 +103,13 @@ public class SAMLAssertionWriter extends BaseWriter {
         if (conditions != null) {
             StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.CONDITIONS.get(), ASSERTION_NSURI.get());
 
-            StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_BEFORE.get(), conditions.getNotBefore().toString());
-            StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_ON_OR_AFTER.get(), conditions.getNotOnOrAfter().toString());
+            if (conditions.getNotBefore() != null) {
+                StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_BEFORE.get(), conditions.getNotBefore().toString());
+            }
+
+            if (conditions.getNotOnOrAfter() != null) {
+                StaxUtil.writeAttribute(writer, JBossSAMLConstants.NOT_ON_OR_AFTER.get(), conditions.getNotOnOrAfter().toString());
+            }
 
             List<ConditionAbstractType> typeOfConditions = conditions.getConditions();
             if (typeOfConditions != null) {
