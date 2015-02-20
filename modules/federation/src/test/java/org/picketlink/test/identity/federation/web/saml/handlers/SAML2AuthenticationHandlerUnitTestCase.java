@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.constants.SAMLAuthenticationContextClass;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.fed.AssertionExpiredException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.config.federation.ProviderType;
@@ -47,6 +49,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.KeyStoreUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
@@ -56,6 +59,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
@@ -513,6 +517,135 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         handler.handleStatusResponseType(request, response);
 
         assertNotNull(session.getAttribute("org.picketlink.sp.SAML_ASSERTION"));
+    }
+
+    @Test
+    public void testNullNotBeforeNotOnOrAfterCondition() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
+        handlerConfig.addParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, "org.picketlink.sp.SAML_ASSERTION");
+
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        ProviderType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        // Create a Protocol Context
+        MockServletContext servletContext = createServletContext();
+        MockHttpSession session = new MockHttpSession();
+
+        session.setServletContext(servletContext);
+
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+
+        SAML2Response saml2Response = new SAML2Response();
+        IssuerInfoHolder issuerInfoholder = new IssuerInfoHolder("testIssuer");
+
+        AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), new NameIDType());
+        SubjectType assertionSubject = new SubjectType();
+        STSubType subType = new STSubType();
+        NameIDType anil = new NameIDType();
+        anil.setValue("anil");
+        subType.addBaseID(anil);
+        assertionSubject.setSubType(subType);
+        assertion.setSubject(assertionSubject);
+        assertion.setConditions(new ConditionsType());
+
+        ResponseType responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder, assertion);
+
+        Document responseDoc = saml2Response.convert(responseType);
+
+        SAMLParser parser = new SAMLParser();
+        SAML2Object saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
+
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, responseDoc);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+
+        handler.handleStatusResponseType(request, response);
+
+        ConditionsType conditions = new ConditionsType();
+
+        conditions.setNotBefore(XMLTimeUtil.getIssueInstant());
+
+        assertion.setConditions(conditions);
+
+        responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder, assertion);
+
+        responseDoc = saml2Response.convert(responseType);
+
+        saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
+
+        docHolder = new SAMLDocumentHolder(saml2Object, responseDoc);
+        issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+        response = new DefaultSAML2HandlerResponse();
+
+        handler.handleStatusResponseType(request, response);
+
+        conditions = new ConditionsType();
+
+        conditions.setNotBefore(XMLTimeUtil.add(XMLTimeUtil.getIssueInstant(), 10000));
+
+        assertion.setConditions(conditions);
+
+        responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder, assertion);
+
+        responseDoc = saml2Response.convert(responseType);
+
+        saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
+
+        docHolder = new SAMLDocumentHolder(saml2Object, responseDoc);
+        issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+        response = new DefaultSAML2HandlerResponse();
+
+        try {
+            handler.handleStatusResponseType(request, response);
+            fail();
+        } catch (ProcessingException e) {
+            assertTrue(AssertionExpiredException.class.isInstance(e.getCause()));
+        }
+
+        conditions = new ConditionsType();
+
+        conditions.setNotOnOrAfter(XMLTimeUtil.add(XMLTimeUtil.getIssueInstant(), -10000));
+
+        assertion.setConditions(conditions);
+
+        responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder, assertion);
+
+        responseDoc = saml2Response.convert(responseType);
+
+        saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
+
+        docHolder = new SAMLDocumentHolder(saml2Object, responseDoc);
+        issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+        response = new DefaultSAML2HandlerResponse();
+
+        try {
+            handler.handleStatusResponseType(request, response);
+            fail();
+        } catch (ProcessingException e) {
+            assertTrue(AssertionExpiredException.class.isInstance(e.getCause()));
+        }
     }
 
     @Test

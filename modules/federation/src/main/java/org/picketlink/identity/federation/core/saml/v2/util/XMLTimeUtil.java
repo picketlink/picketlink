@@ -152,19 +152,22 @@ public class XMLTimeUtil {
      * @return
      */
     public static boolean isValid(XMLGregorianCalendar now, XMLGregorianCalendar notbefore, XMLGregorianCalendar notOnOrAfter) {
-        if (notbefore == null)
-            throw logger.nullArgumentError("notbefore argument is null");
-        if (notOnOrAfter == null)
-            throw logger.nullArgumentError("notOnOrAfter argument is null");
+        int val = 0;
 
-        int val = notbefore.compare(now);
+        if (notbefore != null) {
+            val = notbefore.compare(now);
 
-        if (val == DatatypeConstants.INDETERMINATE || val == DatatypeConstants.GREATER)
-            return false;
+            if (val == DatatypeConstants.INDETERMINATE || val == DatatypeConstants.GREATER)
+                return false;
+        }
 
-        val = notOnOrAfter.compare(now);
-        if (val != DatatypeConstants.GREATER)
-            return false;
+        if (notOnOrAfter != null) {
+            val = notOnOrAfter.compare(now);
+
+            if (val != DatatypeConstants.GREATER)
+                return false;
+        }
+
         return true;
     }
 
