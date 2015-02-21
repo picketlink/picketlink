@@ -241,7 +241,11 @@ public class SAML2EncryptionHandlerUnitTestCase {
         handlers.add(createSignatureValidationHandler());
         handlers.add(createAuthenticationHandler());
 
-        return getHandlerChain(new SPType(), handlers);
+        SPType configuration = new SPType();
+
+        configuration.setServiceURL(SERVICE_PROVIDER_URL);
+
+        return getHandlerChain(configuration, handlers);
     }
 
     private SAML2HandlerChain getHandlerChain(ProviderType configuration, List<SAML2Handler> handlers) {

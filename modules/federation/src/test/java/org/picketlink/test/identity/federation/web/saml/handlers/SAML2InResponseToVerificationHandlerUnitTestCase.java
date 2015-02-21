@@ -25,7 +25,6 @@ import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.config.federation.IDPType;
-import org.picketlink.config.federation.ProviderType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -70,6 +69,8 @@ import java.util.Map;
  */
 public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
 
+    private static final String SERVICE_PROVIDER_URL = "http://localhost:8080/sales/";
+
     public void testResponseIdVerification() throws Exception {
         // 1) CONFIGURATION AND INITIALIZATION OF TEST
 
@@ -84,7 +85,10 @@ public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
         handlerConfig.addParameter(SAML2Handler.DISABLE_SENDING_ROLES, "true");
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        ProviderType spType = new SPType();
+        SPType spType = new SPType();
+
+        spType.setServiceURL(SERVICE_PROVIDER_URL);
+
         chainOptions.put(GeneralConstants.CONFIGURATION, spType);
         chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
         chainConfig.set(chainOptions);
@@ -106,7 +110,7 @@ public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
         // Create handler request and response
-        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/sales/");
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder(SERVICE_PROVIDER_URL);
         SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), null,
                 SAML2Handler.HANDLER_TYPE.SP);
         request.setTypeOfRequestToBeGenerated(SAML2HandlerRequest.GENERATE_REQUEST_TYPE.AUTH);

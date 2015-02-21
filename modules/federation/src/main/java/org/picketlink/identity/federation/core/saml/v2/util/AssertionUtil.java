@@ -29,6 +29,7 @@ import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.exceptions.fed.IssueInstantMissingException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.StaxUtil;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
@@ -40,6 +41,8 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
@@ -52,6 +55,7 @@ import org.w3c.dom.Node;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.net.URI;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -348,6 +352,44 @@ public class AssertionUtil {
 
         // TODO: if conditions do not exist, assume the assertion to be everlasting?
         return expiry;
+    }
+
+    /**
+     * <p>Checks whether the given assertion is intended for the given {@link org.picketlink.config.federation.SPType} or not.</p>
+     *
+     * @param assertionType
+     * @param spType
+     * @return
+     */
+    public static boolean isAudience(AssertionType assertionType, SPType spType) {
+        ConditionsType conditionsType = assertionType.getConditions();
+
+        if (conditionsType != null) {
+            List<ConditionAbstractType> conditions = conditionsType.getConditions();
+
+            if (conditions != null) {
+                for (ConditionAbstractType condition : conditions) {
+                    if (AudienceRestrictionType.class.isInstance(condition)) {
+                        AudienceRestrictionType audienceRestrictionType = (AudienceRestrictionType) condition;
+                        List<URI> audiences = audienceRestrictionType.getAudience();
+
+                        if (audiences != null) {
+                            for (URI audience : audiences) {
+                                if (audience.toString().startsWith(spType.getServiceURL())) {
+                                    return true;
+                                }
+                            }
+                        }
+
+                        logger.warn("Assertion [" + assertionType.getID() + "] does not contain [" + spType.getServiceURL() + "] in audience list [" + audiences + "]. Expected audience is [" + spType.getServiceURL() + "].");
+
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
