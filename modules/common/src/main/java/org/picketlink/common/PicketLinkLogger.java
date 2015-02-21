@@ -1219,4 +1219,5 @@ public interface PicketLinkLogger {
 
     RuntimeException parserFeatureNotSupported(String feature);
 
+    ProcessingException samlAssertionWrongAudience(String serviceURL);
 }

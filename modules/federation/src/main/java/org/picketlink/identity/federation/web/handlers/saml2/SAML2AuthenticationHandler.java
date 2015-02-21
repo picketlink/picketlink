@@ -610,6 +610,10 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 throw logger.assertionExpiredError(aee);
             }
 
+            if (!AssertionUtil.isAudience(assertion, getSPConfiguration())) {
+                throw logger.samlAssertionWrongAudience(getSPConfiguration().getServiceURL());
+            }
+
             SubjectType subject = assertion.getSubject();
             /*
              * JAXBElement<NameIDType> jnameID = (JAXBElement<NameIDType>) subject.getContent().get(0); NameIDType nameID =

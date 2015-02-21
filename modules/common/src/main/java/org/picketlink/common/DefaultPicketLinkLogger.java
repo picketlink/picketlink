@@ -2383,4 +2383,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         return new RuntimeException("Parser feature " + feature + " not supported.");
     }
 
+    @Override
+    public ProcessingException samlAssertionWrongAudience(String serviceURL) {
+        return new ProcessingException("Wrong audience [" + serviceURL + "].");
+    }
+
 }
