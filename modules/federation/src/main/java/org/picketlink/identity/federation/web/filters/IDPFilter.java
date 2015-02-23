@@ -127,8 +127,13 @@ import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.picketlink.common.constants.GeneralConstants.*;
-import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.common.constants.GeneralConstants.AUDIT_HELPER;
+import static org.picketlink.common.constants.GeneralConstants.CONFIG_FILE_LOCATION;
+import static org.picketlink.common.constants.GeneralConstants.CONFIG_PROVIDER;
+import static org.picketlink.common.constants.GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION;
+import static org.picketlink.common.constants.GeneralConstants.SAML_REQUEST_KEY;
+import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * A {@link javax.servlet.Filter} that can be configured to convert a
@@ -1370,7 +1375,7 @@ public class IDPFilter implements Filter {
 
         try {
             AuthnRequestType authn = samlRequest
-                    .createAuthnRequestType(id, assertionConsumerURL, assertionConsumerURL, assertionConsumerURL);
+                    .createAuthnRequestType(id, assertionConsumerURL, getIdentityURL(), assertionConsumerURL);
 
             String requestedBinding = request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_SAML_BINDING.get());
 
