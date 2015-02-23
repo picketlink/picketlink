@@ -162,6 +162,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // we got a logout response from a SP
             SAML2Object samlObject = request.getSAML2Object();
             StatusResponseType statusResponseType = (StatusResponseType) samlObject;
+
+            checkDestination(statusResponseType.getDestination(), getProviderconfig().getIdentityURL());
+
             String statusIssuer = statusResponseType.getIssuer().getValue();
 
             if (statusIssuer.equals(getProviderconfig().getIdentityURL())) {
@@ -271,6 +274,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             String relayState = httpContext.getRequest().getParameter(GeneralConstants.RELAY_STATE);
             LogoutRequestType logOutRequest = (LogoutRequestType) request.getSAML2Object();
+
+            checkDestination(logOutRequest.getDestination(), getProviderconfig().getIdentityURL());
+
             String issuer = logOutRequest.getIssuer().getValue();
 
             try {
@@ -611,6 +617,8 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // Handler a log out response from IDP
             StatusResponseType statusResponseType = (StatusResponseType) request.getSAML2Object();
 
+            checkDestination(statusResponseType.getDestination(), getProviderconfig().getIdentityURL());
+
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest servletRequest = httpContext.getRequest();
             HttpSession session = servletRequest.getSession(false);
@@ -638,6 +646,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             SPType spConfiguration = (SPType) getProviderconfig();
 
             LogoutRequestType logOutRequest = (LogoutRequestType) samlObject;
+
+            checkDestination(logOutRequest.getDestination(), getProviderconfig().getIdentityURL());
+
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest servletRequest = httpContext.getRequest();
             HttpSession session = servletRequest.getSession(false);
