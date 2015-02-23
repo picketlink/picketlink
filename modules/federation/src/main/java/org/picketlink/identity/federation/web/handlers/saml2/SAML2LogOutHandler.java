@@ -162,6 +162,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // we got a logout response from a SP
             SAML2Object samlObject = request.getSAML2Object();
             StatusResponseType statusResponseType = (StatusResponseType) samlObject;
+
+            checkDestination(statusResponseType.getDestination(), getProviderconfig().getIdentityURL());
+
             String statusIssuer = statusResponseType.getIssuer().getValue();
 
             if (statusIssuer.equals(getProviderconfig().getIdentityURL())) {
@@ -271,6 +274,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             String relayState = httpContext.getRequest().getParameter(GeneralConstants.RELAY_STATE);
             LogoutRequestType logOutRequest = (LogoutRequestType) request.getSAML2Object();
+
+            checkDestination(logOutRequest.getDestination(), getProviderconfig().getIdentityURL());
+
             String issuer = logOutRequest.getIssuer().getValue();
 
             try {
@@ -563,7 +569,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 nameID.setFormat(URI.create(nameIDFormat));
                 lot.setNameID(nameID);
 
-                SPType spConfiguration = (SPType) getProviderconfig();
+                SPType spConfiguration = getSPConfiguration();
                 String logoutUrl = spConfiguration.getLogoutUrl();
 
                 if (logoutUrl == null) {
@@ -611,6 +617,8 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // Handler a log out response from IDP
             StatusResponseType statusResponseType = (StatusResponseType) request.getSAML2Object();
 
+            checkDestination(statusResponseType.getDestination(), getSPConfiguration().getServiceURL());
+
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest servletRequest = httpContext.getRequest();
             HttpSession session = servletRequest.getSession(false);
@@ -635,9 +643,12 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             if (samlObject instanceof LogoutRequestType == false)
                 return;
             //get the configuration to handle a logout request from idp and set the correct response location
-            SPType spConfiguration = (SPType) getProviderconfig();
+            SPType spConfiguration = getSPConfiguration();
 
             LogoutRequestType logOutRequest = (LogoutRequestType) samlObject;
+
+            checkDestination(logOutRequest.getDestination(), spConfiguration.getServiceURL());
+
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest servletRequest = httpContext.getRequest();
             HttpSession session = servletRequest.getSession(false);
@@ -693,5 +704,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             response.setRelayState(relayState);
             response.setSendRequest(false);
         }
+    }
+
+    private SPType getSPConfiguration() {
+        return (SPType) getProviderconfig();
     }
 }

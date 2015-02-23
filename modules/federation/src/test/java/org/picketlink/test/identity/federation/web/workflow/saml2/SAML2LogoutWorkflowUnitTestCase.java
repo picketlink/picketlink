@@ -263,9 +263,13 @@ public class SAML2LogoutWorkflowUnitTestCase {
         session.setAttribute("SAMLResponse", logoutOrigResponse);
         session.setAttribute("RelayState", relayState);
 
+        response = new MockHttpServletResponse();
+        baos = new ByteArrayOutputStream();
+        response.setOutputStream(baos);
+
         idp.testPost(request, response);
 
-        idpResponse = new String(filterbaos.toByteArray());
+        idpResponse = new String(baos.toByteArray());
         assertNotNull(idpResponse);
 
         htmlResponse = DocumentUtil.getDocument(idpResponse);
@@ -279,7 +283,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
             relayState = ((Element) nodes.item(1)).getAttributeNode("VALUE").getValue();
 
         // Now we should have got a full success report from IDP
-        MockContextClassLoader mclSPSales = setupTCL(profile + "/sp/employee");
+        MockContextClassLoader mclSPSales = setupTCL(profile + "/sp/sales");
         Thread.currentThread().setContextClassLoader(mclSPSales);
         SPFilter spSales = new SPFilter();
 

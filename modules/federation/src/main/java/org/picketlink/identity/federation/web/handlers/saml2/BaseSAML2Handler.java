@@ -34,6 +34,7 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.net.URI;
 
 /**
  * Base Class for SAML2 handlers
@@ -109,6 +110,24 @@ public abstract class BaseSAML2Handler implements SAML2Handler {
 
     protected ProviderType getProviderconfig() {
         return this.providerConfig;
+    }
+
+    protected void checkDestination(String destination, String expectedDestination) throws ProcessingException {
+        if (expectedDestination == null) {
+            throw logger.nullArgumentError("Expected destination.");
+        }
+
+        if (destination != null) {
+            if (!destination.startsWith(expectedDestination)) {
+                throw new ProcessingException("Invalid destination [" + destination + "]. Expected [" + expectedDestination + "].");
+            }
+        }
+    }
+
+    protected void checkDestination(URI destination, String expectedDestination) throws ProcessingException {
+        if (destination != null) {
+            checkDestination(destination.toString(), expectedDestination);
+        }
     }
 
     /**

@@ -465,7 +465,10 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         handlerConfig.addParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, "org.picketlink.sp.SAML_ASSERTION");
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        ProviderType spType = new SPType();
+        SPType spType = new SPType();
+
+        spType.setServiceURL("http://sp.com");
+
         chainOptions.put(GeneralConstants.CONFIGURATION, spType);
         chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
         chainConfig.set(chainOptions);
@@ -531,7 +534,10 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         handlerConfig.addParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, "org.picketlink.sp.SAML_ASSERTION");
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        ProviderType spType = new SPType();
+        SPType spType = new SPType();
+
+        spType.setServiceURL("http://sp.com");
+
         chainOptions.put(GeneralConstants.CONFIGURATION, spType);
         chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
         chainConfig.set(chainOptions);
@@ -743,6 +749,90 @@ public class SAML2AuthenticationHandlerUnitTestCase {
             fail();
         } catch (ProcessingException e) {
             assertTrue(e.getMessage().contains("Wrong audience"));
+        }
+    }
+
+    @Test
+    public void testDestinationValidation() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
+        handlerConfig.addParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, "org.picketlink.sp.SAML_ASSERTION");
+
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        SPType spType = new SPType();
+        spType.setServiceURL("http://sales.com");
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
+
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
+
+        // Create a Protocol Context
+        MockServletContext servletContext = createServletContext();
+        MockHttpSession session = new MockHttpSession();
+
+        session.setServletContext(servletContext);
+
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+
+        SAML2Response saml2Response = new SAML2Response();
+        IssuerInfoHolder issuerInfoholder = new IssuerInfoHolder("testIssuer");
+
+        AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), new NameIDType());
+        SubjectType assertionSubject = new SubjectType();
+        STSubType subType = new STSubType();
+        NameIDType anil = new NameIDType();
+        anil.setValue("anil");
+        subType.addBaseID(anil);
+        assertionSubject.setSubType(subType);
+        assertion.setSubject(assertionSubject);
+
+        ResponseType responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder, assertion);
+
+        responseType.setDestination("http://sales.com");
+
+        Document responseDoc = saml2Response.convert(responseType);
+
+        SAMLParser parser = new SAMLParser();
+        SAML2Object saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
+
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, responseDoc);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+
+        handler.handleStatusResponseType(request, response);
+
+        responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder, assertion);
+
+        responseType.setDestination("http://employee.com");
+
+        responseDoc = saml2Response.convert(responseType);
+
+        parser = new SAMLParser();
+        saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
+
+        docHolder = new SAMLDocumentHolder(saml2Object, responseDoc);
+        issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+
+        response = new DefaultSAML2HandlerResponse();
+
+        try {
+            handler.handleStatusResponseType(request, response);
+            fail();
+        } catch (ProcessingException e) {
+            assertTrue(e.getMessage().contains("Invalid destination"));
         }
     }
 

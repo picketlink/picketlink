@@ -132,7 +132,7 @@ public class SAML2EncryptionHandlerUnitTestCase {
         SAML2Request samlRequest = new SAML2Request();
 
         AuthnRequestType authnRequestType = samlRequest.createAuthnRequestType("AuthnRequest_FAKE_ID",
-                SERVICE_PROVIDER_URL, SERVICE_PROVIDER_URL,
+                SERVICE_PROVIDER_URL, IDENTITY_PROVIDER_URL,
                 SERVICE_PROVIDER_URL);
 
         DefaultSAML2HandlerRequest handlerAuthnRequest = new DefaultSAML2HandlerRequest(new HTTPContext(
@@ -229,6 +229,8 @@ public class SAML2EncryptionHandlerUnitTestCase {
         handlers.add(createEncryptionHandler());
 
         IDPType idpType = new IDPType();
+
+        idpType.setIdentityURL(IDENTITY_PROVIDER_URL);
 
         idpType.setEncrypt(true);
 

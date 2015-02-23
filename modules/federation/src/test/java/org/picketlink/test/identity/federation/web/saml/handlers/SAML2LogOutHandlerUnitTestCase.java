@@ -63,7 +63,10 @@ public class SAML2LogOutHandlerUnitTestCase {
         handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        ProviderType spType = new SPType();
+        SPType spType = new SPType();
+
+        spType.setServiceURL("http:/xyz:8080/sales-metadata/");
+
         chainOptions.put(GeneralConstants.CONFIGURATION, spType);
         chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
         chainConfig.set(chainOptions);
