@@ -111,6 +111,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
     @Override
     public void addAttributedType(IdentityContext context, AttributedType attributedType) {
+        // id will be assigned by the ldap server
+        attributedType.setId(null);
+
         if (Relationship.class.isInstance(attributedType)) {
             addRelationship((Relationship) attributedType);
         } else {
@@ -939,6 +942,29 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return bindingAttribute + EQUAL + dn + baseDN;
+    }
+
+    public String getBindingDN(AttributedType attributedType) {
+        LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
+
+        if (attributedType.getId() != null) {
+            String baseDN = mappingConfig.getBaseDN();
+
+            if (baseDN == null) {
+                baseDN = getConfig().getBaseDN();
+            }
+
+            SearchResult searchResult = operationManager.lookupById(baseDN, attributedType.getId(), mappingConfig);
+
+            if (searchResult == null) {
+                throw MESSAGES.storeLdapEntryNotFoundWithId(attributedType.getId(), baseDN);
+            }
+
+            return searchResult.getNameInNamespace();
+
+        }
+
+        return getBindingDN(attributedType, true);
     }
 
     private String getBaseDN(AttributedType attributedType) {

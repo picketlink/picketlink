@@ -153,7 +153,10 @@ public class LDAPMappingConfigurationBuilder extends
 
     /**
      * <p>Maps a type property to a specific LDAP attribute. The given LDAP attribute will be used to construct the distinguished name
-     * of entries.
+     * of entries.</p>
+     *
+     * <p>This configuration is useful when the binding DN is not created based on the id property of a type. For instance,
+     * In some deployments you may want to search users by "sAMAccountName", but DN of users uses "CN" instead (eg.: cn=John Doe,ou=something,dc=example,dc=org).</p>
      *
      * @param propertyName
      * @param ldapAttributeName
