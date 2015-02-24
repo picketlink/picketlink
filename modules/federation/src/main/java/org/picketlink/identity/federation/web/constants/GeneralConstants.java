@@ -23,4 +23,7 @@ package org.picketlink.identity.federation.web.constants;
  * @since November 13, 2013
  */
 public interface GeneralConstants extends org.picketlink.common.constants.GeneralConstants {
+
+    String DESIRED_IDP = "picketlink.desired.idp";
+
 }
