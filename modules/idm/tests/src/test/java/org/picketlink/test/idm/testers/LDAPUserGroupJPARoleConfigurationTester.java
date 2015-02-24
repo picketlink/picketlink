@@ -21,6 +21,7 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PermissionTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.model.Partition;
@@ -79,7 +80,8 @@ public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigur
                                 RoleTypeEntity.class,
                                 AttributeReferenceTypeEntity.class,
                                 PartitionTypeEntity.class,
-                                IdentityTypeEntity.class
+                                IdentityTypeEntity.class,
+                                PermissionTypeEntity.class
                         )
                         .addContextInitializer(new JPAContextInitializer(null) {
                             @Override
@@ -90,6 +92,7 @@ public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigur
                         .supportGlobalRelationship(Grant.class, CustomRelationshipTestCase.CustomRelationship.class)
                         .supportType(Role.class, Partition.class)
                         .supportAttributes(true)
+                        .supportPermissions(true)
                     .ldap()
                         .baseDN(embeddedServer.getBaseDn())
                         .bindDN(embeddedServer.getBindDn())

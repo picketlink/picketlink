@@ -35,6 +35,7 @@ import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractAttributeStore;
 import org.picketlink.idm.internal.RelationshipReference;
+import org.picketlink.idm.internal.util.IdentityTypeUtil;
 import org.picketlink.idm.internal.util.PermissionUtil;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
@@ -555,8 +556,7 @@ public class FileIdentityStore extends AbstractAttributeStore<FileIdentityStoreC
                                 IdentityType identityType = (IdentityType) value;
                                 String identityTypeId = storedRelationship.getIdentityTypeId(identityTypeParameter.getName());
 
-                                match = identityTypeId != null && identityTypeId.equals(RelationshipReference
-                                    .formatId(identityType));
+                                match = identityTypeId != null && identityTypeId.equals(IdentityTypeUtil.formatId(identityType));
                             }
                         } else if (AttributeParameter.class.isInstance(queryParameter) && values != null) {
                             AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
