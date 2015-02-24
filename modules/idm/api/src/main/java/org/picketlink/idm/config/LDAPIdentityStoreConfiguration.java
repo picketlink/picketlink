@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.picketlink.common.constants.LDAPConstants.COMMA;
 import static org.picketlink.common.constants.LDAPConstants.ENTRY_UUID;
 import static org.picketlink.common.constants.LDAPConstants.OBJECT_GUID;
 
@@ -126,12 +127,19 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return this.mappingConfig;
     }
 
-    public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN, List<String> objectClasses) {
+    public Class<? extends AttributedType> getSupportedTypeByBaseDN(String entryDN, List<String> objectClasses) {
+        String entryBaseDN = entryDN.substring(entryDN.indexOf(COMMA) + 1);
+
         for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
             if (mappingConfig.getBaseDN() != null) {
                 if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
-                    if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)
-                            || mappingConfig.getParentMapping().values().contains(baseDN)) {
+                    if (mappingConfig.getBaseDN().equalsIgnoreCase(entryDN)
+                            || mappingConfig.getParentMapping().values().contains(entryDN)) {
+                        return mappingConfig.getMappedClass();
+                    }
+
+                    if (mappingConfig.getBaseDN().equalsIgnoreCase(entryBaseDN)
+                            || mappingConfig.getParentMapping().values().contains(entryBaseDN)) {
                         return mappingConfig.getMappedClass();
                     }
                 }
@@ -148,7 +156,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             }
         }
 
-        throw new IdentityManagementException("No type found for Base DN [" + baseDN + "] or objectClasses [" + objectClasses + ".");
+        throw new IdentityManagementException("No type found for Base DN [" + entryDN + "] or objectClasses [" + objectClasses + ".");
     }
 
     public LDAPMappingConfiguration getMappingConfig(Class<? extends AttributedType> attributedType) {

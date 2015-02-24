@@ -214,16 +214,19 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 // the ldap store does not support queries based on root types. Except if based on the identifier.
                 LDAPMappingConfiguration ldapEntryConfig = getMappingConfig(identityQuery.getIdentityType());
                 StringBuilder filter = createIdentityTypeSearchFilter(identityQuery, ldapEntryConfig);
+                String baseDN = getBaseDN(ldapEntryConfig);
                 List<SearchResult> search;
 
                 if (getConfig().isPagination() && identityQuery.getLimit() > 0) {
-                    search = this.operationManager.searchPaginated(getBaseDN(ldapEntryConfig), filter.toString(), ldapEntryConfig, identityQuery);
+                    search = this.operationManager.searchPaginated(baseDN, filter.toString(), ldapEntryConfig, identityQuery);
                 } else {
-                    search = this.operationManager.search(getBaseDN(ldapEntryConfig), filter.toString(), ldapEntryConfig);
+                    search = this.operationManager.search(baseDN, filter.toString(), ldapEntryConfig);
                 }
 
                 for (SearchResult result : search) {
-                    results.add((V) populateAttributedType(result, null));
+                    if (!result.getNameInNamespace().equals(baseDN)) {
+                        results.add((V) populateAttributedType(result, null));
+                    }
                 }
             }
         } catch (Exception e) {
@@ -546,13 +549,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
 
         filter.insert(0, "(&(");
-
-        if (ldapEntryConfig != null) {
-            filter.append(getObjectClassesFilter(ldapEntryConfig));
-        } else {
-            filter.append("(").append(OBJECT_CLASS).append(EQUAL).append("*").append(")");
-        }
-
+        filter.append(getObjectClassesFilter(ldapEntryConfig));
         filter.append("))");
 
         return filter;
@@ -561,8 +558,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     private StringBuilder getObjectClassesFilter(final LDAPMappingConfiguration ldapEntryConfig) {
         StringBuilder builder = new StringBuilder();
 
-        for (String objectClass : ldapEntryConfig.getObjectClasses()) {
-            builder.append("(objectClass=").append(objectClass).append(")");
+        if (ldapEntryConfig != null && !ldapEntryConfig.getObjectClasses().isEmpty()) {
+            for (String objectClass : ldapEntryConfig.getObjectClasses()) {
+                builder.append("(").append(OBJECT_CLASS).append(EQUAL).append(objectClass).append(")");
+            }
+        } else {
+            builder.append("(").append(OBJECT_CLASS).append(EQUAL).append("*").append(")");
         }
 
         return builder;
@@ -681,11 +682,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     private AttributedType populateAttributedType(SearchResult searchResult, AttributedType attributedType, int hierarchyDepthCount) {
         try {
             String entryDN = searchResult.getNameInNamespace();
-            String entryBaseDN = entryDN.substring(entryDN.indexOf(COMMA) + 1);
             Attributes attributes = searchResult.getAttributes();
 
             if (attributedType == null) {
-                attributedType = newInstance(getConfig().getSupportedTypeByBaseDN(entryBaseDN, getEntryObjectClasses(attributes)));
+                attributedType = newInstance(getConfig().getSupportedTypeByBaseDN(entryDN, getEntryObjectClasses(attributes)));
             }
 
             attributedType.setAttribute(new org.picketlink.idm.model.Attribute<String>(ENTRY_DN_ATTRIBUTE_NAME, entryDN));
@@ -727,7 +727,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                         if (property != null) {
                             if (LDAP_STORE_LOGGER.isTraceEnabled()) {
-                                LDAP_STORE_LOGGER.tracef("Populating property [%s] from ldap attribute [%s] with value [%s] from DN [%s].", property.getName(), ldapAttributeName, attributeValue, entryBaseDN);
+                                LDAP_STORE_LOGGER.tracef("Populating property [%s] from ldap attribute [%s] with value [%s] from DN [%s].", property.getName(), ldapAttributeName, attributeValue, entryDN);
                             }
 
                             if (property.getJavaClass().equals(Date.class)) {
@@ -737,7 +737,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                             }
                         } else {
                             if (LDAP_STORE_LOGGER.isTraceEnabled()) {
-                                LDAP_STORE_LOGGER.tracef("Populating attribute [%s] from ldap attribute [%s] with value [%s] from DN [%s].", attributeName, ldapAttributeName, attributeValue, entryBaseDN);
+                                LDAP_STORE_LOGGER.tracef("Populating attribute [%s] from ldap attribute [%s] with value [%s] from DN [%s].", attributeName, ldapAttributeName, attributeValue, entryDN);
                             }
 
                             attributedType.setAttribute(new org.picketlink.idm.model.Attribute(attributeName, (Serializable) attributeValue));
@@ -758,6 +758,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             if (mappingConfig.getParentMembershipAttributeName() != null) {
                 StringBuilder filter = new StringBuilder("(&");
+                String entryBaseDN = entryDN.substring(entryDN.indexOf(COMMA) + 1);
 
                 filter
                     .append("(")
@@ -774,7 +775,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 filter.append(")");
 
                 if (LDAP_STORE_LOGGER.isTraceEnabled()) {
-                    LDAP_STORE_LOGGER.tracef("Searching parent entry for DN [%s] using filter [%s].", entryDN, filter.toString());
+                    LDAP_STORE_LOGGER.tracef("Searching parent entry for DN [%s] using filter [%s].", entryBaseDN, filter.toString());
                 }
 
                 List<SearchResult> search = this.operationManager.search(getConfig().getBaseDN(), filter.toString(), entryConfig);
