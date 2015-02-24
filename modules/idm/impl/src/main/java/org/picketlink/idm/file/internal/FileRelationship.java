@@ -21,7 +21,7 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
-import org.picketlink.idm.internal.RelationshipReference;
+import org.picketlink.idm.internal.util.IdentityTypeUtil;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
@@ -64,7 +64,7 @@ public class FileRelationship extends AbstractFileAttributedType<Relationship> {
             IdentityType identityType = annotatedProperty.getValue(getEntry());
 
             if (identityType != null) {
-                this.identityTypeIds.put(RelationshipReference.formatId(identityType), annotatedProperty.getName());
+                this.identityTypeIds.put(IdentityTypeUtil.formatId(identityType), annotatedProperty.getName());
             }
         }
     }
@@ -108,7 +108,7 @@ public class FileRelationship extends AbstractFileAttributedType<Relationship> {
     }
 
     public boolean hasIdentityType(IdentityType identityType) {
-        return this.identityTypeIds.containsKey(RelationshipReference.formatId(identityType));
+        return this.identityTypeIds.containsKey(IdentityTypeUtil.formatId(identityType));
     }
 
 }

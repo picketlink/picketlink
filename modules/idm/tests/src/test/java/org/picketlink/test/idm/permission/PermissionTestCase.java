@@ -39,6 +39,7 @@ import org.picketlink.test.idm.permission.entity.ProtectedEntity;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAPermissionStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -51,7 +52,8 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Pedro Igor
  */
-@Configuration(include = {FileStoreConfigurationTester.class, JPAPermissionStoreConfigurationTester.class})
+@Configuration(include = {FileStoreConfigurationTester.class, JPAPermissionStoreConfigurationTester.class,
+        LDAPUserGroupJPARoleConfigurationTester.class})
 public class PermissionTestCase extends AbstractPartitionManagerTestCase {
 
     public PermissionTestCase(IdentityConfigurationTester visitor) {
@@ -393,7 +395,7 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @Configuration(exclude = FileStoreConfigurationTester.class)
+    @Configuration(exclude = {FileStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testPermissionStorePartitioningByResourceType() {
         User bob = createUser("bob");
         PermissionManager permissionManager = getPermissionManager();
@@ -429,7 +431,7 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @Configuration(exclude = FileStoreConfigurationTester.class)
+    @Configuration(exclude = {FileStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testGrantAllowedOperation() {
         User bob = createUser("bob");
         EntityManager entityManager = getEntityManager();
@@ -502,7 +504,7 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @Configuration(exclude = FileStoreConfigurationTester.class)
+    @Configuration(exclude = {FileStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testRevokeAllowedOperation() {
         User bob = createUser("bob");
         EntityManager entityManager = getEntityManager();
@@ -575,7 +577,7 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test (expected = IdentityManagementException.class)
-    @Configuration(exclude = FileStoreConfigurationTester.class)
+    @Configuration(exclude = {FileStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testGrantInvalidAllowedOperation() {
         User bob = createUser("bob");
         EntityManager entityManager = getEntityManager();

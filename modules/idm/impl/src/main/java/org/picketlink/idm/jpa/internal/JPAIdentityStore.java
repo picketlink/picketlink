@@ -36,7 +36,9 @@ import org.picketlink.idm.credential.handler.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractAttributeStore;
+import org.picketlink.idm.internal.IdentityTypeReference;
 import org.picketlink.idm.internal.RelationshipReference;
+import org.picketlink.idm.internal.util.IdentityTypeUtil;
 import org.picketlink.idm.internal.util.PermissionUtil;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
@@ -760,7 +762,7 @@ public class JPAIdentityStore
                             Property<Object> identityTypeProperty = relationshipMemberMapper.getProperty(RelationshipMember.class).getValue();
 
                             if (identityTypeProperty.getJavaClass().equals(String.class)) {
-                                identityTypeIdentifiers.add(RelationshipReference.formatId(identityType));
+                                identityTypeIdentifiers.add(IdentityTypeUtil.formatId(identityType));
                             } else {
                                 identityTypeIdentifiers.add(identityType.getId());
                             }
@@ -1112,8 +1114,7 @@ public class JPAIdentityStore
                 Property<Object> identityTypeProperty = relationshipMemberMapper.getProperty(RelationshipMember.class).getValue();
 
                 if (identityTypeProperty.getJavaClass().equals(String.class)) {
-                    criteria.where(builder.equal(root.get(identityTypeProperty.getName()),
-                        RelationshipReference.formatId(identityType)));
+                    criteria.where(builder.equal(root.get(identityTypeProperty.getName()), IdentityTypeUtil.formatId(identityType)));
                 } else {
                     criteria.where(builder.equal(root.get(identityTypeProperty.getName()),
                         em.find(identityTypeProperty.getJavaClass(), identityType.getId())));
@@ -1452,7 +1453,7 @@ public class JPAIdentityStore
 
                 // in this case we hold only the reference to the identity type identifier
                 if (identityTypeProperty.getJavaClass().equals(String.class)) {
-                    identityTypeProperty.setValue(relationshipIdentity, RelationshipReference.formatId(identityType));
+                    identityTypeProperty.setValue(relationshipIdentity, IdentityTypeUtil.formatId(identityType));
                 } else {
                     identityTypeProperty.setValue(relationshipIdentity, getRootEntity(identityType, entityManager));
                 }
@@ -1694,7 +1695,7 @@ public class JPAIdentityStore
 
                 // Set the assignee, resource class and resource resourceIdentifier predicates
                 if (String.class.equals(ownerProperty.getBaseType())) {
-                    predicates.add(cb.equal(from.get(ownerProperty.getName()), assignee.getId()));
+                    predicates.add(from.get(ownerProperty.getName()).in(assignee.getId(), IdentityTypeUtil.formatId(assignee)));
                 } else {
                     predicates.add(cb.equal(from.get(ownerProperty.getName()),
                         getOwnerEntity(assignee, ownerProperty, em)));
@@ -1712,6 +1713,11 @@ public class JPAIdentityStore
                 // If the owner value is a String, then it must be an resourceIdentifier value
                 if (String.class.equals(owner.getClass())) {
                     ownerIdentityType = lookupIdentityTypeById(ctx, IdentityType.class, (String) owner);
+
+                    if (ownerIdentityType == null) {
+                        // we assume that it is a cross-partition reference
+                        ownerIdentityType = new IdentityTypeReference((String) owner);
+                    }
                 } else {
                     for (EntityMapper entityMapper : getEntityMappers()) {
                         if (entityMapper.getMappingsFor(IdentityType.class) != null && entityMapper.isRoot()) {
@@ -1779,10 +1785,9 @@ public class JPAIdentityStore
 
         // Set the assignee, resource class and resource identifier predicates
         if (String.class.equals(ownerProperty.getBaseType())) {
-            predicates.add(cb.equal(from.get(ownerProperty.getName()), assignee.getId()));
+            predicates.add(from.get(ownerProperty.getName()).in(assignee.getId(), IdentityTypeUtil.formatId(assignee)));
         } else {
-            predicates.add(cb.equal(from.get(ownerProperty.getName()),
-                getOwnerEntity(assignee, ownerProperty, em)));
+            predicates.add(cb.equal(from.get(ownerProperty.getName()), getOwnerEntity(assignee, ownerProperty, em)));
         }
 
         predicates.add(cb.equal(from.get(resourceClassProperty.getName()), resourceClass.getName()));
@@ -1834,7 +1839,7 @@ public class JPAIdentityStore
                 // Set the assignee property - this will either be a String, or a reference to an
                 // identity entity
                 if (String.class.equals(ownerProperty.getBaseType())) {
-                    ownerProperty.setValue(entity, assignee.getId());
+                    ownerProperty.setValue(entity, IdentityTypeUtil.formatId(assignee));
                 } else {
                     Object identityEntity = getOwnerEntity(assignee, ownerProperty, em);
                     ownerProperty.setValue(entity, identityEntity);

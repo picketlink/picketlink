@@ -22,12 +22,11 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.internal.ContextualRelationshipManager;
 import org.picketlink.idm.internal.RelationshipReference;
+import org.picketlink.idm.internal.util.IdentityTypeUtil;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
@@ -47,7 +46,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
-import static org.picketlink.common.reflection.Reflections.classForName;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
 
@@ -153,36 +151,9 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     private void resolveIdentityTypes(RelationshipReference reference) {
         Relationship relationship = reference.getRelationship();
 
-        for (String descriptor : reference.getDescriptors()) {
-            String type = reference.getIdentityType(descriptor);
-            String partitionId = reference.getPartitionId(descriptor);
-            String identityTypeId = reference.getIdentityTypeId(descriptor);
-            PartitionManager partitionManager = getPartitionManager();
-
-            Partition partition = partitionManager.lookupById(Partition.class, partitionId);
-
-            if (partition == null) {
-                throw new IdentityManagementException("No partition [" + partitionId + "] found for " +
-                        "referenced IdentityType [" + identityTypeId + "].");
-            }
-
-            Class<? extends IdentityType> identityTypeClass;
-
-            try {
-                identityTypeClass = classForName(type, reference.getRelationship().getClass().getClassLoader());
-            } catch (ClassNotFoundException e) {
-                throw new IdentityManagementException("Could not instantiate referenced identity type [" + type + "].", e);
-            }
-
-            IdentityManager identityManager = partitionManager.createIdentityManager(partition);
-            IdentityType identityType = identityManager.lookupById(identityTypeClass, identityTypeId);
-
-            if (identityType == null) {
-                throw new IdentityManagementException("Referenced IdentityType [" + identityTypeId + "] from " +
-                        "" +
-                        "relationship " +
-                        "[" + relationship.getClass() + "] does not exists in any store.");
-            }
+        for (String descriptor : reference.getIdentityTypeReference().keySet()) {
+            String identifier = reference.getIdentityTypeReference().get(descriptor);
+            IdentityType identityType = IdentityTypeUtil.resolveIdentityType(identifier, relationship, getPartitionManager());
 
             Property<Object> property = PropertyQueries
                     .createQuery(relationship.getClass())
