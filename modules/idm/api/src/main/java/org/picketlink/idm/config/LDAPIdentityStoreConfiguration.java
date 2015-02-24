@@ -156,7 +156,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             }
         }
 
-        throw new IdentityManagementException("No type found for Base DN [" + entryDN + "] or objectClasses [" + objectClasses + ".");
+        throw new IdentityManagementException("No type found with Base DN [" + entryDN + "] or objectClasses [" + objectClasses + ".");
     }
 
     public LDAPMappingConfiguration getMappingConfig(Class<? extends AttributedType> attributedType) {

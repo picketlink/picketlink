@@ -47,13 +47,11 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U> extends AbstractCre
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
     @Override
-    protected boolean validateCredential(IdentityContext context, CredentialStorage credentialStorage, UsernamePasswordCredentials credentials, LDAPIdentityStore store) {
+    protected boolean validateCredential(IdentityContext context, CredentialStorage credentialStorage, UsernamePasswordCredentials credentials, LDAPIdentityStore ldapIdentityStore) {
         Account account = getAccount(context, credentials.getUsername());
-
-        LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) store;
-        char[] password = credentials.getPassword().getValue();
-        String bindingDN = ldapIdentityStore.getBindingDN(account, true);
         LDAPOperationManager operationManager = ldapIdentityStore.getOperationManager();
+        String bindingDN = ldapIdentityStore.getBindingDN(account);
+        char[] password = credentials.getPassword().getValue();
 
         if (operationManager.authenticate(bindingDN, new String(password))) {
             return true;
