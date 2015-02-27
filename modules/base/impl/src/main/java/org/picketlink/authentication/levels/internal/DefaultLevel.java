@@ -8,7 +8,9 @@ import org.picketlink.authentication.levels.SecurityLevelsMismatchException;
  *
  * @author Michal Trnka
  */
-public class DefaultLevel implements Level{
+public class DefaultLevel implements Level {
+
+    private static final long serialVersionUID = -874421685922107606L;
 
     int value;
 

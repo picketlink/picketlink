@@ -51,7 +51,6 @@ import org.picketlink.idm.permission.spi.PermissionResolver;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -81,10 +80,10 @@ public abstract class AbstractIdentity implements Identity {
     private Instance<IdmAuthenticator> idmAuthenticatorInstance;
 
     @Inject
-    private transient PermissionResolver permissionResolver;
+    private Instance<PermissionResolver> permissionResolver;
 
     @Inject
-    private transient SecurityLevelManager securityLevelManager;
+    private Instance<SecurityLevelManager> securityLevelManager;
 
     /**
      * Flag indicating whether we are currently authenticating
@@ -108,10 +107,10 @@ public abstract class AbstractIdentity implements Identity {
     @Override
     public Level getLevel() {
         if(securityLevel == null){
-            securityLevel = securityLevelManager.resolveSecurityLevel();
+            securityLevel = getSecurityLevelManager().resolveSecurityLevel();
         }
         return securityLevel;
-    };
+    }
 
     @Override
     public AuthenticationResult login() {
@@ -124,7 +123,7 @@ public abstract class AbstractIdentity implements Identity {
             Account validatedAccount = null;
 
             if (isLoggedIn()) {
-                if (securityLevelManager.resolveSecurityLevel().compareTo(securityLevel) <= 0) {
+                if (getSecurityLevelManager().resolveSecurityLevel().compareTo(securityLevel) <= 0) {
                     throw new UserAlreadyLoggedInException("active agent: " + this.account.toString());
                 } else {
                     validatedAccount = authenticate();
@@ -177,7 +176,7 @@ public abstract class AbstractIdentity implements Identity {
     protected void handleSuccessfulLoginAttempt(Account validatedAccount) {
         AUTHENTICATION_LOGGER.debugf("Authentication was successful for credentials [%s]. User id is [%s].", this.loginCredential.getCredential(), this.loginCredential.getUserId());
         this.account = validatedAccount;
-        securityLevel = securityLevelManager.resolveSecurityLevel();
+        securityLevel = getSecurityLevelManager().resolveSecurityLevel();
         eventBridge.fireEvent(new LoggedInEvent());
     }
 
@@ -282,7 +281,7 @@ public abstract class AbstractIdentity implements Identity {
     private void unAuthenticate(boolean invalidateLoginCredential) {
         this.account = null;
 
-        this.securityLevel = securityLevelManager.resolveSecurityLevel();
+        this.securityLevel = getSecurityLevelManager().resolveSecurityLevel();
 
         if (invalidateLoginCredential) {
             loginCredential.invalidate();
@@ -290,11 +289,11 @@ public abstract class AbstractIdentity implements Identity {
     }
 
     public boolean hasPermission(Object resource, String operation) {
-        return isLoggedIn() && permissionResolver.resolvePermission(this.account, resource, operation);
+        return isLoggedIn() && getPermissionResolver().resolvePermission(this.account, resource, operation);
     }
 
     public boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation) {
-        return isLoggedIn() && permissionResolver.resolvePermission(this.account, resourceClass, identifier, operation);
+        return isLoggedIn() && getPermissionResolver().resolvePermission(this.account, resourceClass, identifier, operation);
     }
 
     protected Property getDefaultLoginNameProperty(Class<? extends Account> accountType) {
@@ -311,5 +310,13 @@ public abstract class AbstractIdentity implements Identity {
         }
 
         throw IDMMessages.MESSAGES.credentialUnknownUserNameProperty(accountType);
+    }
+
+    private SecurityLevelManager getSecurityLevelManager() {
+        return securityLevelManager.get();
+    }
+
+    private PermissionResolver getPermissionResolver() {
+        return permissionResolver.get();
     }
 }

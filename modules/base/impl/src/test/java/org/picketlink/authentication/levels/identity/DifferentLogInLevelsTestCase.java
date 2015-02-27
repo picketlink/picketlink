@@ -1,12 +1,5 @@
 package org.picketlink.authentication.levels.identity;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -15,6 +8,13 @@ import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.authentication.levels.internal.DefaultLevel;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.basic.User;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class DifferentLogInLevelsTestCase extends IdentityTestCase{
@@ -40,7 +40,7 @@ public class DifferentLogInLevelsTestCase extends IdentityTestCase{
 
     @Test
     public void userAlreadyLoggedInTest(){
-        when(securityLevelManager.resolveSecurityLevel()).thenReturn(new DefaultLevel(firstLevel),new DefaultLevel(secondLevel));
+        when(securityLevelManager.get().resolveSecurityLevel()).thenReturn(new DefaultLevel(firstLevel),new DefaultLevel(secondLevel));
         Account acc = new User("Joe");
         setAuthenticator(true,acc);
         identity.login();

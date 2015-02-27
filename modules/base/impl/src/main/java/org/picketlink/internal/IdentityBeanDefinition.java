@@ -52,9 +52,9 @@ public class IdentityBeanDefinition implements Bean<DefaultIdentity>, Serializab
 
     private static final long serialVersionUID = -4725126763788040967L;
 
-    private final BeanManager beanManager;
-    private final InjectionTarget<DefaultIdentity> injectionTarget;
-    private SecurityConfiguration securityConfiguration;
+    private BeanManager beanManager;
+    private transient InjectionTarget<DefaultIdentity> injectionTarget;
+    private transient SecurityConfiguration securityConfiguration;
 
     public IdentityBeanDefinition(BeanManager beanManager) {
         this.beanManager = beanManager;
