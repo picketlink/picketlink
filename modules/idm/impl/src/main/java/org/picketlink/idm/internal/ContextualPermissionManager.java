@@ -115,8 +115,7 @@ public class ContextualPermissionManager implements PermissionManager {
 
                 if (IdentityTypeReference.class.isInstance(assignee)) {
                     IdentityTypeReference identityTypeReference = (IdentityTypeReference) assignee;
-                    IdentityType identityType = IdentityTypeUtil.resolveIdentityType(identityTypeReference.getId(),
-                            identityTypeReference, this.partitionManager);
+                    IdentityType identityType = IdentityTypeUtil.resolveIdentityType(identityTypeReference.getId(), identityTypeReference, this.partitionManager);
 
                     permissions.remove(permission);
 
