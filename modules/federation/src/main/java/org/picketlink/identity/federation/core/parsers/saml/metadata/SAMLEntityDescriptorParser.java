@@ -44,6 +44,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
 import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.RequestedAttributeType;
+import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 import org.w3c.dom.Element;
@@ -144,6 +145,13 @@ public class SAMLEntityDescriptorParser extends AbstractDescriptorParser impleme
                 throw logger.unsupportedType("AdditionalMetadataLocation");
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 entityDescriptorType.setExtensions(parseExtensions(xmlEventReader));
+            } else if (JBossSAMLConstants.ROLE_DESCRIPTOR.get().equalsIgnoreCase(localPart)) {
+                RoleDescriptorType roleDescriptor = parseRoleDescriptor(xmlEventReader);
+
+                EDTDescriptorChoiceType edtDescChoice = new EDTDescriptorChoiceType(roleDescriptor);
+                EDTChoiceType edtChoice = EDTChoiceType.oneValue(edtDescChoice);
+
+                entityDescriptorType.addChoiceType(edtChoice);
             } else
                 throw logger.parserUnknownStartElement(localPart, startElement.getLocation());
         }
@@ -357,9 +365,7 @@ public class SAMLEntityDescriptorParser extends AbstractDescriptorParser impleme
 
                 attributeAuthority.addAttributeService(endpoint);
             } else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase(localPart)) {
-                KeyDescriptorType keyDescriptor = parseKeyDescriptor(xmlEventReader);
-
-                attributeAuthority.addKeyDescriptor(keyDescriptor);
+                attributeAuthority.addKeyDescriptor(parseKeyDescriptor(xmlEventReader));
             } else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase(localPart)) {
                 startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
                 attributeAuthority.addNameIDFormat(StaxParserUtil.getElementText(xmlEventReader));
@@ -643,5 +649,33 @@ public class SAMLEntityDescriptorParser extends AbstractDescriptorParser impleme
         Element extElement = StaxParserUtil.getDOMElement(xmlEventReader);
         extensions.setElement(extElement);
         return extensions;
+    }
+
+    private RoleDescriptorType parseRoleDescriptor(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, JBossSAMLConstants.ROLE_DESCRIPTOR.get());
+        List<String> protocolEnum = SAMLParserUtil.parseProtocolEnumeration(startElement);
+        RoleDescriptorType roleDescriptorType = new RoleDescriptorType(protocolEnum) {};
+
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(end, JBossSAMLConstants.ROLE_DESCRIPTOR.get());
+                break;
+            }
+
+            startElement = (StartElement) xmlEvent;
+            String localPart = startElement.getName().getLocalPart();
+
+            if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase(localPart)) {
+                KeyDescriptorType keyDescriptor = parseKeyDescriptor(xmlEventReader);
+                roleDescriptorType.addKeyDescriptor(keyDescriptor);
+            } else {
+                StaxParserUtil.bypassElementBlock(xmlEventReader, localPart);
+            }
+        }
+
+        return roleDescriptorType;
     }
 }

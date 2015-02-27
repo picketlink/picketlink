@@ -175,4 +175,16 @@ public class SAMLMetadataParsingUnitTestCase {
 
         assertTrue(parsedEncryptionMethod);
     }
+
+    @Test
+    public void testIdPMetadataWithRoleDescriptor() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream("saml2/metadata/role-descriptor-idp-metadata.xml");
+        assertNotNull("Inputstream not null", is);
+        SAMLParser parser = new SAMLParser();
+
+        EntityDescriptorType entityDescriptorType = (EntityDescriptorType) parser.parse(is);
+        assertNotNull(entityDescriptorType);
+        assertEquals("https://sts.windows.net/{tenantid}/", entityDescriptorType.getEntityID());
+    }
 }
