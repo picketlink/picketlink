@@ -45,6 +45,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.RequestedAttributeType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
@@ -53,6 +54,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.List;
 
@@ -214,14 +216,7 @@ public class SAMLEntityDescriptorParser extends AbstractDescriptorParser impleme
                 startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
                 spSSODescriptor.addNameIDFormat(StaxParserUtil.getElementText(xmlEventReader));
             } else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase(localPart)) {
-                KeyDescriptorType keyDescriptor = new KeyDescriptorType();
-                String use = StaxParserUtil.getAttributeValue(startElement, "use");
-                if (use != null)
-                    keyDescriptor.setUse(KeyTypes.fromValue(use));
-
-                Element key = StaxParserUtil.getDOMElement(xmlEventReader);
-                keyDescriptor.setKeyInfo(key);
-                spSSODescriptor.addKeyDescriptor(keyDescriptor);
+                spSSODescriptor.addKeyDescriptor(parseKeyDescriptor(xmlEventReader));
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 spSSODescriptor.setExtensions(parseExtensions(xmlEventReader));
             } else
@@ -305,15 +300,7 @@ public class SAMLEntityDescriptorParser extends AbstractDescriptorParser impleme
                 AttributeType attribute = SAMLParserUtil.parseAttribute(xmlEventReader);
                 idpSSODescriptor.addAttribute(attribute);
             } else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase(localPart)) {
-                KeyDescriptorType keyDescriptor = new KeyDescriptorType();
-                String use = StaxParserUtil.getAttributeValue(startElement, "use");
-                if (use != null && !use.isEmpty()) {
-                    keyDescriptor.setUse(KeyTypes.fromValue(use));
-                }
-
-                Element key = StaxParserUtil.getDOMElement(xmlEventReader);
-                keyDescriptor.setKeyInfo(key);
-                idpSSODescriptor.addKeyDescriptor(keyDescriptor);
+                idpSSODescriptor.addKeyDescriptor(parseKeyDescriptor(xmlEventReader));
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 idpSSODescriptor.setExtensions(parseExtensions(xmlEventReader));
             } else
@@ -370,14 +357,7 @@ public class SAMLEntityDescriptorParser extends AbstractDescriptorParser impleme
 
                 attributeAuthority.addAttributeService(endpoint);
             } else if (JBossSAMLConstants.KEY_DESCRIPTOR.get().equalsIgnoreCase(localPart)) {
-                KeyDescriptorType keyDescriptor = new KeyDescriptorType();
-                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-
-                Element key = StaxParserUtil.getDOMElement(xmlEventReader);
-                keyDescriptor.setKeyInfo(key);
-
-                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-                StaxParserUtil.validate(endElement, JBossSAMLConstants.KEY_DESCRIPTOR.get());
+                KeyDescriptorType keyDescriptor = parseKeyDescriptor(xmlEventReader);
 
                 attributeAuthority.addKeyDescriptor(keyDescriptor);
             } else if (JBossSAMLConstants.NAMEID_FORMAT.get().equalsIgnoreCase(localPart)) {
@@ -430,6 +410,79 @@ public class SAMLEntityDescriptorParser extends AbstractDescriptorParser impleme
                 throw logger.parserUnknownTag(localPart, startElement.getLocation());
         }
         return org;
+    }
+
+    private KeyDescriptorType parseKeyDescriptor(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, JBossSAMLConstants.KEY_DESCRIPTOR.get());
+
+        KeyDescriptorType keyDescriptor = new KeyDescriptorType();
+
+        String use = StaxParserUtil.getAttributeValue(startElement, "use");
+
+        if (use != null && !use.isEmpty()) {
+            keyDescriptor.setUse(KeyTypes.fromValue(use));
+        }
+
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(end, JBossSAMLConstants.KEY_DESCRIPTOR.get());
+                break;
+            }
+
+            startElement = (StartElement) xmlEvent;
+            String localPart = startElement.getName().getLocalPart();
+
+            if (JBossSAMLConstants.KEY_INFO.get().equals(localPart)) {
+                Element key = StaxParserUtil.getDOMElement(xmlEventReader);
+                keyDescriptor.setKeyInfo(key);
+            } else if (JBossSAMLConstants.ENCRYPTION_METHOD.get().equals(localPart)) {
+                keyDescriptor.addEncryptionMethod(parseEncryptionMethod(xmlEventReader));
+            } else
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
+        }
+
+        return keyDescriptor;
+    }
+
+    private EncryptionMethodType parseEncryptionMethod(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, JBossSAMLConstants.ENCRYPTION_METHOD.get());
+        Attribute algorithm = startElement.getAttributeByName(new QName("Algorithm"));
+        EncryptionMethodType encryptionMethodType = new EncryptionMethodType(algorithm.getValue());
+
+        BigInteger keySize = null;
+        byte[] OAEPparams = null;
+
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(end, JBossSAMLConstants.ENCRYPTION_METHOD.get());
+                break;
+            }
+
+            startElement = (StartElement) xmlEvent;
+            String localPart = startElement.getName().getLocalPart();
+
+            if ("KeySize".equals(localPart)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                keySize = BigInteger.valueOf(Long.valueOf(StaxParserUtil.getElementText(xmlEventReader)));
+            } else if ("OAEPparams".equals(localPart)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                OAEPparams = StaxParserUtil.getElementText(xmlEventReader).getBytes();
+            } else {
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
+            }
+        }
+
+        EncryptionMethodType.EncryptionMethod encryptionMethod = new EncryptionMethodType.EncryptionMethod(keySize, OAEPparams);
+
+        encryptionMethodType.setEncryptionMethod(encryptionMethod);
+
+        return encryptionMethodType;
     }
 
     private ContactType parseContactPerson(XMLEventReader xmlEventReader) throws ParsingException {

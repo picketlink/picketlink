@@ -29,6 +29,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
+import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
+import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 
 import javax.xml.stream.XMLStreamWriter;
 import java.io.ByteArrayOutputStream;
@@ -37,6 +39,7 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -133,5 +136,43 @@ public class SAMLMetadataParsingUnitTestCase {
             mdWriter.writeEntitiesDescriptor(entities);
 
         }
+    }
+
+    @Test
+    public void testShibbolethMetadataEncryptionMethod() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream("saml2/metadata/testshib-metadata.xml");
+        assertNotNull("Inputstream not null", is);
+
+        SAMLParser parser = new SAMLParser();
+        EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
+        Assert.assertNotNull(entities);
+        Assert.assertEquals(2, entities.getEntityDescriptor().size());
+
+        boolean parsedEncryptionMethod = false;
+
+        for (Object entityDescriptorType : entities.getEntityDescriptor()) {
+            EntityDescriptorType descriptorType = (EntityDescriptorType) entityDescriptorType;
+            List<EntityDescriptorType.EDTChoiceType> choiceType = descriptorType.getChoiceType();
+            EntityDescriptorType.EDTChoiceType edtChoiceType = choiceType.get(0);
+            List<EntityDescriptorType.EDTDescriptorChoiceType> descriptors = edtChoiceType.getDescriptors();
+            RoleDescriptorType attribDescriptor = descriptors.get(0).getAttribDescriptor();
+
+            if (attribDescriptor == null) {
+                attribDescriptor = descriptors.get(0).getSpDescriptor();
+            }
+
+            if (attribDescriptor != null) {
+                List<KeyDescriptorType> keyDescriptor = attribDescriptor.getKeyDescriptor();
+                KeyDescriptorType type = keyDescriptor.get(0);
+                List<EncryptionMethodType> encryptionMethod = type.getEncryptionMethod();
+
+                assertFalse(encryptionMethod.isEmpty());
+
+                parsedEncryptionMethod = true;
+            }
+        }
+
+        assertTrue(parsedEncryptionMethod);
     }
 }
