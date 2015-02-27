@@ -43,7 +43,7 @@ public enum JBossSAMLConstants {
             "EntitiesDescriptor"), EXTENSIONS("Extensions"), FORMAT("Format"), FRIENDLY_NAME("FriendlyName"), FORCE_AUTHN(
             "ForceAuthn"), GIVEN_NAME("GivenName"), ID("ID"), IDP_SSO_DESCRIPTOR("IDPSSODescriptor"), INDEX("index"), INPUT_CONTEXT_ONLY(
             "InputContextOnly"), IN_RESPONSE_TO("InResponseTo"), ISDEFAULT("isDefault"), IS_REQUIRED("isRequired"), IS_PASSIVE(
-            "IsPassive"), ISSUE_INSTANT("IssueInstant"), ISSUER("Issuer"), KEY_DESCRIPTOR("KeyDescriptor"), KEY_INFO("KeyInfo"), LANG(
+            "IsPassive"), ISSUE_INSTANT("IssueInstant"), ISSUER("Issuer"), KEY_DESCRIPTOR("KeyDescriptor"), KEY_INFO("KeyInfo"), ENCRYPTION_METHOD("EncryptionMethod"), LANG(
             "lang"), LANG_EN("en"), LOCATION("Location"), LOGOUT_REQUEST("LogoutRequest"), LOGOUT_RESPONSE("LogoutResponse"), MANAGE_NAMEID_SERVICE(
             "ManageNameIDService"), METADATA_MIME("application/samlmetadata+xml"), METHOD("Method"), NAME("Name"), NAME_FORMAT(
             "NameFormat"), NAMEID("NameID"), NAMEID_FORMAT("NameIDFormat"), NAMEID_MAPPING_SERVICE("NameIDMappingService"), NAMEID_POLICY(
