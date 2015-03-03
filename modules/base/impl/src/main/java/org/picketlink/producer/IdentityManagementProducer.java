@@ -166,7 +166,7 @@ public class IdentityManagementProducer {
                 try {
                     partitionManager.add(defaultPartition);
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not create default partition. If you're using the JPA identity store, check if there is an active transaction.");
+                    throw new RuntimeException("Could not create default partition. If you're using the JPA identity store, check if there is an active transaction.", e);
                 }
             } else {
                 if (ROOT_LOGGER.isDebugEnabled()) {
