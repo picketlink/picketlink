@@ -63,8 +63,8 @@
     <version.javax.el>2.2.4</version.javax.el>
     <shrinkwrap.resolver.version>2.0.0-beta-2</shrinkwrap.resolver.version>
     <arquillian.version>1.0.3.Final</arquillian.version>
-    <jboss.logging.version>3.1.1.GA</jboss.logging.version>
-    <jboss.logging.processor.version>1.0.3.Final</jboss.logging.processor.version>
+    <jboss.logging.version>3.2.1.Final</jboss.logging.version>
+    <jboss.logging.processor.version>1.2.1.Final</jboss.logging.processor.version>
     <junit.version>4.10</junit.version>
     <mockito.version>1.9.0</mockito.version>
   </properties>
@@ -231,6 +231,13 @@
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>
         <version>${jboss.logging.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging-annotations</artifactId>
+        <version>${jboss.logging.processor.version}</version>
         <scope>provided</scope>
       </dependency>
 
