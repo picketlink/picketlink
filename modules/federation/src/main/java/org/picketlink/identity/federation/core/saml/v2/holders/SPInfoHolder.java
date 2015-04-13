@@ -17,6 +17,8 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.holders;
 
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+
 /**
  * <p>
  * Holds the information about a Service Provider
@@ -33,6 +35,7 @@ public class SPInfoHolder {
     private String requestID;
     private String responseDestinationURI;
     private String issuer;
+    private AuthnRequestType authnRequestType;
 
     public String getRequestID() {
         return requestID;
@@ -56,5 +59,13 @@ public class SPInfoHolder {
 
     public void setIssuer(String issuer) {
         this.issuer = issuer;
+    }
+
+    public void setAuthnRequestType(AuthnRequestType authnRequestType) {
+        this.authnRequestType = authnRequestType;
+    }
+
+    public AuthnRequestType getAuthnRequestType() {
+        return this.authnRequestType;
     }
 }

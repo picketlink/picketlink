@@ -56,6 +56,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.w3c.dom.Document;
@@ -251,7 +252,13 @@ public class SAML2Response {
         subjectConfirmation.setMethod(idp.getSubjectConfirmationMethod());
 
         SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
-        subjectConfirmationData.setInResponseTo(sp.getRequestID());
+
+        AuthnRequestType authnRequestType = sp.getAuthnRequestType();
+
+        if (!isUnsolicitedResponse(authnRequestType)) {
+            subjectConfirmationData.setInResponseTo(sp.getRequestID());
+        }
+
         subjectConfirmationData.setRecipient(responseDestinationURI);
         //subjectConfirmationData.setNotBefore(issueInstant);
         subjectConfirmationData.setNotOnOrAfter(issueInstant);
@@ -287,12 +294,20 @@ public class SAML2Response {
         }
 
         ResponseType responseType = createResponseType(ID, issuerInfo, assertionType);
-        // InResponseTo ID
-        responseType.setInResponseTo(sp.getRequestID());
+
+        if (!isUnsolicitedResponse(authnRequestType)) {
+            // InResponseTo ID
+            responseType.setInResponseTo(sp.getRequestID());
+        }
+
         // Destination
         responseType.setDestination(responseDestinationURI);
 
         return responseType;
+    }
+
+    private boolean isUnsolicitedResponse(AuthnRequestType authnRequestType) {
+        return authnRequestType != null && authnRequestType.isUnsolicitedResponse();
     }
 
     /**
