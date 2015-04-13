@@ -82,6 +82,8 @@ public class AuthnRequestType extends RequestAbstractType {
 
     protected String providerName;
 
+    protected boolean unsolicitedResponse;
+
     public AuthnRequestType(String id, XMLGregorianCalendar instant) {
         super(id, instant);
     }
@@ -320,5 +322,13 @@ public class AuthnRequestType extends RequestAbstractType {
         }
 
         throw new RuntimeException("Could not resolve sender URL. AuthnRequest must have a value for AssertionConsumerServiceURL or Issuer.");
+    }
+
+    public boolean isUnsolicitedResponse() {
+        return this.unsolicitedResponse;
+    }
+
+    public void setUnsolicitedResponse(boolean unsolicitedResponse) {
+        this.unsolicitedResponse = unsolicitedResponse;
     }
 }
