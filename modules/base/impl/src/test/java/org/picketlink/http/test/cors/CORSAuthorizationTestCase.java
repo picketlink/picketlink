@@ -105,9 +105,9 @@ public class CORSAuthorizationTestCase extends AbstractSecurityFilterTestCase {
         verify(this.response, times(1)).addHeader("Access-Control-Allow-Origin", "http://www.example.org:9000");
         verify(this.response, times(0)).addHeader("Access-Control-Expose-Headers", "Origin, Accept");
         verify(this.response, times(1)).addHeader("Access-Control-Max-Age", "3600");
-        verify(this.response, times(1)).addHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS, PUT");
+        verify(this.response, times(1)).addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
         verify(this.response, times(1)).addHeader("Access-Control-Allow-Headers",
-                "Authorization, X-Requested-With, Origin, Accept, Content-Type");
+                "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
         // Preflight Request with another allowed origin
         reset(this.response);
@@ -124,9 +124,9 @@ public class CORSAuthorizationTestCase extends AbstractSecurityFilterTestCase {
         verify(this.response, times(1)).addHeader("Access-Control-Allow-Origin", "http://www.example.com:8008");
         verify(this.response, times(0)).addHeader("Access-Control-Expose-Headers", "Origin, Accept");
         verify(this.response, times(1)).addHeader("Access-Control-Max-Age", "3600");
-        verify(this.response, times(1)).addHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS, PUT");
+        verify(this.response, times(1)).addHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
         verify(this.response, times(1)).addHeader("Access-Control-Allow-Headers",
-                "Authorization, X-Requested-With, Origin, Accept, Content-Type");
+                "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
     }
 

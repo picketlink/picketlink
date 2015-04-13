@@ -1,10 +1,10 @@
 package org.picketlink.http.internal.cors;
 
-import static java.util.regex.Pattern.compile;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.compile;
 
 /**
  * Utility functions for CORS requests.
@@ -92,10 +92,10 @@ public class CorsUtil {
     public static String join(Collection<String> strings, String separator) {
         Iterator<String> iter = strings.iterator();
         StringBuilder sb = new StringBuilder();
-        if (iter.hasNext()) {
+        while (iter.hasNext()) {
             sb.append(iter.next());
-            while (iter.hasNext()) {
-                sb.append(separator).append(iter.next());
+            if (iter.hasNext()) {
+                sb.append(separator);
             }
         }
         return sb.toString();

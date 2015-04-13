@@ -22,7 +22,7 @@
 package org.picketlink.config.http;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -30,10 +30,10 @@ import java.util.Set;
  */
 public class CORSConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
 
-    private Set<String> allowedOrigins = new HashSet<String>();
-    private Set<String> allowedMethods = new HashSet<String>();;
-    private Set<String> allowedHeaders = new HashSet<String>();;
-    private Set<String> exposedHeaders = new HashSet<String>();;
+    private Set<String> allowedOrigins = new LinkedHashSet<String>();
+    private Set<String> allowedMethods = new LinkedHashSet<String>();;
+    private Set<String> allowedHeaders = new LinkedHashSet<String>();;
+    private Set<String> exposedHeaders = new LinkedHashSet<String>();;
     private boolean allowCredentials;
     private boolean allowAnyOrigin;
     private boolean allowAnyHeader;

@@ -21,12 +21,11 @@
  */
 package org.picketlink.http.test.cors;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import junit.framework.TestCase;
-
 import org.picketlink.http.internal.cors.CorsUtil;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Tests the CORS Utility methods.
@@ -179,12 +178,12 @@ public class CorsUtilTest extends TestCase {
     }
 
     public void testJoin() {
-        Set<String> supportedMethods = new HashSet<String>();
+        Set<String> supportedMethods = new LinkedHashSet<String>();
         supportedMethods.add("HEAD");
         supportedMethods.add("PUT");
         supportedMethods.add("DELETE");
 
-        assertEquals(CorsUtil.join(supportedMethods), "DELETE, PUT, HEAD");
+        assertEquals(CorsUtil.join(supportedMethods), "HEAD, PUT, DELETE");
     }
 
 }
