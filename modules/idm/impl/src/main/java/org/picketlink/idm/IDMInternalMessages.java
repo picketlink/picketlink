@@ -22,11 +22,11 @@
 
 package org.picketlink.idm;
 
-import org.jboss.logging.Cause;
-import org.jboss.logging.Message;
-import org.jboss.logging.MessageBundle;
+import org.jboss.logging.annotations.Cause;
+import org.jboss.logging.annotations.Message;
+import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.Messages;
-import org.jboss.logging.Param;
+import org.jboss.logging.annotations.Param;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.model.AttributedType;

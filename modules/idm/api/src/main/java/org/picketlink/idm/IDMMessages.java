@@ -22,9 +22,9 @@
 
 package org.picketlink.idm;
 
-import org.jboss.logging.Cause;
-import org.jboss.logging.Message;
-import org.jboss.logging.MessageBundle;
+import org.jboss.logging.annotations.Cause;
+import org.jboss.logging.annotations.Message;
+import org.jboss.logging.annotations.MessageBundle;
 import org.jboss.logging.Messages;
 import org.picketlink.common.exceptions.NotImplementedException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
