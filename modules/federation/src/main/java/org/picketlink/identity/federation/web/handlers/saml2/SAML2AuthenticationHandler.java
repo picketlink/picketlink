@@ -91,6 +91,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * <p> Handles for dealing with SAML2 Authentication </p>
@@ -429,8 +430,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             String id = IDGenerator.create("ID_");
 
             String assertionConsumerURL = (String) handlerConfig.getParameter(SAML2Handler.ASSERTION_CONSUMER_URL);
-            if (StringUtil.isNullOrEmpty(assertionConsumerURL)) {
+            if (isNullOrEmpty(assertionConsumerURL)) {
                 assertionConsumerURL = issuerValue;
+            }
+
+            SPType spConfiguration = getSPConfiguration();
+
+            if (spConfiguration.getEntityId() != null) {
+                assertionConsumerURL = spConfiguration.getEntityId();
             }
 
             // Check if there is a nameid policy
@@ -450,8 +457,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                     authn.setForceAuthn(Boolean.valueOf(forceAuthn));
                 }
 
-                String bindingType = getSPConfiguration().getBindingType();
-                boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
+                String bindingType = spConfiguration.getBindingType();
+                boolean isIdpUsesPostBinding = spConfiguration.isIdpUsesPostBinding();
 
                 if (bindingType != null) {
                     if (bindingType.equals("POST") || isIdpUsesPostBinding) {

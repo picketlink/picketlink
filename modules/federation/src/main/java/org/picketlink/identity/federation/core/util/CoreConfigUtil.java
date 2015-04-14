@@ -351,14 +351,18 @@ public class CoreConfigUtil {
                 if (theObject instanceof EntitiesDescriptorType) {
                     spType = getSPConfiguration((EntitiesDescriptorType) theObject, bindingURI);
                 } else if (theObject instanceof EntityDescriptorType) {
+                    EntityDescriptorType entityDescriptor = (EntityDescriptorType) theObject;
+
                     if (idpSSO == null) {
                         // Ideally we should lookup the IDP metadata considering the specs. For now the IDP metadata must be
                         // defined within the SP metadata file.
-                        idpSSO = getIDPDescriptor((EntityDescriptorType) theObject);
+                        idpSSO = getIDPDescriptor(entityDescriptor);
                     }
 
                     if (spSSO == null) {
-                        spSSO = getSPDescriptor((EntityDescriptorType) theObject);
+                        spSSO = getSPDescriptor(entityDescriptor);
+
+                        spType.setEntityId(entityDescriptor.getEntityID());
                     }
                 }
             }
