@@ -238,6 +238,12 @@ public class ProviderType {
      * @param other
      */
     public void importFrom(ProviderType other) {
+        String entityId = other.getEntityId();
+
+        if (!isNullOrEmpty(entityId)) {
+            setEntityId(entityId);
+        }
+
         String identityUrl = other.getIdentityURL();
 
         if (!isNullOrEmpty(identityUrl)) {
