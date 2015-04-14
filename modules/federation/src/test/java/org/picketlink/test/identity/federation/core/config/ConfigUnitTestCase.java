@@ -121,6 +121,15 @@ public class ConfigUnitTestCase {
         assertEquals(CanonicalizationMethod.EXCLUSIVE, sp.getCanonicalizationMethod());
     }
 
+    @Test
+    public void testEntityID() throws Exception {
+        Object object = this.unmarshall(config + "3.xml");
+        assertNotNull("SP is null", object);
+
+        SPType sp = (SPType) object;
+        assertEquals("SomeEntityID", sp.getEntityId());
+    }
+
     /**
      * <p>
      * Tests the parsing of a Security Token Service configuration.

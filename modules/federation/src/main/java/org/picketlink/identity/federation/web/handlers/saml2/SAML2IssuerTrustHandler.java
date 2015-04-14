@@ -205,9 +205,13 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
         }
         // This could be the case if argument is not full URL (like "google.com" or "google.com/a/mydomain.com")
         catch (MalformedURLException me) {
-            domainURL = "http://" + domainURL;
-            URL url = new URL(domainURL);
-            return url.getHost();
+            try {
+                domainURL = "http://" + domainURL;
+                URL url = new URL(domainURL);
+                return url.getHost();
+            } catch (Exception e) {
+                return domainURL;
+            }
         }
     }
 }

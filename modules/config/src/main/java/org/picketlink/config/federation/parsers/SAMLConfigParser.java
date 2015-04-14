@@ -66,6 +66,8 @@ public class SAMLConfigParser extends AbstractParser {
 
     public static final String IDENTITY_URL = "IdentityURL";
 
+    public static final String ENTITY_ID = "EntityID";
+
     public static final String SERVICE_URL = "ServiceURL";
 
     public static final String IDP_METADATA_FILE = "IDPMetadataFile";
@@ -189,6 +191,11 @@ public class SAMLConfigParser extends AbstractParser {
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, IDP);
 
+        Attribute entityId = startElement.getAttributeByName(new QName("", ENTITY_ID));
+
+        if (entityId != null)
+            idp.setEntityId(StaxParserUtil.getAttributeValue(entityId));
+
         QName attributeQName = new QName("", ROLE_GENERATOR);
         Attribute attribute = startElement.getAttributeByName(attributeQName);
 
@@ -280,6 +287,11 @@ public class SAMLConfigParser extends AbstractParser {
         SPType sp = new SPType();
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, SP);
+
+        Attribute entityId = startElement.getAttributeByName(new QName("", ENTITY_ID));
+
+        if (entityId != null)
+            sp.setEntityId(StaxParserUtil.getAttributeValue(entityId));
 
         QName attributeQName = new QName("", CANONICALIZATION_METHOD);
         Attribute attribute = startElement.getAttributeByName(attributeQName);

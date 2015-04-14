@@ -374,14 +374,19 @@ public class AssertionUtil {
                         List<URI> audiences = audienceRestrictionType.getAudience();
 
                         if (audiences != null) {
-                            for (URI audience : audiences) {
-                                if (audience.toString().startsWith(spType.getServiceURL())) {
+                            for (URI audienceUri : audiences) {
+                                String audience = audienceUri.toString();
+
+                                if (audience.startsWith(spType.getServiceURL()) || audience.equals(spType.getEntityId())) {
                                     return true;
                                 }
                             }
                         }
 
-                        logger.warn("Assertion [" + assertionType.getID() + "] does not contain [" + spType.getServiceURL() + "] in audience list [" + audiences + "]. Expected audience is [" + spType.getServiceURL() + "].");
+                        String entityId = spType.getEntityId() != null ? " or " + spType.getEntityId() : "";
+
+                        logger.warn("Assertion [" + assertionType.getID() + "] does not contain [" + spType.getServiceURL()
+                                + entityId + "] in audience list [" + audiences + "]. Expected audience is [" + spType.getServiceURL() + entityId + "].");
 
                         return false;
                     }

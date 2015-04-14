@@ -40,6 +40,7 @@ public class SPPostMetadataConfigurationProviderUnitTestCase {
         SPPostMetadataConfigurationProvider provider = new SPPostMetadataConfigurationProvider();
         SPType sp = provider.getSPConfiguration();
         assertNotNull(sp);
+        assertEquals("https://sp.testshib.org/shibboleth-sp", sp.getEntityId());
         assertEquals("https://sp.testshib.org/Shibboleth.sso/SAML2/POST", sp.getServiceURL());
         assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SLO", sp.getLogoutUrl());
     }

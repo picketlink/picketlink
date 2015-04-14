@@ -64,6 +64,8 @@ import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
  */
 public class ProviderType {
 
+    protected String entityId;
+
     protected String identityURL;
 
     protected TrustType trust;
@@ -79,6 +81,14 @@ public class ProviderType {
     protected Map<String, Object> additionalOptions = new HashMap<String, Object>();
 
     protected boolean supportsSignature = false;
+
+    public String getEntityId() {
+        return this.entityId;
+    }
+
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
+    }
 
     /**
      * Gets the value of the identityURL property.
@@ -228,6 +238,12 @@ public class ProviderType {
      * @param other
      */
     public void importFrom(ProviderType other) {
+        String entityId = other.getEntityId();
+
+        if (!isNullOrEmpty(entityId)) {
+            setEntityId(entityId);
+        }
+
         String identityUrl = other.getIdentityURL();
 
         if (!isNullOrEmpty(identityUrl)) {

@@ -1,5 +1,6 @@
 <PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0"
-              CanonicalizationMethod="http://www.w3.org/2001/10/xml-exc-c14n#">
+              CanonicalizationMethod="http://www.w3.org/2001/10/xml-exc-c14n#"
+              EntityID="SomeEntityID">
   <IdentityURL>http://localhost:8080/idp</IdentityURL>
   <Trust>
     <Domains>localhost,jboss.com,jboss.org</Domains>
