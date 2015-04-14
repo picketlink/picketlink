@@ -215,6 +215,8 @@ public class AuthorizationUtil {
                     if (!result.isEmpty()) {
                         return true;
                     }
+
+                    return relationshipManager.inheritsPrivileges(identity.getAccount(), role);
                 }
             }
         }
