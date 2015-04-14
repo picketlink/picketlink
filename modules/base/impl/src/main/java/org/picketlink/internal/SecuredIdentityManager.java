@@ -69,7 +69,7 @@ public class SecuredIdentityManager implements IdentityManager {
 
     @Override
     public <C extends IdentityType> C lookupById(Class<C> attributedType, String id) throws IdentityManagementException {
-        return lookupById(attributedType, id);
+        return decorated.lookupById(attributedType, id);
     }
 
     @Override
