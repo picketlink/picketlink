@@ -22,6 +22,7 @@
 package org.picketlink.test.json.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.picketlink.json.JsonConstants.RSA;
 import static org.picketlink.json.JsonConstants.JWE.ALG_RSA1_5;
 import static org.picketlink.json.JsonConstants.JWE.ALG_RSA_OAEP;
@@ -33,6 +34,7 @@ import static org.picketlink.json.JsonConstants.JWE.ENC_A192GCM;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A256CBC_HS512;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A256GCM;
 
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -42,6 +44,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
+import java.util.Map;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -160,13 +168,13 @@ public class JWEAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals(
-            "{\"keys\":[{\"n\":\""
-                + jwkKeyPair2.getModulus()
-                + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
-                + jwkKeyPair1.getModulus()
-                + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sig\"}],\"alg\":\"RSA-OAEP\",\"enc\":\"A256GCM\",\"cek_bitlength\":256,\"zip\":\"DEF\",\"typ\":\"jwt\",\"cty\":\"jwe\",\"x5c\":[\"cert1\",\"cert2\",\"cert3\"],\"kid\":\"1\"}",
-            jsonString);
+        assertJwEquals(
+                "{\"keys\":[{\"n\":\""
+                        + jwkKeyPair2.getModulus()
+                        + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
+                        + jwkKeyPair1.getModulus()
+                        + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sig\"}],\"alg\":\"RSA-OAEP\",\"enc\":\"A256GCM\",\"cek_bitlength\":256,\"zip\":\"DEF\",\"typ\":\"jwt\",\"cty\":\"jwe\",\"x5c\":[\"cert1\",\"cert2\",\"cert3\"],\"kid\":\"1\"}",
+                jsonString);
     }
 
     /**
@@ -426,5 +434,33 @@ public class JWEAPITestCase {
         String decryptedPayload = new String(decryptedByteArray);
 
         assertEquals(payLoad, decryptedPayload);
+    }
+
+    public static void assertJwEquals(String test, String expected) {
+        JsonObject testObj = Json.createReader(new StringReader(test)).readObject();
+        JsonObject expectedObj = Json.createReader(new StringReader(expected)).readObject();
+        for (Map.Entry<String, JsonValue> entry : testObj.entrySet()) {
+            assertFieldEquals(testObj, expectedObj, entry.getKey());
+        }
+        for (Map.Entry<String, JsonValue> entry : expectedObj.entrySet()) {
+            assertFieldEquals(testObj, expectedObj, entry.getKey());
+        }
+    }
+
+    private static void assertFieldEquals(JsonObject testObj, JsonObject expectedObj, String key){
+        assertEquals("field: " + key, testObj.containsKey(key), expectedObj.containsKey(key));
+        if ("keys".equals(key)) {
+            JsonArray testKeys = testObj.getJsonArray(key);
+            JsonArray expectedKeys = expectedObj.getJsonArray(key);
+            for (JsonValue v : testKeys) {
+                assertTrue("testKeys: " + v, expectedKeys.contains(v));
+            }
+            for (JsonValue v : expectedKeys) {
+                assertTrue("expectedKeys: " + v, testKeys.contains(v));
+            }
+        }
+        else {
+            assertEquals("field: " + key, testObj.get(key), expectedObj.get(key));
+        }
     }
 }

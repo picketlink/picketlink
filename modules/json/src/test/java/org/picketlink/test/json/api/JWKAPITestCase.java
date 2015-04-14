@@ -23,6 +23,7 @@ package org.picketlink.test.json.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.picketlink.test.json.api.JWEAPITestCase.assertJwEquals;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -119,7 +120,7 @@ public class JWKAPITestCase {
         JWKSet jwkSet = new JWKSet(jwkKeyPair1, jwkKeyPair2, jwkKeyPair3, jwkKeyPair4);
         String jsonKeySet = jwkSet.toString();
 
-        assertEquals("{\"keys\":[{\"n\":\"" + jwkKeyPair3.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"3\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair4.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"4\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"}]}", jsonKeySet);
+        assertJwEquals("{\"keys\":[{\"n\":\"" + jwkKeyPair3.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"3\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair4.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"4\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"}]}", jsonKeySet);
 
         JWKSet parsedKeySet = new JWKSet(jsonKeySet);
 

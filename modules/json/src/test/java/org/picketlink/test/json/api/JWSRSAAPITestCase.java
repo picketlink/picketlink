@@ -21,6 +21,16 @@
  */
 package org.picketlink.test.json.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.picketlink.json.JsonConstants.RSA;
+import static org.picketlink.test.json.api.JWEAPITestCase.assertJwEquals;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.json.JsonException;
@@ -29,15 +39,6 @@ import org.picketlink.json.jose.JWKBuilder;
 import org.picketlink.json.jose.JWKSet;
 import org.picketlink.json.jose.JWS;
 import org.picketlink.json.jose.JWSBuilder;
-
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPublicKey;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.picketlink.json.JsonConstants.RSA;
 
 /**
  * The Class JWSRSAAPITestCase.
@@ -114,7 +115,7 @@ public class JWSRSAAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals(
+        assertJwEquals(
             "{\"typ\":\"JWT\",\"alg\":\"RS256\",\"keys\":[{\"n\":\""
                 + jwkKeyPair2.getModulus()
                 + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
@@ -159,7 +160,7 @@ public class JWSRSAAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals(
+        assertJwEquals(
             "{\"typ\":\"JWT\",\"alg\":\"RS384\",\"keys\":[{\"n\":\""
                 + jwkKeyPair2.getModulus()
                 + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
@@ -203,7 +204,7 @@ public class JWSRSAAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals(
+        assertJwEquals(
             "{\"typ\":\"JWT\",\"alg\":\"RS512\",\"keys\":[{\"n\":\""
                 + jwkKeyPair2.getModulus()
                 + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
@@ -299,7 +300,7 @@ public class JWSRSAAPITestCase {
 
         String jsonString = token.toString();
 
-        assertEquals("{\"typ\":\"JWT\",\"alg\":\"none\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
+        assertJwEquals("{\"typ\":\"JWT\",\"alg\":\"none\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
             jsonString);
 
         JWS parsedToken = new JWSBuilder().build(token.encode(), this.keyPair1.getPublic().getEncoded());
@@ -336,7 +337,7 @@ public class JWSRSAAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals(
+        assertJwEquals(
             "{\"typ\":\"JWT\",\"alg\":\"RS512\",\"keys\":[{\"n\":\""
                 + jwkKeyPair2.getModulus()
                 + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
