@@ -21,10 +21,12 @@
  */
 package org.picketlink.config.http;
 
+import java.io.Serializable;
+
 /**
  * @author Pedro Igor
  */
-public interface AuthenticationSchemeConfiguration {
+public interface AuthenticationSchemeConfiguration extends Serializable {
 
     AuthenticationConfiguration getAuthenticationConfiguration();
 

@@ -23,6 +23,7 @@ package org.picketlink.config.http;
 
 import org.picketlink.http.authorization.PathAuthorizer;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
@@ -30,7 +31,9 @@ import static java.util.Collections.unmodifiableList;
 /**
  * @author Pedro Igor
  */
-public class AuthorizationConfiguration {
+public class AuthorizationConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 9034380415653586529L;
 
     private final String[] allowedRoles;
     private final String[] allowedGroups;

@@ -21,10 +21,14 @@
  */
 package org.picketlink.config.http;
 
+import java.io.Serializable;
+
 /**
  * @author Pedro Igor
  */
-public class AuthenticationConfiguration {
+public class AuthenticationConfiguration implements Serializable {
+
+    private static final long serialVersionUID = -2051072224826303353L;
 
     private AuthenticationSchemeConfiguration authenticationSchemeConfiguration;
     private final PathConfiguration pathConfiguration;

@@ -24,6 +24,7 @@ package org.picketlink.config;
 import org.picketlink.config.http.HttpSecurityConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -31,7 +32,9 @@ import java.util.List;
  *
  * @author Pedro Igor
  */
-public class SecurityConfiguration {
+public class SecurityConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 7809440331149737510L;
 
     private final IdentityBeanConfiguration identityBeanConfiguration;
     private final List<IdentityConfiguration> identityConfigurations;

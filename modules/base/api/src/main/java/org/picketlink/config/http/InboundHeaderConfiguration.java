@@ -21,6 +21,7 @@
  */
 package org.picketlink.config.http;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import static java.util.Collections.unmodifiableMap;
@@ -28,7 +29,9 @@ import static java.util.Collections.unmodifiableMap;
 /**
  * @author Pedro Igor
  */
-public class InboundHeaderConfiguration {
+public class InboundHeaderConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 2372079491163757956L;
 
     public static final String X_REQUESTED_WITH_AJAX = "XMLHttpRequest";
     public static final String X_REQUESTED_WITH_HEADER_NAME = "X-Requested-With";

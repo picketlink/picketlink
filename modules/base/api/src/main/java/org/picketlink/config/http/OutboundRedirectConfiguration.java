@@ -21,12 +21,16 @@
  */
 package org.picketlink.config.http;
 
+import java.io.Serializable;
+
 import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition.OK;
 
 /**
  * @author Pedro Igor
  */
-public class OutboundRedirectConfiguration {
+public class OutboundRedirectConfiguration implements Serializable {
+
+    private static final long serialVersionUID = -3573074778328421432L;
 
     private final String redirectUrl;
     private Condition condition;
