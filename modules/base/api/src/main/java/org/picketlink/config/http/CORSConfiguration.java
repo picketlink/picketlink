@@ -21,12 +21,15 @@
  */
 package org.picketlink.config.http;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * @author Giriraj Sharma
  */
-public class CORSConfiguration {
+public class CORSConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 8658625331688053758L;
 
     private final Set<String> allowedOrigins;
     private final Set<String> allowedMethods;

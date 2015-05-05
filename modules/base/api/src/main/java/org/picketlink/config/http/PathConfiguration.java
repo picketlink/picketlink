@@ -24,6 +24,7 @@ package org.picketlink.config.http;
 import org.picketlink.http.HttpMethod;
 import org.picketlink.http.authorization.PathAuthorizer;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,7 +37,9 @@ import static java.util.Collections.emptyList;
 /**
  * @author Pedro Igor
  */
-public class PathConfiguration {
+public class PathConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 6185471280258386932L;
 
     public static final String URI_ALL = "/*";
     public static final String DEFAULT_GROUP_NAME = "Default";

@@ -21,10 +21,14 @@
  */
 package org.picketlink.config.http;
 
+import java.io.Serializable;
+
 /**
  * @author Pedro Igor
  */
-public class LogoutConfiguration {
+public class LogoutConfiguration implements Serializable {
+
+    private static final long serialVersionUID = -685762749152238879L;
 
     private final PathConfiguration pathConfiguration;
 

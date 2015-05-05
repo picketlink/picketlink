@@ -21,6 +21,7 @@
  */
 package org.picketlink.config.http;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +34,9 @@ import static java.util.Collections.unmodifiableMap;
  *
  * @author Pedro Igor
  */
-public class HttpSecurityConfiguration {
+public class HttpSecurityConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 4977840664931482301L;
 
     private final Map<String, List<PathConfiguration>> uriConfiguration = new LinkedHashMap<String, List<PathConfiguration>>();
     private final Map<String, PathConfiguration> groupConfiguration = new LinkedHashMap<String, PathConfiguration>();
