@@ -35,6 +35,7 @@ import static org.picketlink.json.JsonConstants.JWK_RSA.PRIME_Q;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PRIVATE_EXPONENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PUBLIC_EXPONENT;
 import static org.picketlink.json.JsonMessages.MESSAGES;
+import static org.picketlink.json.util.Base64Util.b64Decode;
 import static org.picketlink.json.util.Base64Util.b64Encode;
 
 import java.io.ByteArrayInputStream;
@@ -422,11 +423,12 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<?, ?>> {
     /**
      * Builds the String JSON.
      *
-     * @param json the JSON formatted string
+     * @param json the jwk encoded json string
      * @return
      */
     public T build(String json) {
-        return build(Json.createReader(new ByteArrayInputStream(json.getBytes())).readObject());
+        byte[] keyParameters = b64Decode(json);
+        return build(Json.createReader(new ByteArrayInputStream(keyParameters)).readObject());
     }
 
     /**
