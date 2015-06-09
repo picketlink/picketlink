@@ -437,7 +437,7 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
      * Builds a {@link JWT} instance from its JSON representation.
      * </p>
      *
-     * @param json the json
+     * @param json the jwt encoded json string
      * @return the t
      */
     public T build(String json) {

@@ -40,6 +40,7 @@ import static org.picketlink.json.JsonConstants.JWK_RSA.PRIVATE_EXPONENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PUBLIC_EXPONENT;
 import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.util.Base64Util.b64Decode;
+import static org.picketlink.json.util.Base64Util.b64Encode;
 
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -144,6 +145,21 @@ public class JWK {
      */
     protected JWK(JsonObject keyParameters) {
         this.keyParameters = keyParameters;
+    }
+
+    /**
+     * <p>
+     * Ecodes the JSON representation of a JWK according with the specification.
+     * </p>
+     *
+     * <p>
+     * In order to decode, refer to the corresponding {@link JWKBuilder} of this class.
+     * </p>
+     *
+     * @return
+     */
+    public String encode() {
+        return format(b64Encode(getPlainkeyParameters())).toString();
     }
 
     /**
@@ -325,6 +341,18 @@ public class JWK {
      */
     public List<String> getKeyParameterValues(String name) {
         return JsonUtil.getValues(name, this.keyParameters);
+    }
+
+    /**
+     * <p>
+     * Returns a {@link java.lang.StringBuilder} representing a JWK using its encoded format.
+     * </p>
+     *
+     * @param keyParameters The string representing the key parameters.
+     * @return
+     */
+    private StringBuilder format(String keyParameters) {
+        return new StringBuilder().append(keyParameters);
     }
 
     /**

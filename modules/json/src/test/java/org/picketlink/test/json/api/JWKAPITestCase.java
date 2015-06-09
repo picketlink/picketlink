@@ -93,8 +93,10 @@ public class JWKAPITestCase {
         String jsonString = jwk.toString();
 
         assertEquals("{\"n\":\"" + jwk.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"}", jsonString);
-
-        JWK parsedJwk = new JWKBuilder().build(jsonString);
+        
+        String jsonEncoded = jwk.encode();
+        
+        JWK parsedJwk = new JWKBuilder().build(jsonEncoded);
 
         assertNotNull(parsedJwk);
         assertEquals(this.keyPair1.getPublic(), parsedJwk.toRSAPublicKey());
