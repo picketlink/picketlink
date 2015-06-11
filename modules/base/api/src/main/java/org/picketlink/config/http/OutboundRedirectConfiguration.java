@@ -33,9 +33,10 @@ public class OutboundRedirectConfiguration implements Serializable {
     private static final long serialVersionUID = -3573074778328421432L;
 
     private final String redirectUrl;
+    private final Class<? extends Throwable> exceptionType;
     private Condition condition;
 
-    public OutboundRedirectConfiguration(String redirectUrl, Condition condition) {
+    public OutboundRedirectConfiguration(String redirectUrl, Condition condition, Class<? extends Throwable> exceptionType) {
         this.redirectUrl = redirectUrl;
 
         if (condition == null) {
@@ -43,6 +44,7 @@ public class OutboundRedirectConfiguration implements Serializable {
         }
 
         this.condition = condition;
+        this.exceptionType = exceptionType;
     }
 
     public String getRedirectUrl() {
@@ -51,6 +53,10 @@ public class OutboundRedirectConfiguration implements Serializable {
 
     public Condition getCondition() {
         return this.condition;
+    }
+
+    public Class<? extends Throwable> getExceptionType() {
+        return this.exceptionType;
     }
 
     public static enum Condition {

@@ -32,6 +32,7 @@ public class OutboundRedirectConfigurationBuilder extends AbstractPathConfigurat
 
     private String redirectUrl;
     private Condition condition;
+    private Class<? extends Throwable> exceptionType;
 
     OutboundRedirectConfigurationBuilder(PathConfigurationBuilder parentBuilder, String redirectUrl) {
         super(parentBuilder);
@@ -58,8 +59,14 @@ public class OutboundRedirectConfigurationBuilder extends AbstractPathConfigurat
         return this;
     }
 
+    public OutboundRedirectConfigurationBuilder whenException(Class<? extends Throwable> exceptionType) {
+        this.condition = Condition.ERROR;
+        this.exceptionType = exceptionType;
+        return this;
+    }
+
     @Override
     protected OutboundRedirectConfiguration create() {
-        return new OutboundRedirectConfiguration(this.redirectUrl, this.condition);
+        return new OutboundRedirectConfiguration(this.redirectUrl, this.condition, this.exceptionType);
     }
 }

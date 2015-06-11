@@ -156,7 +156,7 @@ public abstract class AbstractIdentity implements Identity {
 
             handleUnsuccesfulLoginAttempt(null);
             return AuthenticationResult.FAILED;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             handleUnsuccesfulLoginAttempt(e);
 
             if (AuthenticationException.class.isInstance(e)) {
@@ -192,8 +192,7 @@ public abstract class AbstractIdentity implements Identity {
         }
 
         if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-            AUTHENTICATION_LOGGER.debugf("Authentication failed for credentials [%s]. User id is [%s].", this.loginCredential
-                .getCredential(), this.loginCredential.getUserId(), e);
+            AUTHENTICATION_LOGGER.authenticationFailed(this.loginCredential.getUserId(), e);
         }
 
         eventBridge.fireEvent(new LoginFailedEvent(e));

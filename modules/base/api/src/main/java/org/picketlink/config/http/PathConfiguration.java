@@ -307,6 +307,22 @@ public class PathConfiguration implements Serializable {
         return redirectUrl;
     }
 
+    public String getRedirectUrl(Class<? extends Throwable> exceptionType) {
+        String redirectUrl = null;
+
+        if (hasGroup()) {
+            redirectUrl = getGroupConfiguration().getRedirectUrl(exceptionType);
+        }
+
+        for (OutboundRedirectConfiguration redirectConfiguration : this.redirects) {
+            if (exceptionType.equals(redirectConfiguration.getExceptionType())) {
+                return redirectConfiguration.getRedirectUrl();
+            }
+        }
+
+        return redirectUrl;
+    }
+
     public boolean hasRedirectWhen(OutboundRedirectConfiguration.Condition condition) {
         boolean hasRedirect = false;
 
@@ -331,5 +347,4 @@ public class PathConfiguration implements Serializable {
     public String toString() {
         return "UriConfiguration{" + "groupName='" + groupName + '\'' + ", uri='" + uri + '\'' + '}';
     }
-
 }

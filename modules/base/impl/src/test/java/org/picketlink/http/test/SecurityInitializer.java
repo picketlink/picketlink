@@ -16,7 +16,9 @@
  **/
 package org.picketlink.http.test;
 
+import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.PartitionManagerCreateEvent;
+import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
@@ -51,6 +53,11 @@ public class SecurityInitializer {
 
     private PartitionManager partitionManager;
 
+    public void onCreatePartitionManager(@Observes SecurityConfigurationEvent event) {
+        SecurityConfigurationBuilder builder = event.getBuilder();
+        builder.idmConfig().named("default").stores().file().preserveState(true).supportAllFeatures();
+    }
+
     public void initIdentityStore(@Observes PartitionManagerCreateEvent event) {
         this.partitionManager = event.getPartitionManager();
 
@@ -63,20 +70,15 @@ public class SecurityInitializer {
 
         addPartition(acme);
 
-        User defaultUser = new User("manu");
+        User defaultUser = addUser("manu", acme, this.partitionManager);
 
-        addUser(defaultUser, acme);
-        addUser(new User("jbid test"), acme);
-
-        Role managerRole = new Role("Manager");
+        addUser("jbid test", acme, this.partitionManager);
 
         // creates a generic role representing users
-        addRole(managerRole, acme);
-
-        Group administratorGroup = new Group("Administrators");
+        Role managerRole = addRole("Manager", acme, this.partitionManager);
 
         // creates an administrator group
-        addGroup(administratorGroup, acme);
+        Group administratorGroup = addGroup("Administrators", acme, this.partitionManager);
 
         // grant a role to an user
         grantRole(defaultUser, managerRole);
@@ -90,20 +92,14 @@ public class SecurityInitializer {
 
         addPartition(realm);
 
-        User defaultUser = new User("picketlink");
+        User defaultUser = addUser("picketlink", realm, this.partitionManager);
 
-        addUser(defaultUser, realm);
-        addUser(new User("jbid test"), realm);
-
-        Role managerRole = new Role("Manager");
+        addUser("jbid test", realm, this.partitionManager);
 
         // creates a generic role representing users
-        addRole(managerRole, realm);
+        Role managerRole = addRole("Manager", realm, this.partitionManager);
 
-        Group administratorGroup = new Group("Administrators");
-
-        // creates an administrator group
-        addGroup(administratorGroup, realm);
+        Group administratorGroup = addGroup("Administrators", realm, this.partitionManager);
 
         // grant a role to an user
         grantRole(defaultUser, managerRole);
@@ -121,87 +117,74 @@ public class SecurityInitializer {
     /**
      * <p>This is a very simple example on how to create users and query them using the PicketLink IDM API. In this case, we only
      * create an user if he is not persisted already.</p>
-     *
-     * @param user
+     *  @param user
      * @param partition
      */
-    public void addUser(User user, Partition partition) {
-        IdentityManager identityManager = getIdentityManager(partition);
+    public static User addUser(String loginName, Partition partition, PartitionManager partitionManager) {
+        User user = new User(loginName);
+        IdentityManager identityManager = getIdentityManager(partition, partitionManager);
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.LOGIN_NAME, user.getLoginName());
 
         List<User> result = query.getResultList();
 
-        if (!result.isEmpty()) {
-            identityManager.remove(result.get(0));
+        if (result.isEmpty()) {
+            identityManager.add(user);
+            identityManager.updateCredential(user, new Password(user.getLoginName()));
+
+            Digest digest = new Digest();
+
+            digest.setRealm("PicketLink Test DIGEST Realm");
+            digest.setUsername(user.getLoginName());
+            digest.setPassword(user.getLoginName());
+
+            identityManager.updateCredential(user, digest);
+
+            X509Certificate certificate = getTestingCertificate(SecurityInitializer.class.getClassLoader());
+
+            identityManager.updateCredential(user, certificate);
+        } else {
+            return result.get(0);
         }
-
-        identityManager.add(user);
-        identityManager.updateCredential(user, new Password(user.getLoginName()));
-
-        Digest digest = new Digest();
-
-        digest.setRealm("PicketLink Test DIGEST Realm");
-        digest.setUsername(user.getLoginName());
-        digest.setPassword(user.getLoginName());
-
-        identityManager.updateCredential(user, digest);
-
-        X509Certificate certificate = getTestingCertificate(getClass().getClassLoader());
-
-        identityManager.updateCredential(user, certificate);
+        return user;
     }
 
-    /**
-     * <p>This is a very simple example on how to create roles and query them using the PicketLink IDM API. In this case, we only
-     * create a role if it is not persisted already.</p>
-     *
-     * @param role
-     * @param partition
-     */
-    public void addRole(Role role, Partition partition) {
-        IdentityManager identityManager = getIdentityManager(partition);
+    public Role addRole(String roleName, Partition partition, PartitionManager partitionManager) {
+        Role role = new Role(roleName);
+        IdentityManager identityManager = getIdentityManager(partition, partitionManager);
         IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
 
         query.setParameter(Role.NAME, role.getName());
 
         List<Role> result = query.getResultList();
 
-        if (!result.isEmpty()) {
-            identityManager.remove(result.get(0));
+        if (result.isEmpty()) {
+            identityManager.add(role);
+        } else {
+            return result.get(0);
         }
 
-        identityManager.add(role);
+        return role;
     }
 
-    /**
-     * <p>This is a very simple example on how to create groups and query them using the PicketLink IDM API. In this case, we only
-     * create a group if it is not persisted already.</p>
-     *
-     * @param group
-     * @param partition
-     */
-    public void addGroup(Group group, Partition partition) {
-        IdentityManager identityManager = getIdentityManager(partition);
+    public Group addGroup(String groupName, Partition partition, PartitionManager partitionManager) {
+        Group group = new Group(groupName);
+        IdentityManager identityManager = getIdentityManager(partition, partitionManager);
         IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
 
         query.setParameter(Group.NAME, group.getName());
 
         List<Group> result = query.getResultList();
 
-        if (!result.isEmpty()) {
-            identityManager.remove(result.get(0));
+        if (result.isEmpty()) {
+            identityManager.add(group);
+        } else {
+            return result.get(0);
         }
-
-        identityManager.add(group);
+        return group;
     }
 
-    /**
-     * <p>This is a very simple example on how to grant a role to an user.</p>
-     *  @param user
-     * @param role
-     */
     public void grantRole(User user, Role role) {
         RelationshipManager relationshipManager = getRelationshipManager();
 
@@ -219,15 +202,19 @@ public class SecurityInitializer {
         relationshipManager.add(new GroupMembership(user, group));
     }
 
-    private IdentityManager getIdentityManager(Partition partition) {
-        return this.partitionManager.createIdentityManager(partition);
+    private static IdentityManager getIdentityManager(Partition partition, PartitionManager partitionManager) {
+        if (partition == null) {
+            return partitionManager.createIdentityManager();
+        }
+
+        return partitionManager.createIdentityManager(partition);
     }
 
     private RelationshipManager getRelationshipManager() {
         return this.partitionManager.createRelationshipManager();
     }
 
-    private X509Certificate getTestingCertificate(ClassLoader classLoader) {
+    private static X509Certificate getTestingCertificate(ClassLoader classLoader) {
         InputStream bis = classLoader.getResourceAsStream("cert/servercert.txt");
         X509Certificate cert = null;
 
