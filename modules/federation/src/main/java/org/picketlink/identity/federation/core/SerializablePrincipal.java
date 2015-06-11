@@ -39,34 +39,32 @@ public class SerializablePrincipal implements Principal, Serializable {
     public String getName() {
         return name;
     }
-    
+
     /**
      * Compare this SerializablePrincipal's name against another Principal.
+     *
      * @return true if name equals another.getName();
-     */ 
+     */
     @Override
-    public boolean equals(Object another)
-    {
-       if (!(another instanceof Principal))
-          return false;
-       String anotherName = ((Principal) another).getName();
-       boolean equals = false;
-       if (name == null)
-          equals = anotherName == null;
-       else
-          equals = name.equals(anotherName);
-       return equals;
+    public boolean equals(Object another) {
+        if (!(another instanceof Principal))
+            return false;
+        String anotherName = ((Principal) another).getName();
+        boolean equals = false;
+        if (name == null)
+            equals = anotherName == null;
+        else
+            equals = name.equals(anotherName);
+        return equals;
     }
 
     @Override
-    public int hashCode()
-    {
-       return (name == null ? 0 : name.hashCode());
+    public int hashCode() {
+        return (name == null ? 0 : name.hashCode());
     }
 
     @Override
-    public String toString()
-    {
-       return name;
+    public String toString() {
+        return name;
     }
 }
