@@ -257,47 +257,57 @@ public class SecurityFilter implements Filter {
 
     private void handleException(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response,
             Throwable exception) throws IOException {
-        String redirectUrl = null;
+        String redirectUrl = pathConfiguration.getRedirectUrl(exception.getClass());
+        Throwable cause = exception.getCause();
+
+        if (redirectUrl == null && cause != null) {
+            redirectUrl = pathConfiguration.getRedirectUrl(cause.getClass());
+        }
+
         int statusCode;
 
         if (HTTP_LOGGER.isDebugEnabled()) {
             HTTP_LOGGER.debugf("Handling exception [%s] for path [%s].", exception, request.getRequestURI());
         }
 
-        if (AuthenticationRequiredException.class.isInstance(exception)) {
-            statusCode = SC_UNAUTHORIZED;
-        } else if (AccessDeniedException.class.isInstance(exception)) {
-            statusCode = SC_FORBIDDEN;
-
-            if (isSecured(pathConfiguration)) {
-                redirectUrl = pathConfiguration.getRedirectUrl(FORBIDDEN);
-            }
-        } else if (MethodNotAllowedException.class.isInstance(exception)) {
-            statusCode = SC_METHOD_NOT_ALLOWED;
-        } else {
-            statusCode = SC_INTERNAL_SERVER_ERROR;
-
-            if (isSecured(pathConfiguration)) {
-                redirectUrl = pathConfiguration.getRedirectUrl(ERROR);
-            }
-        }
-
         if (redirectUrl != null) {
             redirect(redirectUrl, request, response);
         } else {
-            String message = exception.getMessage();
+            if (AuthenticationRequiredException.class.isInstance(exception)) {
+                statusCode = SC_UNAUTHORIZED;
+            } else if (AccessDeniedException.class.isInstance(exception)) {
+                statusCode = SC_FORBIDDEN;
 
-            if (message == null) {
-                message = "The server could not process your request.";
+                if (isSecured(pathConfiguration)) {
+                    redirectUrl = pathConfiguration.getRedirectUrl(FORBIDDEN);
+                }
+            } else if (MethodNotAllowedException.class.isInstance(exception)) {
+                statusCode = SC_METHOD_NOT_ALLOWED;
+            } else {
+                statusCode = SC_INTERNAL_SERVER_ERROR;
+
+                if (isSecured(pathConfiguration)) {
+                    redirectUrl = pathConfiguration.getRedirectUrl(ERROR);
+                }
             }
 
-            if (HTTP_LOGGER.isEnabled(Logger.Level.ERROR)) {
-                HTTP_LOGGER.errorf(exception,
-                        "Exception thrown during processing for path [%s]. Sending error with status code [%s].",
-                        request.getRequestURI(), statusCode);
-            }
+            if (redirectUrl != null) {
+                redirect(redirectUrl, request, response);
+            } else {
+                String message = exception.getMessage();
 
-            response.sendError(statusCode, message);
+                if (message == null) {
+                    message = "The server could not process your request.";
+                }
+
+                if (HTTP_LOGGER.isEnabled(Logger.Level.ERROR)) {
+                    HTTP_LOGGER.errorf(exception,
+                            "Exception thrown during processing for path [%s]. Sending error with status code [%s].",
+                            request.getRequestURI(), statusCode);
+                }
+
+                response.sendError(statusCode, message);
+            }
         }
     }
 
@@ -404,7 +414,7 @@ public class SecurityFilter implements Filter {
     }
 
     private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, Identity identity,
-            HttpServletRequest request, HttpServletResponse response) throws IOException {
+            HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpAuthenticationScheme authenticationScheme = getAuthenticationScheme(pathConfiguration, request);
 
         if (authenticationScheme != null) {
@@ -437,6 +447,7 @@ public class SecurityFilter implements Filter {
                     authenticationScheme.onPostAuthentication(request, response);
                 } catch (AuthenticationException ae) {
                     HTTP_LOGGER.authenticationFailed(creds.getUserId(), ae);
+                    throw ae;
                 }
             }
         } else {

@@ -1,6 +1,7 @@
 package org.picketlink.authentication.internal;
 
 import org.picketlink.authentication.BaseAuthenticator;
+import org.picketlink.authentication.CredentialExpiredException;
 import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.authentication.UnexpectedCredentialException;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -66,6 +67,8 @@ public class IdmAuthenticator extends BaseAuthenticator {
             setAccount(creds.getValidatedAccount());
         } else if (Credentials.Status.ACCOUNT_DISABLED.equals(creds.getStatus())) {
             throw new LockedAccountException("Account [" + this.credentials.getUserId() + "] is disabled.");
+        } else if (Credentials.Status.EXPIRED.equals(creds.getStatus())) {
+            throw new CredentialExpiredException("Credential is expired for Account [" + this.credentials.getUserId() + "].");
         }
     }
 
