@@ -146,6 +146,7 @@ public abstract class AbstractSPMetadataConfigurationProvider extends AbstractSA
     private void importFromPicketLinkConfiguration(SPType spType) {
         if (configParsedSPType != null) {
             spType.importFrom(configParsedSPType);
+            spType.setLogOutPage(configParsedSPType.getLogOutPage());
         }
     }
 
