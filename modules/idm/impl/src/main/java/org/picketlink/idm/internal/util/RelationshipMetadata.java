@@ -72,7 +72,7 @@ public class RelationshipMetadata {
 
     private Set<Property<? extends IdentityType>> queryRelationshipIdentityProperties(Class<? extends Relationship> relationshipClass) {
         PropertyQuery<? extends IdentityType> query = PropertyQueries.createQuery(relationshipClass);
-        query.addCriteria(new TypedPropertyCriteria(IdentityType.class));
+        query.addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE));
 
         Set<Property<? extends IdentityType>> properties = new HashSet<Property<? extends IdentityType>>();
         for (Property<? extends IdentityType> prop : query.getResultList()) {
