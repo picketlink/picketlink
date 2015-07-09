@@ -216,7 +216,11 @@ public class AuthorizationUtil {
                         return true;
                     }
 
-                    return relationshipManager.inheritsPrivileges(identity.getAccount(), role);
+                    boolean inheritsPrivileges = relationshipManager.inheritsPrivileges(identity.getAccount(), role);
+
+                    if (inheritsPrivileges) {
+                        return true;
+                    }
                 }
             }
         }

@@ -55,7 +55,7 @@ public class SecurityInitializer {
 
     public void onCreatePartitionManager(@Observes SecurityConfigurationEvent event) {
         SecurityConfigurationBuilder builder = event.getBuilder();
-        builder.idmConfig().named("default").stores().file().preserveState(true).supportAllFeatures();
+        builder.idmConfig().named("default").stores().file().supportAllFeatures();
     }
 
     public void initIdentityStore(@Observes PartitionManagerCreateEvent event) {
