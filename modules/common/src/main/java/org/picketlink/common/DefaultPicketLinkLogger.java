@@ -1665,7 +1665,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void mappingContextNull() {
-        logger.error("Mapping Context returned is null");
+        logger.debug("Mapping Context returned is null");
     }
 
     /*
