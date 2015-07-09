@@ -27,6 +27,7 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
+import org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
