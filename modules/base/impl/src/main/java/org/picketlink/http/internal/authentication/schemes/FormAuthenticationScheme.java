@@ -78,7 +78,13 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
         }
 
         if (!requestedUri.contains(this.configuration.getLoginPageUrl())
-            && !requestedUri.contains(this.configuration.getErrorPageUrl())) {
+                && !requestedUri.contains(this.configuration.getErrorPageUrl())) {
+
+            if ("partial/ajax".equals(request.getHeader("Faces-Request"))) {
+                sendRedirectXml(request, response);
+                return;
+            }
+
             forwardToLoginPage(request, response);
         }
     }
@@ -102,6 +108,20 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
         } catch (Exception e) {
             throw new RuntimeException("Could not perform post authentication tasks after a form-based authentication.", e);
         }
+    }
+
+    private void sendRedirectXml(HttpServletRequest request, HttpServletResponse response) {
+        response.setContentType("text/xml");
+        response.setCharacterEncoding("UTF-8");
+
+        try {
+            response.getWriter()
+                    .printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?><partial-response><redirect url=\"%s\"></redirect></partial-response>",
+                            request.getContextPath() + this.configuration.getLoginPageUrl()).flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void forwardToLoginPage(HttpServletRequest request, HttpServletResponse response) {
