@@ -612,12 +612,6 @@ public class SecurityFilter implements Filter {
                         List<Class<? extends PathAuthorizer>> pathAuthorizerTypes = new ArrayList<Class<? extends PathAuthorizer>>(
                                 authorizationConfiguration.getAuthorizers());
 
-                        // if no custom authorizer is provided, them add default
-                        // implementations of authorizers
-                        if (pathAuthorizerTypes.isEmpty()) {
-                            pathAuthorizerTypes.addAll(getDefaultPathAuthorizers());
-                        }
-
                         for (Class<? extends PathAuthorizer> authorizerType : pathAuthorizerTypes) {
                             try {
                                 pathAuthorizers.add(resolveInstance(this.pathAuthorizerInstance, authorizerType));
