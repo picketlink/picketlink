@@ -251,7 +251,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     public void clearConditions() {
         this.conditions.clear();
     }
-    
+
     @Override
     public Set<Condition> getConditions() {
         return unmodifiableSet(this.conditions);

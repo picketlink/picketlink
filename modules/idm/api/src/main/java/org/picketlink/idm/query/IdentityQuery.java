@@ -177,7 +177,7 @@ public interface IdentityQuery<T extends IdentityType> {
      * @return
      */
     Set<Condition> getConditions();
-    
+
     /**
      * <p>Clear all the conditions set by any method</p>
      */
