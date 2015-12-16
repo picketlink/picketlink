@@ -79,13 +79,25 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                assertEquals("/onlyManagerRole", picketLinkRequest.get().getServletPath());
-                return null;
-            }
-        }).when(this.filterChain).doFilter(this.request, this.response);
+        verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+    }
+
+    @Test
+    public void testOnlyAdministrator() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationConfiguration.DEFAULT_AUTHENTICATION_URI);
+        when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
+        when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response).sendRedirect(CONTEXT_PATH);
+
+        when(this.request.getServletPath()).thenReturn("/admin/manage");
+        reset(this.response);
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
@@ -120,7 +132,10 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
                 .role("Manager")
                 .forPath("/onlyCustomerRole")
                 .authorizeWith()
-                .role("Customer");
+                .role("Customer")
+                .forPath("/admin/*")
+                .authorizeWith()
+                .role("Administrator");
         }
     }
 }

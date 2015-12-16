@@ -21,12 +21,7 @@
  */
 package org.picketlink.test.idm.permission.entity;
 
-import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.PermissionOperation;
-import org.picketlink.idm.jpa.annotations.PermissionResourceClass;
-import org.picketlink.idm.jpa.annotations.PermissionResourceIdentifier;
-import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -35,63 +30,41 @@ import javax.persistence.Id;
  * @author Pedro Igor
  */
 @Entity
-@PermissionManaged(resourceClasses = EntityA.class)
-public class TypedPermissionTypeEntity {
+public class EntityB {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @OwnerReference
-    private String assignee;
-
-    @PermissionResourceClass
-    private String resourceClass;
-
-    @PermissionResourceIdentifier
-    private String resourceIdentifier;
-
-    @PermissionOperation
-    private String operation;
+    @Column
+    private String name;
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public String getAssignee() {
-        return assignee;
+    public String getName() {
+        return this.name;
     }
 
-    public void setAssignee(String assignee) {
-        this.assignee = assignee;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getResourceClass() {
-        return resourceClass;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+        EntityB that = (EntityB) o;
+        return this.id.equals(that.id);
     }
 
-    public void setResourceClass(String resourceClass) {
-        this.resourceClass = resourceClass;
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
     }
-
-    public String getResourceIdentifier() {
-        return resourceIdentifier;
-    }
-
-    public void setResourceIdentifier(String resourceIdentifier) {
-        this.resourceIdentifier = resourceIdentifier;
-    }
-
-    public String getOperation() {
-        return operation;
-    }
-
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
-
 }

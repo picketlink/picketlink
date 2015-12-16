@@ -1736,15 +1736,17 @@ public class JPAIdentityStore
                         owner, resourceClass, resourceIdentifier));
                 }
 
-                if (resourceClass == null) {
+                Class<?> actualResourceClass = resourceClass;
+
+                if (actualResourceClass == null) {
                     try {
-                        resourceClass = classForName((String) resourceClassProperty.getValue(result));
+                        actualResourceClass = classForName((String) resourceClassProperty.getValue(result));
                     } catch (ClassNotFoundException e) {
                         throw new IdentityManagementException("Could not load type.", e);
                     }
                 }
 
-                PermissionOperationSet opSet = new PermissionOperationSet(result, resourceClass, mapper);
+                PermissionOperationSet opSet = new PermissionOperationSet(result, actualResourceClass, mapper);
                 String operation = query.getOperation();
                 Set<String> operationsToreturn;
 
@@ -1760,7 +1762,7 @@ public class JPAIdentityStore
                             if (resource != null) {
                                 perms.add(new IdentityPermission(resource, ownerIdentityType, op));
                             } else {
-                                perms.add(new IdentityPermission(resourceClass, (Serializable) resourceIdentifierProperty
+                                perms.add(new IdentityPermission(actualResourceClass, (Serializable) resourceIdentifierProperty
                                     .getValue(result), ownerIdentityType, op));
                             }
                         }

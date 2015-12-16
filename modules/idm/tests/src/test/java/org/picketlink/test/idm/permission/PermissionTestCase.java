@@ -35,7 +35,9 @@ import org.picketlink.idm.permission.Permission;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.permission.entity.AllowedOperationTypeEntity;
-import org.picketlink.test.idm.permission.entity.ProtectedEntity;
+import org.picketlink.test.idm.permission.entity.EntityB;
+import org.picketlink.test.idm.permission.entity.EntityA;
+import org.picketlink.test.idm.permission.entity.EntityC;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAPermissionStoreConfigurationTester;
@@ -330,12 +332,12 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
 
     @Test
     public void testGrantAndRevokeEntityBasedPermission() {
-        ProtectedEntity entity = new ProtectedEntity();
+        EntityA entity = new EntityA();
 
         entity.setId(1l);
         entity.setName("Confidential");
 
-        ProtectedEntity entity2 = new ProtectedEntity();
+        EntityA entity2 = new EntityA();
 
         entity2.setId(2l);
         entity2.setName("Confidential");
@@ -345,20 +347,20 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
 
         permissionManager.grantPermission(bob, entity, "load");
 
-        assertTrue(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity.getId())));
-        assertFalse(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity2.getId(), "load")));
+        assertTrue(hasPermission(bob, permissionManager.listPermissions(EntityA.class, entity.getId())));
+        assertFalse(hasPermission(bob, permissionManager.listPermissions(EntityA.class, entity2.getId(), "load")));
 
         permissionManager.revokePermission(bob, entity, "load");
         permissionManager.grantPermission(bob, entity2, "load");
 
-        assertFalse(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity.getId(), "load")));
-        List<Permission> permissions = permissionManager.listPermissions(ProtectedEntity.class, entity2.getId(), "load");
+        assertFalse(hasPermission(bob, permissionManager.listPermissions(EntityA.class, entity.getId(), "load")));
+        List<Permission> permissions = permissionManager.listPermissions(EntityA.class, entity2.getId(), "load");
 
         assertTrue(hasPermission(bob, permissions));
 
         Permission permission = permissions.get(0);
 
-        assertEquals(ProtectedEntity.class, permission.getResourceClass());
+        assertEquals(EntityA.class, permission.getResourceClass());
         assertEquals(entity2.getId().toString(), permission.getResourceIdentifier());
         assertEquals("load", permission.getOperation());
 
@@ -370,6 +372,64 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
 
         assertEquals(entity2, permission.getResource());
         assertEquals("load", permission.getOperation());
+    }
+
+    @Test
+    @Configuration(exclude = {FileStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
+    public void testListDifferentEntityPermissions() {
+        User bob = createUser("bob");
+        EntityA entityA = new EntityA();
+
+        entityA.setId(1l);
+        entityA.setName("Entity A");
+
+        EntityB entityB = new EntityB();
+
+        entityB.setId(1l);
+        entityB.setName("Entity B");
+
+        EntityC entityC = new EntityC();
+
+        entityC.setId(1l);
+        entityC.setName("Entity C");
+
+        PermissionManager permissionManager = getPermissionManager();
+
+        permissionManager.grantPermission(bob, entityA, "load");
+        permissionManager.grantPermission(bob, entityB, "create");
+
+        List<Permission> permissionsA = permissionManager.listPermissions(EntityA.class, entityA.getId());
+
+        assertEquals(1, permissionsA.size());
+        assertEquals(EntityA.class, permissionsA.get(0).getResourceClass());
+
+        assertTrue(hasPermission(bob, permissionsA));
+
+        List<Permission> permissionsB = permissionManager.listPermissions(EntityB.class, entityB.getId());
+
+        assertEquals(1, permissionsB.size());
+        assertEquals(EntityB.class, permissionsB.get(0).getResourceClass());
+
+        assertTrue(hasPermission(bob, permissionsB));
+
+        List<Permission> permissions = permissionManager.listPermissions(bob);
+
+        assertEquals(2, permissions.size());
+
+        permissionManager.grantPermission(bob, entityC, "write");
+
+        List<Permission> permissionsC = permissionManager.listPermissions(EntityC.class, entityC.getId());
+
+        assertEquals(1, permissionsC.size());
+        assertEquals(EntityC.class, permissionsC.get(0).getResourceClass());
+
+        assertEquals(1, permissionManager.listPermissions(EntityA.class, "load"));
+        assertEquals(1, permissionManager.listPermissions(EntityB.class, "create"));
+        assertEquals(1, permissionManager.listPermissions(EntityC.class, "write"));
+
+        assertTrue(permissionManager.listPermissions(EntityA.class, "create").isEmpty());
+        assertTrue(permissionManager.listPermissions(EntityB.class, "write").isEmpty());
+        assertTrue(permissionManager.listPermissions(EntityC.class, "load").isEmpty());
     }
 
     @Test
@@ -411,7 +471,7 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
 
         assertTrue(hasPermission(bob, permissionManager.listPermissions("fileA.txt", "read")));
 
-        ProtectedEntity entity = new ProtectedEntity();
+        EntityA entity = new EntityA();
 
         entity.setName("Confidential");
 

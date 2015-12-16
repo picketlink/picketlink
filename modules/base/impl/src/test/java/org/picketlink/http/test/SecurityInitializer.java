@@ -24,6 +24,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
@@ -106,6 +107,11 @@ public class SecurityInitializer {
 
         // add an user as a member of a group
         addMember(defaultUser, administratorGroup);
+
+        // user must inherit roles from group Administrators, in this case role Administrator
+        Role administratorRole = addRole("Administrator", realm, this.partitionManager);
+
+        grantRole(administratorGroup, administratorRole);
     }
 
     public void addPartition(Partition partition) {
@@ -185,10 +191,10 @@ public class SecurityInitializer {
         return group;
     }
 
-    public void grantRole(User user, Role role) {
+    public void grantRole(IdentityType assignee, Role role) {
         RelationshipManager relationshipManager = getRelationshipManager();
 
-        relationshipManager.add(new Grant(user, role));
+        relationshipManager.add(new Grant(assignee, role));
     }
 
     /**

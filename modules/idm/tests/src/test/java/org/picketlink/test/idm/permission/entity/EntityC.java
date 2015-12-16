@@ -30,7 +30,7 @@ import javax.persistence.Id;
  * @author Pedro Igor
  */
 @Entity
-public class ProtectedEntity {
+public class EntityC {
 
     @Id
     @GeneratedValue
@@ -53,5 +53,18 @@ public class ProtectedEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+        EntityC that = (EntityC) o;
+        return this.id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
     }
 }
