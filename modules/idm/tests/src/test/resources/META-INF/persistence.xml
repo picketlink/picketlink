@@ -54,7 +54,9 @@
     <class>org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.PermissionTypeEntity</class>
     <class>org.picketlink.test.idm.permission.entity.TypedPermissionTypeEntity</class>
-    <class>org.picketlink.test.idm.permission.entity.ProtectedEntity</class>
+    <class>org.picketlink.test.idm.permission.entity.EntityA</class>
+    <class>org.picketlink.test.idm.permission.entity.EntityB</class>
+    <class>org.picketlink.test.idm.permission.entity.EntityC</class>
     <class>org.picketlink.test.idm.permission.entity.AllowedOperationTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity</class>
