@@ -423,13 +423,13 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
         assertEquals(1, permissionsC.size());
         assertEquals(EntityC.class, permissionsC.get(0).getResourceClass());
 
-        assertEquals(1, permissionManager.listPermissions(EntityA.class, "load"));
-        assertEquals(1, permissionManager.listPermissions(EntityB.class, "create"));
-        assertEquals(1, permissionManager.listPermissions(EntityC.class, "write"));
+        assertEquals(1, permissionManager.listPermissions(EntityA.class, entityA.getId(), "load").size());
+        assertEquals(1, permissionManager.listPermissions(EntityB.class, entityB.getId(), "create").size());
+        assertEquals(1, permissionManager.listPermissions(EntityC.class, entityC.getId(), "write").size());
 
-        assertTrue(permissionManager.listPermissions(EntityA.class, "create").isEmpty());
-        assertTrue(permissionManager.listPermissions(EntityB.class, "write").isEmpty());
-        assertTrue(permissionManager.listPermissions(EntityC.class, "load").isEmpty());
+        assertTrue(permissionManager.listPermissions(EntityA.class, entityA.getId(), "create").isEmpty());
+        assertTrue(permissionManager.listPermissions(EntityB.class, entityB.getId(), "write").isEmpty());
+        assertTrue(permissionManager.listPermissions(EntityC.class, entityC.getId(), "load").isEmpty());
     }
 
     @Test
