@@ -115,8 +115,18 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     }
 
     @Test
-    @Configuration(include= {JPAStoreConfigurationTester.class})
-    public void testFindByLoginNamePattern() throws Exception {
+    @Configuration(include= JPAStoreConfigurationTester.class)
+    public void testFindByLoginNamePatternJPA() throws Exception {
+        testLoginNamePatter("%");
+    }
+
+    @Test
+    @Configuration(include= LDAPStoreConfigurationTester.class)
+    public void testFindByLoginNamePatternLDAP() throws Exception {
+        testLoginNamePatter("*");
+    }
+
+    private void testLoginNamePatter(String pattern) {
         T john = createIdentityType("john", null);
         T johnSmith = createIdentityType("john.smith", null);
         T johns = createIdentityType("johns", null);
@@ -127,7 +137,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         IdentityQueryBuilder queryBuilder = identityManager.<T>getQueryBuilder();
         IdentityQuery<T> query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
 
-        query.where(queryBuilder.like(Agent.LOGIN_NAME, "john%"));
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, "john" + pattern));
 
         List<T> result = query.getResultList();
 
@@ -138,7 +148,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         contains(result, johns.getId());
 
         query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
-        query.where(queryBuilder.like(Agent.LOGIN_NAME, "j%"));
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, "j" + pattern));
 
         result = query.getResultList();
 
@@ -146,7 +156,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertEquals(4, result.size());
 
         query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
-        query.where(queryBuilder.like(Agent.LOGIN_NAME, "%smith"));
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, pattern + "smith"));
 
         result = query.getResultList();
 
@@ -156,7 +166,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         contains(result, jsmith.getId());
 
         query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
-        query.where(queryBuilder.like(Agent.LOGIN_NAME, "%.smith"));
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, pattern + ".smith"));
 
         result = query.getResultList();
 
@@ -165,7 +175,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         contains(result, johnSmith.getId());
 
         query = queryBuilder.createIdentityQuery((Class<T>) john.getClass());
-        query.where(queryBuilder.like(Agent.LOGIN_NAME, "%jo%"));
+        query.where(queryBuilder.like(Agent.LOGIN_NAME, pattern + "jo" + pattern));
 
         result = query.getResultList();
 

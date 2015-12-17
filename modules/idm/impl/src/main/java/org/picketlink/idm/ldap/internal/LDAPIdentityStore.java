@@ -488,7 +488,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                         } else if (LikeCondition.class.isInstance(condition)) {
                             LikeCondition likeCondition = (LikeCondition) condition;
                             String parameterValue = (String) likeCondition.getValue();
-
+                            filter.append("(").append(attributeName).append(LDAPConstants.EQUAL).append(parameterValue).append(")");
                         } else if (GreaterThanCondition.class.isInstance(condition)) {
                             GreaterThanCondition greaterThanCondition = (GreaterThanCondition) condition;
                             Comparable parameterValue = (Comparable) greaterThanCondition.getValue();
