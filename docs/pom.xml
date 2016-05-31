@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.picketlink</groupId>
     <artifactId>picketlink-parent</artifactId>
-    <version>2.7.2.Final-SNAPSHOT-SNAPSHOT</version>
+    <version>2.7.2.Final-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
