@@ -63,11 +63,11 @@ public class PicketLinkExtension implements Extension {
      * @param pat
      * @param <T>
      */
-    <T> void vetoIdentityImplementations(@Observes ProcessAnnotatedType<T> pat) {
+    <T extends Identity> void vetoIdentityImplementations(@Observes ProcessAnnotatedType<T> pat) {
         final AnnotatedType<T> annotatedType = pat.getAnnotatedType();
         Class<T> javaClass = annotatedType.getJavaClass();
 
-        if (!Identity.class.equals(javaClass) && Identity.class.isAssignableFrom(javaClass)) {
+        if (!Identity.class.equals(javaClass)) {
             pat.veto();
         }
     }
