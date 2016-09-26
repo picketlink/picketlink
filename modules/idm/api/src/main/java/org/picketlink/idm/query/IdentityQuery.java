@@ -179,6 +179,11 @@ public interface IdentityQuery<T extends IdentityType> {
     Set<Condition> getConditions();
 
     /**
+     * <p>Clear all the conditions set by any method</p>
+     */
+    void clearConditions();
+
+    /**
      * <p>Returns a set containing all sorting conditions used to filter the results.</p>
      *
      * @return
