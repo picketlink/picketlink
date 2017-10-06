@@ -79,33 +79,38 @@ public abstract class AbstractParser implements ParserNamespaceSupport {
         if (configStream == null)
             throw logger.nullArgumentError("InputStream");
 
+        Object obj = null;
         XMLInputFactory xmlInputFactory = getXMLInputFactory();
-
-        XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(configStream);
-
         try {
-            xmlEventReader = xmlInputFactory.createFilteredReader(xmlEventReader, new EventFilter() {
-                public boolean accept(XMLEvent xmlEvent) {
-                    // We are going to disregard characters that are new line and whitespace
-                    if (xmlEvent.isCharacters()) {
-                        Characters chars = xmlEvent.asCharacters();
-                        String data = chars.getData();
-                        data = valid(data) ? data.trim() : null;
-                        return valid(data);
-                    } else {
-                        return xmlEvent.isStartElement() || xmlEvent.isEndElement();
+            XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(configStream);
+            try {
+                xmlEventReader = xmlInputFactory.createFilteredReader(xmlEventReader, new EventFilter() {
+                    public boolean accept(XMLEvent xmlEvent) {
+                        // We are going to disregard characters that are new line and whitespace
+                        if (xmlEvent.isCharacters()) {
+                            Characters chars = xmlEvent.asCharacters();
+                            String data = chars.getData();
+                            data = valid(data) ? data.trim() : null;
+                            return valid(data);
+                        } else {
+                            return xmlEvent.isStartElement() || xmlEvent.isEndElement();
+                        }
                     }
-                }
 
-                private boolean valid(String str) {
-                    return str != null && str.length() > 0;
-                }
-            });
-        } catch (XMLStreamException e) {
+                    private boolean valid(String str) {
+                        return str != null && str.length() > 0;
+                    }
+                });
+                obj = parse(xmlEventReader);
+            }
+            finally {
+                xmlEventReader.close();
+            }
+        }
+        catch (XMLStreamException e) {
             throw logger.parserException(e);
         }
-
-        return parse(xmlEventReader);
+        return obj;
     }
 
     private ClassLoader getTCCL() {
