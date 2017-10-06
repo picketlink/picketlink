@@ -35,6 +35,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -168,8 +170,23 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
         SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();
         try {
-            return (EntityDescriptorType) parser.parse(StaxParserUtil.getXMLEventReader(new FileInputStream(persistedFile)));
+            FileInputStream fileIn = new FileInputStream(persistedFile);
+            try {
+                XMLEventReader reader = StaxParserUtil.getXMLEventReader(fileIn);
+                try {
+                    return (EntityDescriptorType) parser.parse(reader);
+                }
+                finally {
+                    reader.close();
+                }
+            }
+            finally {
+                System.out.println("Closing FileInputStream");
+                fileIn.close();
+            }
         } catch (ParsingException e) {
+            throw new RuntimeException(e);
+        } catch (XMLStreamException e) {
             throw new RuntimeException(e);
         }
     }
@@ -181,11 +198,24 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
         File persistedFile = validateIdAndReturnMDFile(id);
 
         try {
-            XMLStreamWriter streamWriter = StaxUtil.getXMLStreamWriter(new FileOutputStream(persistedFile));
-            SAMLMetadataWriter writer = new SAMLMetadataWriter(streamWriter);
-
-            writer.writeEntityDescriptor(entity);
+            FileOutputStream fileOut = new FileOutputStream(persistedFile);
+            try {
+                XMLStreamWriter streamWriter = StaxUtil.getXMLStreamWriter(fileOut);
+                try {
+                    SAMLMetadataWriter writer = new SAMLMetadataWriter(streamWriter);
+                    writer.writeEntityDescriptor(entity);
+                }
+                finally {
+                    streamWriter.close();
+                }
+            }
+            finally {
+                System.out.println("Closing FileOutputStream");
+                fileOut.close();
+            }
         } catch (ProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (XMLStreamException e){
             throw new RuntimeException(e);
         }
 
