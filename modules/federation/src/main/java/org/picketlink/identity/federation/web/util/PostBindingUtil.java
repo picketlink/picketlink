@@ -141,11 +141,10 @@ public class PostBindingUtil {
 
         logger.trace(str);
 
-        ServletOutputStream outputStream = response.getOutputStream();
-
         // we need to re-configure the content length, because Tomcat may have written some content.
         response.resetBuffer();
 
+        ServletOutputStream outputStream = response.getOutputStream();
         outputStream.print(str);
 
         response.setContentLength(str.length());
