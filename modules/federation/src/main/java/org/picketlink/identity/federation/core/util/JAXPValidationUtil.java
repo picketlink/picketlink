@@ -159,7 +159,7 @@ public class JAXPValidationUtil {
                 builder.append("[publicID:").append(sax.getPublicId()).append(",systemId=").append(sax.getSystemId())
                         .append("]");
                 builder.append(":").append(sax.getLocalizedMessage());
-                logger.trace(builder.toString());
+                logger.trace(builder.toString(), sax);
             }
         }
     }
