@@ -19,11 +19,11 @@ package org.picketlink.identity.federation.core.saml.v2.util;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.util.Base64;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 import javax.xml.bind.JAXBException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
@@ -78,18 +79,12 @@ public class SignatureUtil {
      * @return
      */
     public static String getXMLSignatureAlgorithmURI(String algo) {
-        String xmlSignatureAlgo = null;
-
-        if ("DSA".equalsIgnoreCase(algo)) {
-            xmlSignatureAlgo = JBossSAMLConstants.SIGNATURE_SHA1_WITH_DSA.get();
-        } else if ("RSA".equalsIgnoreCase(algo)) {
-            xmlSignatureAlgo = JBossSAMLConstants.SIGNATURE_SHA1_WITH_RSA.get();
-        }
-        return xmlSignatureAlgo;
+        return XMLSignatureUtil.getXMLSignatureAlgorithmURI(algo);
     }
 
     /**
      * Sign a string using the private key
+     * Signature algorithm based on private key algorithm
      *
      * @param stringToBeSigned
      * @param signingKey
@@ -104,7 +99,28 @@ public class SignatureUtil {
         if (signingKey == null)
             throw logger.nullArgumentError("signingKey");
 
-        String algo = signingKey.getAlgorithm();
+        return sign(stringToBeSigned, signingKey.getAlgorithm(), signingKey);
+    }
+
+    /**
+     * Sign a string using the private key
+     *
+     * @param stringToBeSigned
+     * @param algo
+     * @param signingKey
+     *
+     * @return
+     *
+     * @throws GeneralSecurityException
+     */
+    public static byte[] sign(String stringToBeSigned, String algo, PrivateKey signingKey) throws GeneralSecurityException {
+        if (stringToBeSigned == null)
+            throw logger.nullArgumentError("stringToBeSigned");
+        if (signingKey == null)
+            throw logger.nullArgumentError("signingKey");
+        if (algo == null)
+            throw logger.nullArgumentError("algo");
+
         Signature sig = getSignature(algo);
         sig.initSign(signingKey);
         sig.update(stringToBeSigned.getBytes());
@@ -135,6 +151,34 @@ public class SignatureUtil {
         // If not, there will be an exception anyway
         String algo = validatingKey.getAlgorithm();
         Signature sig = getSignature(algo);
+
+        sig.initVerify(validatingKey);
+        sig.update(signedContent);
+        return sig.verify(signatureValue);
+    }
+
+    /**
+     * Validate the signed content with the signature value
+     *
+     * @param signedContent
+     * @param signatureValue
+     * @param signatureAlgorithm
+     * @param validatingKey
+     *
+     * @return
+     *
+     * @throws GeneralSecurityException
+     */
+    public static boolean validate(byte[] signedContent, byte[] signatureValue, String signatureAlgorithm, PublicKey validatingKey)
+            throws GeneralSecurityException {
+        if (signedContent == null)
+            throw logger.nullArgumentError("signedContent");
+        if (signatureValue == null)
+            throw logger.nullArgumentError("signatureValue");
+        if (validatingKey == null)
+            throw logger.nullArgumentError("validatingKey");
+
+        Signature sig = getSignature(signatureAlgorithm);
 
         sig.initVerify(validatingKey);
         sig.update(signedContent);
@@ -285,13 +329,28 @@ public class SignatureUtil {
 
     private static Signature getSignature(String algo) throws GeneralSecurityException {
         Signature sig = null;
-
         if ("DSA".equalsIgnoreCase(algo)) {
             sig = Signature.getInstance(PicketLinkFederationConstants.DSA_SIGNATURE_ALGORITHM);
         } else if ("RSA".equalsIgnoreCase(algo)) {
             sig = Signature.getInstance(PicketLinkFederationConstants.RSA_SIGNATURE_ALGORITHM);
-        } else
+        } else {
+            try {
+                sig = Signature.getInstance(algo);
+            }
+            catch (NoSuchAlgorithmException ex) {
+                logger.trace(ex);
+                // might be an XML signature algorithm URI
+                try {
+                    sig = Signature.getInstance(XMLSignatureUtil.getJCESignatureAlgorithm(algo));
+                }
+                catch (Exception e) {
+                    logger.trace(e);
+                }
+            }
+        }
+        if (sig == null) {
             throw logger.signatureUnknownAlgo(algo);
+        }
         return sig;
     }
 }

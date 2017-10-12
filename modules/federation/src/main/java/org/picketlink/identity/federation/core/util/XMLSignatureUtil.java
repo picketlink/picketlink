@@ -19,6 +19,7 @@ package org.picketlink.identity.federation.core.util;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
@@ -59,6 +60,7 @@ import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import javax.xml.crypto.dsig.keyinfo.X509Data;
 import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import javax.xml.crypto.dsig.spec.TransformParameterSpec;
+import javax.xml.crypto.dsig.spec.SignatureMethodParameterSpec;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -72,6 +74,7 @@ import java.security.Key;
 import java.security.KeyException;
 import java.security.KeyPair;
 import java.security.NoSuchProviderException;
+
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
@@ -102,9 +105,16 @@ public class XMLSignatureUtil {
         if (StringUtil.isNotNull(keyInfoProp)) {
             includeKeyInfoInSignature = Boolean.parseBoolean(keyInfoProp);
         }
-    }
 
-    ;
+        try {
+            // to map XML signature algorithms to JCE equivalent
+            Class apacheXmlDsigJCEMapperClass = Class.forName("org.apache.xml.security.algorithms.JCEMapper");
+            apacheXmlDsigJCEMapperClass.getMethod("registerDefaultAlgorithms", null).invoke(null);
+        }
+        catch (Exception ex){
+            logger.trace(ex);
+        }
+    };
 
     private static String canonicalizationMethodType = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
@@ -750,5 +760,71 @@ public class XMLSignatureUtil {
             keyInfo = keyInfoFactory.newKeyInfo(items);
         }
         return keyInfo;
+    }
+
+    /**
+     * Get the XML signature algorithm URI for the JCE algorithm (RSA, DSA)
+     *
+     * @param algo
+     *
+     * @return
+     */
+    public static String getXMLSignatureAlgorithmURI(String algo) {
+        String xmlSignatureAlgo = null;
+
+        if ("DSA".equalsIgnoreCase(algo)) {
+            xmlSignatureAlgo = JBossSAMLConstants.SIGNATURE_SHA1_WITH_DSA.get();
+        } else if ("RSA".equalsIgnoreCase(algo)) {
+            xmlSignatureAlgo = JBossSAMLConstants.SIGNATURE_SHA1_WITH_RSA.get();
+        }
+        return xmlSignatureAlgo;
+    }
+
+    /**
+     * Get the JCE signature algorithm for the XML algorithm URI
+     *
+     * @param algorithmUri
+     *
+     * @return
+     */
+    public static String getJCESignatureAlgorithm(String algorithmUri) throws GeneralSecurityException {
+        String signatureAlgo = null;
+        try {
+            Class apacheXmlDsigJCEMapperClass = Class.forName("org.apache.xml.security.algorithms.JCEMapper");
+            signatureAlgo = (String) apacheXmlDsigJCEMapperClass.getMethod("translateURItoJCEID", String.class).invoke(null, algorithmUri);
+        }
+        catch (Exception ex){
+            logger.trace(ex);
+            // try manually since we cant use the ApacheXMLDSig JCEMapper (maybe not found?)
+            SignatureMethod signatureMethod = fac.newSignatureMethod(algorithmUri, (SignatureMethodParameterSpec) null);
+            if (signatureMethod != null){
+                // signatureMethod can be different types (org.jcp.xml.dsig.internal.dom.DOMSignatureMethod or org.apache.jcp.xml.dsig.internal.dom.DOMSignatureMethod)
+                // depending on the XMLFactory instantiated
+                // There is no API-specific way to get the java.security.Signature algorithm from a javax.xml.crypto.dsig.SignatureMethod :(
+                // but it is possible with reflection if you know the specific provider's method names (which are usually protected) :)
+                try {
+                    java.lang.reflect.Method m = null;
+                    try {
+                        // check ApacheXMLDSig provider version first
+                        m = signatureMethod.getClass().getDeclaredMethod("getJCAAlgorithm");
+                    }
+                    catch (NoSuchMethodException noMethodEx){
+                        logger.trace(noMethodEx);
+                        // fallback to Sun provider version
+                        m = signatureMethod.getClass().getDeclaredMethod("getSignatureAlgorithm");
+                    }
+                    if (m != null){
+                        if (!m.isAccessible()) {
+                            m.setAccessible(true);
+                        }
+                        signatureAlgo = (String) m.invoke(signatureMethod);
+                    }
+                }
+                catch (Exception ex1){
+                    throw new GeneralSecurityException("Cannot get internal signature algorithm", ex1);
+                }
+            }
+        }
+        return signatureAlgo;
     }
 }

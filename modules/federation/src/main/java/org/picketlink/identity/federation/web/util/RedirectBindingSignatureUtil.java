@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.net.URLDecoder;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -53,7 +54,8 @@ public class RedirectBindingSignatureUtil {
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
-     * Get the URL for the SAML request that contains the signature and signature algorithm
+     * Get the URL for the SAML request that contains the signature and signature algorithm.
+     * Signature algorithm based on private key algorithm
      *
      * @param authRequest
      * @param relayState
@@ -66,6 +68,25 @@ public class RedirectBindingSignatureUtil {
      * @throws GeneralSecurityException
      */
     public static String getSAMLRequestURLWithSignature(AuthnRequestType authRequest, String relayState, PrivateKey signingKey)
+            throws SAXException, IOException, GeneralSecurityException {
+        return getSAMLRequestURLWithSignature(authRequest, relayState, signingKey.getAlgorithm(), signingKey);
+    }
+
+    /**
+     * Get the URL for the SAML request that contains the signature and signature algorithm
+     *
+     * @param authRequest
+     * @param relayState
+     * @param signingKey
+     * @param sigAlg
+     *
+     * @return
+     *
+     * @throws SAXException
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public static String getSAMLRequestURLWithSignature(AuthnRequestType authRequest, String relayState, String sigAlg, PrivateKey signingKey)
             throws SAXException, IOException, GeneralSecurityException {
         SAML2Request saml2Request = new SAML2Request();
 
@@ -82,15 +103,14 @@ public class RedirectBindingSignatureUtil {
         if (isNotNull(relayState))
             urlEncodedRelayState = URLEncoder.encode(relayState, "UTF-8");
 
-        byte[] sigValue = computeSignature(GeneralConstants.SAML_REQUEST_KEY, urlEncodedRequest, urlEncodedRelayState,
-                signingKey);
-
         // Now construct the URL
-        return getRequestRedirectURLWithSignature(urlEncodedRequest, urlEncodedRelayState, sigValue, signingKey.getAlgorithm());
+        return getRedirectURLWithSignature(GeneralConstants.SAML_REQUEST_KEY, urlEncodedRequest, urlEncodedRelayState,
+                sigAlg, signingKey);
     }
 
     /**
      * Get the URL for the SAML request that contains the signature and signature algorithm
+     * Signature algorithm based on private key algorithm
      *
      * @param responseType
      * @param relayState
@@ -102,6 +122,24 @@ public class RedirectBindingSignatureUtil {
      * @throws GeneralSecurityException
      */
     public static String getSAMLResponseURLWithSignature(ResponseType responseType, String relayState, PrivateKey signingKey)
+            throws IOException, GeneralSecurityException {
+        return getSAMLResponseURLWithSignature(responseType, relayState, signingKey, signingKey.getAlgorithm());
+    }
+
+    /**
+     * Get the URL for the SAML request that contains the signature and signature algorithm
+     *
+     * @param responseType
+     * @param relayState
+     * @param signingKey
+     * @param sigAlg
+     *
+     * @return
+     *
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public static String getSAMLResponseURLWithSignature(ResponseType responseType, String relayState, PrivateKey signingKey, String sigAlg)
             throws IOException, GeneralSecurityException {
         SAML2Response saml2Response = new SAML2Response();
 
@@ -116,16 +154,13 @@ public class RedirectBindingSignatureUtil {
         if (isNotNull(relayState))
             urlEncodedRelayState = URLEncoder.encode(relayState, "UTF-8");
 
-        byte[] sigValue = computeSignature(GeneralConstants.SAML_RESPONSE_KEY, urlEncodedResponse, urlEncodedRelayState,
-                signingKey);
-
         // Now construct the URL
-        return getResponseRedirectURLWithSignature(urlEncodedResponse, urlEncodedRelayState, sigValue,
-                signingKey.getAlgorithm());
+        return getRedirectURLWithSignature(GeneralConstants.SAML_RESPONSE_KEY, urlEncodedResponse, urlEncodedRelayState, sigAlg, signingKey);
     }
 
     /**
      * Given an url-encoded saml request and relay state and a private key, compute the url
+     * Signature algorithm based on private key algorithm
      *
      * @param urlEncodedRequest
      * @param urlEncodedRelayState
@@ -138,13 +173,31 @@ public class RedirectBindingSignatureUtil {
      */
     public static String getSAMLRequestURLWithSignature(String urlEncodedRequest, String urlEncodedRelayState,
                                                         PrivateKey signingKey) throws IOException, GeneralSecurityException {
-        byte[] sigValue = computeSignature(GeneralConstants.SAML_REQUEST_KEY, urlEncodedRequest, urlEncodedRelayState,
-                signingKey);
-        return getRequestRedirectURLWithSignature(urlEncodedRequest, urlEncodedRelayState, sigValue, signingKey.getAlgorithm());
+        return getSAMLRequestURLWithSignature(urlEncodedRequest, urlEncodedRelayState, signingKey.getAlgorithm(), signingKey);
+    }
+
+    /**
+     * Given an url-encoded saml request, relay state, signature algorithm and a private key - compute the url
+     *
+     * @param urlEncodedRequest
+     * @param urlEncodedRelayState
+     * @param signingKey
+     * @param sigAlg
+     *
+     * @return
+     *
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static String getSAMLRequestURLWithSignature(String urlEncodedRequest, String urlEncodedRelayState,
+                                                        String sigAlg, PrivateKey signingKey) throws IOException, GeneralSecurityException {
+        return getRedirectURLWithSignature(GeneralConstants.SAML_REQUEST_KEY, urlEncodedRequest, urlEncodedRelayState,
+                sigAlg, signingKey);
     }
 
     /**
      * Given an url-encoded saml response and relay state and a private key, compute the url
+     * Signature algorithm based on private key algorithm
      *
      * @param urlEncodedResponse
      * @param urlEncodedRelayState
@@ -157,10 +210,26 @@ public class RedirectBindingSignatureUtil {
      */
     public static String getSAMLResponseURLWithSignature(String urlEncodedResponse, String urlEncodedRelayState,
                                                          PrivateKey signingKey) throws IOException, GeneralSecurityException {
-        byte[] sigValue = computeSignature(GeneralConstants.SAML_RESPONSE_KEY, urlEncodedResponse, urlEncodedRelayState,
-                signingKey);
-        return getResponseRedirectURLWithSignature(urlEncodedResponse, urlEncodedRelayState, sigValue,
-                signingKey.getAlgorithm());
+        return getRedirectURLWithSignature(GeneralConstants.SAML_RESPONSE_KEY, urlEncodedResponse, urlEncodedRelayState,
+                signingKey.getAlgorithm(), signingKey);
+    }
+
+    /**
+     * Given an url-encoded saml response, relay state, signature algorithm and a private key - compute the url
+     *
+     * @param urlEncodedResponse
+     * @param urlEncodedRelayState
+     * @param signingKey
+     * @param sigAlg
+     *
+     * @return
+     *
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static String getSAMLResponseURLWithSignature(String urlEncodedResponse, String urlEncodedRelayState,
+                                                         String sigAlg, PrivateKey signingKey) throws IOException, GeneralSecurityException {
+        return getRedirectURLWithSignature(GeneralConstants.SAML_RESPONSE_KEY, urlEncodedResponse, urlEncodedRelayState, sigAlg, signingKey);
     }
 
     /**
@@ -217,7 +286,6 @@ public class RedirectBindingSignatureUtil {
             throws UnsupportedEncodingException, GeneralSecurityException {
         // Construct the url again
         StringBuilder sb = new StringBuilder();
-
         if (isRequestQueryString(queryString)) {
             addParameter(sb, GeneralConstants.SAML_REQUEST_KEY,
                     RedirectBindingSignatureUtil.getTokenValue(queryString, GeneralConstants.SAML_REQUEST_KEY));
@@ -232,10 +300,16 @@ public class RedirectBindingSignatureUtil {
             addParameter(sb, GeneralConstants.RELAY_STATE, relayStateFromURL);
         }
 
-        addParameter(sb, GeneralConstants.SAML_SIG_ALG_REQUEST_KEY,
-                RedirectBindingSignatureUtil.getTokenValue(queryString, GeneralConstants.SAML_SIG_ALG_REQUEST_KEY));
+        String sigAlgo = RedirectBindingSignatureUtil.getTokenValue(queryString, GeneralConstants.SAML_SIG_ALG_REQUEST_KEY);
+        addParameter(sb, GeneralConstants.SAML_SIG_ALG_REQUEST_KEY, sigAlgo);
+        try {
+            sigAlgo = URLDecoder.decode(sigAlgo, "UTF-8");
+        }
+        catch (UnsupportedEncodingException ex) {
+            logger.trace("Cannot URL decode signature algorithm " + sigAlgo, ex);
+        }
 
-        return SignatureUtil.validate(sb.toString().getBytes("UTF-8"), sigValue, validatingKey);
+        return SignatureUtil.validate(sb.toString().getBytes("UTF-8"), sigValue, sigAlgo, validatingKey);
     }
 
     private static boolean isRequestQueryString(String queryString) {
@@ -244,43 +318,8 @@ public class RedirectBindingSignatureUtil {
 
     // ***************** Private Methods **************
 
-    private static byte[] computeSignature(String samlParameter, String urlEncoded, String urlEncodedRelayState,
-                                           PrivateKey signingKey) throws IOException, GeneralSecurityException {
-        StringBuilder sb = new StringBuilder();
-
-        addParameter(sb, samlParameter, urlEncoded);
-
-        if (isNotNull(urlEncodedRelayState)) {
-            addParameter(sb, GeneralConstants.RELAY_STATE, urlEncodedRelayState);
-        }
-
-        // SigAlg
-        String algo = signingKey.getAlgorithm();
-        String sigAlg = SignatureUtil.getXMLSignatureAlgorithmURI(algo);
-
-        sigAlg = URLEncoder.encode(sigAlg, "UTF-8");
-
-        addParameter(sb, GeneralConstants.SAML_SIG_ALG_REQUEST_KEY, sigAlg);
-
-        byte[] sigValue = SignatureUtil.sign(sb.toString(), signingKey);
-
-        return sigValue;
-    }
-
-    private static String getRequestRedirectURLWithSignature(String urlEncodedRequest, String urlEncodedRelayState,
-                                                             byte[] signature, String sigAlgo) throws IOException {
-        return getRedirectURLWithSignature(GeneralConstants.SAML_REQUEST_KEY, urlEncodedRequest, urlEncodedRelayState,
-                signature, sigAlgo);
-    }
-
-    private static String getResponseRedirectURLWithSignature(String urlEncodedResponse, String urlEncodedRelayState,
-                                                              byte[] signature, String sigAlgo) throws IOException {
-        return getRedirectURLWithSignature(GeneralConstants.SAML_RESPONSE_KEY, urlEncodedResponse, urlEncodedRelayState,
-                signature, sigAlgo);
-    }
-
     private static String getRedirectURLWithSignature(String samlParameter, String urlEncoded, String urlEncodedRelayState,
-                                                      byte[] signature, String sigAlgo) throws IOException {
+                                                      String sigAlg, PrivateKey signingKey) throws IOException, GeneralSecurityException {
         StringBuilder sb = new StringBuilder();
 
         addParameter(sb, samlParameter, urlEncoded);
@@ -289,12 +328,12 @@ public class RedirectBindingSignatureUtil {
             addParameter(sb, GeneralConstants.RELAY_STATE, urlEncodedRelayState);
         }
 
-        // SigAlg
-        String sigAlg = SignatureUtil.getXMLSignatureAlgorithmURI(sigAlgo);
+        if (sigAlg == null){
+            sigAlg = SignatureUtil.getXMLSignatureAlgorithmURI(signingKey.getAlgorithm());
+        }
+        addParameter(sb, GeneralConstants.SAML_SIG_ALG_REQUEST_KEY, URLEncoder.encode(sigAlg, "UTF-8"));
 
-        sigAlg = URLEncoder.encode(sigAlg, "UTF-8");
-
-        addParameter(sb, GeneralConstants.SAML_SIG_ALG_REQUEST_KEY, sigAlg);
+        byte[] signature = SignatureUtil.sign(sb.toString(), sigAlg, signingKey);
 
         // Encode the signature value
         String encodedSig = RedirectBindingUtil.base64URLEncode(signature);

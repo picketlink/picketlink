@@ -178,6 +178,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
             String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
             String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMessage.getBytes("UTF-8"));
             PrivateKey signingKey = keypair.getPrivate();
+            String signatureMethod = getSignatureMethod();
 
             String url;
 
@@ -186,9 +187,9 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
                 relayState = RedirectBindingUtil.urlEncode(relayState);
 
             if (willSendRequest) {
-                url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(base64Request, relayState, signingKey);
+                url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(base64Request, relayState, signatureMethod, signingKey);
             } else {
-                url = RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(base64Request, relayState, signingKey);
+                url = RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(base64Request, relayState, signatureMethod, signingKey);
             }
 
             return url;
