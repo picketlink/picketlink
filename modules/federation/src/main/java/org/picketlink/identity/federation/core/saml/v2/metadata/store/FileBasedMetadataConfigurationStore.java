@@ -181,7 +181,6 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                 }
             }
             finally {
-                System.out.println("Closing FileInputStream");
                 fileIn.close();
             }
         } catch (ParsingException e) {
@@ -210,7 +209,6 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                 }
             }
             finally {
-                System.out.println("Closing FileOutputStream");
                 fileOut.close();
             }
         } catch (ProcessingException e) {
